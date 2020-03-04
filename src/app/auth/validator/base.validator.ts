@@ -19,6 +19,6 @@ export const password = Joi.string()
   .required()
   .regex(/^(?=\S*[a-z])(?=\S*[A-Z])(?=\S*\d)(?=\S*[^\w\s]).*/)
   .message('Password must have at least one lowercase letter, one uppercase letter, one digit and one symbol.');
-  export const displayName = Joi.string().trim();
-  export const profileImage = Joi.string().trim();
-  export const bio = Joi.string().trim();
+export const displayName = Joi.string().trim();
+export const profileImage = Joi.string().trim();
+export const bio = Joi.string().trim();

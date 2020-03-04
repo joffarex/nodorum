@@ -6,7 +6,7 @@ import { ExtendedEntity } from '../shared';
 
 export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
 
-@Entity({name: 'users'})
+@Entity({ name: 'users' })
 export class UserEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',

@@ -7,55 +7,53 @@ const myFormat = format.printf(({ level, message, label, timestamp }) => {
 });
 
 export class AppLogger implements LoggerService {
-	private logger: Logger;
+  private logger: Logger;
 
-	constructor(label: string) {
-		this.logger = createLogger({
-			level: config.logger.level,
-			format: format.combine(format.label({label}), format.timestamp(), myFormat),
-			transports: [
+  constructor(label: string) {
+    this.logger = createLogger({
+      level: config.logger.level,
+      format: format.combine(format.label({ label }), format.timestamp(), myFormat),
+      transports: [
         new transports.File({ filename: 'quick-start-error.log', level: 'error' }),
-				new transports.File({ filename: 'quick-start-combined.log' }),
-				new transports.Console()
-			]
-		});
-	}
+        new transports.File({ filename: 'quick-start-combined.log' }),
+        new transports.Console(),
+      ],
+    });
+  }
 
-	error(message: string, trace: string) {
-		this.logger.error(message, trace);
-	}
+  error(message: string, trace: string) {
+    this.logger.error(message, trace);
+  }
 
-	warn(message: string) {
-		this.logger.warn(message);
-	}
+  warn(message: string) {
+    this.logger.warn(message);
+  }
 
-	log(message: string) {
-		this.logger.info(message);
-	}
+  log(message: string) {
+    this.logger.info(message);
+  }
 
-	verbose(message: string) {
-		this.logger.verbose(message);
-	}
+  verbose(message: string) {
+    this.logger.verbose(message);
+  }
 
-	debug(message: string) {
-		this.logger.debug(message);
-	}
+  debug(message: string) {
+    this.logger.debug(message);
+  }
 
-	silly(message: string) {
-		this.logger.silly(message);
-	}
+  silly(message: string) {
+    this.logger.silly(message);
+  }
 
-	child(message: string) {
-		this.logger.child(message);
-	}
+  child(message: string) {
+    this.logger.child(message);
+  }
 
-	fatal(message: string) {
-		console.error(message) // TODO
-	}
+  fatal(message: string) {
+    console.error(message); // TODO
+  }
 
-	trace(message: string) {
-		console.error(message) // TODO
-	}
-
-
+  trace(message: string) {
+    console.error(message); // TODO
+  }
 }
