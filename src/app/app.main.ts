@@ -1,4 +1,5 @@
 import {INestApplication, INestApplicationContext} from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import {NestFactory} from '@nestjs/core';
 import {useContainer} from 'class-validator';
 import cors from 'cors';
@@ -11,7 +12,7 @@ import {HttpExceptionFilter} from './shared/filters';
 
 export class AppMain {
 	private app!: INestApplication;
-	private logger = new AppLogger();
+	private logger = new AppLogger('Main');
 
 	async bootstrap(): Promise<void> {
 		await this.createServer();
@@ -29,9 +30,9 @@ export class AppMain {
 	}
 
 	private async createServer(): Promise<void> {
-		this.app = await NestFactory.create(AppModule, {
-			logger: new AppLogger()
-		});
+		this.app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({
+			logger: new AppLogger('Server')
+		}));
 		useContainer(this.app.select(AppModule), {fallbackOnErrors: true});
 		this.app.use(cors());
 		this.app.use(qs());

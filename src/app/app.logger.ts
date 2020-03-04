@@ -44,4 +44,18 @@ export class AppLogger implements LoggerService {
 	silly(message: string) {
 		this.logger.silly(message);
 	}
+
+	child(message: string) {
+		this.logger.child(message);
+	}
+
+	fatal(message: string) {
+		console.error(message) // TODO
+	}
+
+	trace(message: string) {
+		console.error(message) // TODO
+	}
+
+
 }
