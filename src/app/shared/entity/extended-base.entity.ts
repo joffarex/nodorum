@@ -1,15 +1,15 @@
-import {BaseEntity, Column} from 'typeorm';
-import {DateTime} from 'luxon';
+import {BaseEntity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn} from 'typeorm';
 
-export class ExtendedBaseEntity extends BaseEntity {
-	public id?: string;
+export class ExtendedEntity extends BaseEntity {
+  @PrimaryGeneratedColumn({ unsigned: true })
+	id!: number;
+	
+	@Column({type: 'timestamp', nullable: true})
+	deletedAt!: null;
 
-	@Column()
-	public isDeleted = false;
+  @CreateDateColumn({ type: 'timestamp', default: () => 'current_timestamp' })
+  createdAt!: string;
 
-	@Column()
-	public createdAt!: DateTime;
-
-	@Column()
-	public updatedAt!: DateTime;
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'current_timestamp' })
+  updatedAt!: string;
 }

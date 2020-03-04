@@ -1,5 +1,5 @@
-import {Response, Request} from 'express';
-import uuid from 'uuid';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { ServerResponse } from 'http';import uuid from 'uuid';
 import cls from 'cls-hooked';
 import {UserEntity} from '../user/entity';
 
@@ -7,13 +7,13 @@ export class RequestContext {
 
 	public static nsid = uuid.v4();
 	public readonly id: number;
-	public request: Request;
-	public response: Response;
+	public request: FastifyRequest;
+	public reply: FastifyReply<ServerResponse>;
 
-	constructor(request: Request, response: Response) {
+	constructor(request: FastifyRequest, reply: FastifyReply<ServerResponse>) {
 		this.id = Math.random();
 		this.request = request;
-		this.response = response;
+		this.reply = reply;
 	}
 
 	public static currentRequestContext(): RequestContext | null {
@@ -26,7 +26,7 @@ export class RequestContext {
     return null;
 	}
 
-	public static currentRequest(): Request | null {
+	public static currentRequest(): FastifyRequest | null {
 		const requestContext = RequestContext.currentRequestContext();
 
 		if (requestContext) {
