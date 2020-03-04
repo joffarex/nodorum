@@ -11,8 +11,12 @@ import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash, verify } from 'argon2';
+import {AppLogger} from '../app.logger';
+
 @Injectable()
 export class UserService {
+  private logger = new AppLogger('UserService');
+
   constructor(@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
