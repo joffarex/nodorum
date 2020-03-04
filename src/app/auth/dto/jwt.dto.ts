@@ -1,8 +1,7 @@
+import { UserData } from 'src/app/user/interfaces/user.interface';
 
 export class JwtDto {
-	expiresIn!: number;
-
+	user?: UserData;
 	accessToken!: string;
-
 	refreshToken!: string;
 }

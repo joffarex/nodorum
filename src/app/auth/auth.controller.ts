@@ -1,47 +1,73 @@
-import {Body, Controller, HttpCode, Post} from '@nestjs/common';
-import {config} from '../../config';
+import {Body, Controller, HttpCode, Post, UsePipes, ForbiddenException} from '@nestjs/common';
 import {AppLogger} from '../app.logger';
-import {UserEntity} from '../user/entity';
 import {UserService} from '../user/user.service';
-import {CredentialsDto} from './dto/credentials.dto';
 import {JwtDto} from './dto/jwt.dto';
 import {RefreshTokenDto} from './dto/refresh-token.dto';
-import {createAuthToken, verifyToken} from './jwt';
+import { UserBody } from '../user/interfaces/user.interface';
+import { RegisterUserDto, LoginUserDto } from '../user/dto';
+import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
+import { registerSchema, loginSchema } from './validator';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { AuthService } from './auth.service';
 
 
 @Controller('auth')
 export class AuthController {
 
-	private logger = new AppLogger();
+	private logger = new AppLogger('AuthController');
 
 	constructor(
-		private readonly userService: UserService
+		private readonly userService: UserService,
+		private readonly authService: AuthService
 	) {
 
 	}
 
 	@Post('login')
 	@HttpCode(200)
-	public async login(@Body() credentials: CredentialsDto): Promise<JwtDto> {
-		const user = await this.userService.login(credentials);
-		this.logger.debug(`[login] User ${credentials.email} logging`);
-		return createAuthToken(user);
+	@UsePipes(new JoiValidationPipe(loginSchema))
+	public async login(@Body() loginUserDto: LoginUserDto): Promise<JwtDto> {
+		const {user} = await this.userService.login(loginUserDto);
+		this.logger.debug(`[login] User ${user.username} logging`);
+
+		const payload: JwtPayload = {
+			id: user.id,
+			email: user.email,
+			username: user.username
+		}
+
+		const accessToken = this.authService.getAccessToken(payload);
+		const refreshToken = this.authService.getRefreshToken(payload);
+
+		return {
+			user,
+			accessToken,
+			refreshToken,
+		}
 	}
 
-    // TODO: deeppartial
 	@Post('register')
-	@HttpCode(204)
-	public async register(@Body() data: UserEntity): Promise<void> {
-		const user = await this.userService.create(data);
-		this.logger.debug(`[register] User ${user.email} register`);
+	@HttpCode(201)
+	@UsePipes(new JoiValidationPipe(registerSchema))
+	public async register(@Body() registerUserDto: RegisterUserDto): Promise<UserBody> {
+		const {user} = await this.userService.register(registerUserDto);
+		this.logger.debug(`[register] User ${user.username} register`);
+		// TODO: implement emails
 		this.logger.debug(`[register] Send registration email for email ${user.email}`);
+		return {user}
 	}
   
-	@Post('refresh')
+	@Post('refresh-token')
 	@HttpCode(200)
-	public async refreshToken(@Body() body: RefreshTokenDto): Promise<JwtDto> {
-		this.logger.debug(`[refresh] Token ${body.refreshToken}`);
-		const token = await verifyToken(body.refreshToken, config.session.refresh.secret);
-		return await createAuthToken({id: token.id});
+	public async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<JwtDto> {
+		const {refreshToken} = refreshTokenDto
+		this.logger.debug(`[refresh] Token ${refreshToken}`);
+		if(!refreshToken) {
+			throw new ForbiddenException();
+		}
+
+		const newTokens = await this.authService.refreshToken(refreshToken);
+
+		return newTokens;
 	}
 }
