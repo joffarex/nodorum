@@ -15,6 +15,7 @@ interface Config {
 	name: string;
 	description: string;
 	uuid: string;
+	jwtSecret: string;
 	isProduction: boolean;
 	salt: string;
 	passwordMinLength: number;
@@ -68,6 +69,7 @@ export const config: Config = {
 	name: appData.name,
 	description: appData.description,
 	uuid: process.env.APP_UUID || 'R4ND0M',
+	jwtSecret: process.env.JWT_SECRET || 'R4ND0M',
 	isProduction: process.env.NODE_ENV === 'production',
 	salt: process.env.APP_SALT || '53CR3T',
 	passwordMinLength: 8,
