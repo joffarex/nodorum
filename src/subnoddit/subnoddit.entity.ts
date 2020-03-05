@@ -37,7 +37,7 @@ export class SubnodditEntity extends ExtendedEntity {
   status!: SubnodditStatus;
 
   @ManyToOne(
-    type => UserEntity,
+    () => UserEntity,
     user => user.subnoddits,
   )
   user!: UserEntity;
