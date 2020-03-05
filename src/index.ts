@@ -1,7 +1,7 @@
 import exitHook from 'async-exit-hook';
 import { AppMain, AppLogger } from './app';
 
-const logger = new AppLogger();
+const logger = new AppLogger('Bootstrap');
 
 logger.log(`Start`);
 
