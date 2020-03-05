@@ -53,11 +53,10 @@ export class SubnodditService {
   }
 
   async findMany(filter: FilterDto): Promise<SubnodditsBody> {
-    const qb = this.subnodditRepository.createQueryBuilder('subnoddits')
-      .leftJoinAndSelect('subnoddits.user', 'user')
-    
-    if('username' in filter) {
-      const user = await this.userRepository.findOne({username: filter.username})
+    const qb = this.subnodditRepository.createQueryBuilder('subnoddits').leftJoinAndSelect('subnoddits.user', 'user');
+
+    if ('username' in filter) {
+      const user = await this.userRepository.findOne({ username: filter.username });
 
       if (!user) {
         throw new NotFoundException();
@@ -70,18 +69,18 @@ export class SubnodditService {
 
     const subnodditsCount = await qb.getCount();
 
-        // for pagination
-        if ('limit' in filter) {
-          qb.limit(filter.limit);
-        }
-    
-        if ('offset' in filter) {
-          qb.offset(filter.offset);
-        }
+    // for pagination
+    if ('limit' in filter) {
+      qb.limit(filter.limit);
+    }
 
-        if('name' in filter) {
-          qb.where('subnoddits.name LIKE :name', {name: `%${filter.name}%`})
-        }
+    if ('offset' in filter) {
+      qb.offset(filter.offset);
+    }
+
+    if ('name' in filter) {
+      qb.where('subnoddits.name LIKE :name', { name: `%${filter.name}%` });
+    }
 
     const subnoddits = await qb.getMany();
 
@@ -90,7 +89,7 @@ export class SubnodditService {
     return {
       subnodditsCount,
       subnoddits,
-    }
+    };
   }
 
   async update(userId: number, subnodditId: number, updateSubnodditDto: UpdateSubnodditDto): Promise<SubnodditBody> {
