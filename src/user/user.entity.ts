@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { ExtendedEntity } from '../shared';
+import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 // import { Post } from 'src/post/post.entity';
 // import { Comment } from 'src/comment/comment.entity';
 // import { Category } from 'src/category/category.entity';
@@ -58,6 +59,9 @@ export class UserEntity extends ExtendedEntity {
     select: false,
   })
   status!: UserStatus;
+
+  @OneToMany(type => SubnodditEntity, subnoddit => subnoddit.user)
+  subnoddits!: SubnodditEntity[];
 
   // @OneToMany(
   //   type => Post,

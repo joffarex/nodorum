@@ -23,7 +23,7 @@ export class UserService {
     const { username, email, password, displayName, profileImage, bio } = registerUserDto;
     // check if username and email are unique
     const user = await this.userRepository
-      .createQueryBuilder('user')
+      .createQueryBuilder('users')
       .where('user.username = :username', { username })
       .orWhere('user.email = :email', { email })
       .getOne();
@@ -53,7 +53,7 @@ export class UserService {
 
     // find if user exists
     const user = await this.userRepository
-      .createQueryBuilder('user')
+      .createQueryBuilder('users')
       .addSelect('user.password')
       .where('user.username = :username', { username })
       .getOne();
