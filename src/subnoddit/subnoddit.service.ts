@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { AppLogger } from 'src/app.logger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubnodditEntity } from './subnoddit.entity';
@@ -35,6 +35,15 @@ export class SubnodditService {
     return {subnoddit: savedSubnoddit};
   }
 
+  async findOne(subnodditId: number): Promise<SubnodditBody> {
+    const subnoddit = await this.subnodditRepository.findOne(subnodditId);
+    if(!subnoddit) {
+      throw new NotFoundException()
+    }
+
+    return {subnoddit}
+  }
+
   async update(userId: number, subnodditId: number, updateSubnodditDto: UpdateSubnodditDto): Promise<SubnodditBody> {
     const {name, image, about, status} = updateSubnodditDto;
 
@@ -47,6 +56,18 @@ export class SubnodditService {
 
     const updatedSubnoddit = await this.subnodditRepository.save(subnoddit);
     return {subnoddit: updatedSubnoddit}
+  }
+
+  async delete(userId: number, subnodditId: number):  Promise<{ message: string }> {
+    const subnoddit = await this.isSubnodditValid(userId, subnodditId);
+
+    const { affected } = await this.subnodditRepository.delete(subnoddit.id);
+
+    if (affected !== 1) {
+      throw new InternalServerErrorException();
+    }
+
+    return { message: 'Post successfully removed.' };
   }
 
   private async isSubnodditValid(userId: number, subnodditId: number): Promise<SubnodditEntity> {
