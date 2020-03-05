@@ -60,7 +60,10 @@ export class UserEntity extends ExtendedEntity {
   })
   status!: UserStatus;
 
-  @OneToMany(type => SubnodditEntity, subnoddit => subnoddit.user)
+  @OneToMany(
+    type => SubnodditEntity,
+    subnoddit => subnoddit.user,
+  )
   subnoddits!: SubnodditEntity[];
 
   // @OneToMany(

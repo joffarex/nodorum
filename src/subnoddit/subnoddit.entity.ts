@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
 
-export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE'
+export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE';
 
 @Entity({ name: 'subnoddits' })
 export class SubnodditEntity extends ExtendedEntity {
@@ -37,7 +37,8 @@ export class SubnodditEntity extends ExtendedEntity {
   status!: SubnodditStatus;
 
   @ManyToOne(
-    type => UserEntity, user => user.subnoddits
+    type => UserEntity,
+    user => user.subnoddits,
   )
   user!: UserEntity;
 }
