@@ -121,6 +121,7 @@ export class SubnodditService {
   private async isSubnodditValid(userId: number, subnodditId: number): Promise<SubnodditEntity> {
     const subnoddit = await this.subnodditRepository
       .createQueryBuilder('subnoddits')
+      .addSelect('subnoddits.status')
       .leftJoinAndSelect('subnoddits.user', 'user')
       .where('subnoddit.id = :id', { id: subnodditId })
       .getOne();

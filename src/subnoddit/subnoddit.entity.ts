@@ -32,7 +32,7 @@ export class SubnodditEntity extends ExtendedEntity {
     type: 'enum',
     enum: ['ACTIVE', 'NOT_ACTIVE'],
     default: 'ACTIVE',
-    select: true,
+    select: false,
   })
   status!: SubnodditStatus;
 
