@@ -1,5 +1,6 @@
 import exitHook from 'async-exit-hook';
-import { AppMain, AppLogger } from './app';
+import { AppMain } from './app.main';
+import { AppLogger } from './app.logger';
 
 const logger = new AppLogger('Bootstrap');
 

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ServerResponse } from 'http';
 import uuid from 'uuid';
 import cls from 'cls-hooked';
-import { UserEntity } from '../user/entity';
+import { UserEntity } from 'src/user/user.entity';
 
 export class RequestContext {
   public static nsid = uuid.v4();

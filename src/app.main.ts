@@ -5,7 +5,7 @@ import { useContainer } from 'class-validator';
 import cors from 'cors';
 import helmet from 'helmet';
 import qs from 'qs-middleware';
-import { config } from '../config';
+import { config } from './config';
 import { AppLogger } from './app.logger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters';

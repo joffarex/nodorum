@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { AuthService } from 'src/app/auth/auth.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
