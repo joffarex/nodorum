@@ -9,8 +9,8 @@ import { AppLogger } from 'src/app.logger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubnodditEntity } from './subnoddit.entity';
 import { Repository } from 'typeorm';
-import { SubnodditBody } from './interfaces/subnoddit.interface';
-import { CreateSubnodditDto, UpdateSubnodditDto } from './dto';
+import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
+import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { UserEntity } from 'src/user/user.entity';
 
 @Injectable()
@@ -50,6 +50,47 @@ export class SubnodditService {
     }
 
     return { subnoddit };
+  }
+
+  async findMany(filter: FilterDto): Promise<SubnodditsBody> {
+    const qb = this.subnodditRepository.createQueryBuilder('subnoddits')
+      .leftJoinAndSelect('subnoddits.user', 'user')
+    
+    if('username' in filter) {
+      const user = await this.userRepository.findOne({username: filter.username})
+
+      if (!user) {
+        throw new NotFoundException();
+      }
+
+      qb.where('"subnoddits"."userId" = :userId', { userId: user.id });
+    }
+
+    qb.orderBy('subnoddit.createdAt', 'DESC');
+
+    const subnodditsCount = await qb.getCount();
+
+        // for pagination
+        if ('limit' in filter) {
+          qb.limit(filter.limit);
+        }
+    
+        if ('offset' in filter) {
+          qb.offset(filter.offset);
+        }
+
+        if('name' in filter) {
+          qb.where('subnoddits.name LIKE :name', {name: `%${filter.name}%`})
+        }
+
+    const subnoddits = await qb.getMany();
+
+    // TODO: get posts cound
+
+    return {
+      subnodditsCount,
+      subnoddits,
+    }
   }
 
   async update(userId: number, subnodditId: number, updateSubnodditDto: UpdateSubnodditDto): Promise<SubnodditBody> {

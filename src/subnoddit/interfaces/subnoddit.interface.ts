@@ -11,3 +11,8 @@ export interface SubnodditData {
 export interface SubnodditBody {
   subnoddit: SubnodditData;
 }
+
+export interface SubnodditsBody {
+  subnodditsCount: number;
+  subnoddits: SubnodditData[];
+}
