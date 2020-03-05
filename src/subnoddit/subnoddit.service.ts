@@ -44,7 +44,13 @@ export class SubnodditService {
   }
 
   async findOne(subnodditId: number): Promise<SubnodditBody> {
-    const subnoddit = await this.subnodditRepository.findOne(subnodditId);
+    const subnoddit = await this.subnodditRepository
+      .createQueryBuilder('subnoddits')
+      .leftJoinAndSelect('subnoddits.user', 'user')
+      .where("subnoddits.status = 'ACTIVE'")
+      .andWhere('subnoddits.id = :id', { id: subnodditId })
+      .getOne();
+
     if (!subnoddit) {
       throw new NotFoundException();
     }
@@ -53,7 +59,10 @@ export class SubnodditService {
   }
 
   async findMany(filter: FilterDto): Promise<SubnodditsBody> {
-    const qb = this.subnodditRepository.createQueryBuilder('subnoddits').leftJoinAndSelect('subnoddits.user', 'user');
+    const qb = this.subnodditRepository
+      .createQueryBuilder('subnoddits')
+      .leftJoinAndSelect('subnoddits.user', 'user')
+      .where("subnoddits.status = 'ACTIVE'");
 
     if ('username' in filter) {
       const user = await this.userRepository.findOne({ username: filter.username });
@@ -62,7 +71,7 @@ export class SubnodditService {
         throw new NotFoundException();
       }
 
-      qb.where('"subnoddits"."userId" = :userId', { userId: user.id });
+      qb.andWhere('"subnoddits"."userId" = :userId', { userId: user.id });
     }
 
     qb.orderBy('subnoddit.createdAt', 'DESC');
@@ -79,7 +88,7 @@ export class SubnodditService {
     }
 
     if ('name' in filter) {
-      qb.where('subnoddits.name LIKE :name', { name: `%${filter.name}%` });
+      qb.andWhere('subnoddits.name LIKE :name', { name: `%${filter.name}%` });
     }
 
     const subnoddits = await qb.getMany();
@@ -116,6 +125,26 @@ export class SubnodditService {
     }
 
     return { message: 'Post successfully removed.' };
+  }
+
+  async activate(userId: number, subnodditId: number): Promise<SubnodditBody> {
+    const subnoddit = await this.isSubnodditValid(userId, subnodditId);
+
+    subnoddit.status = 'ACTIVE';
+
+    const activatedSubnoddit = await this.subnodditRepository.save(subnoddit);
+
+    return { subnoddit: activatedSubnoddit };
+  }
+
+  async deactivate(userId: number, subnodditId: number): Promise<SubnodditBody> {
+    const subnoddit = await this.isSubnodditValid(userId, subnodditId);
+
+    subnoddit.status = 'NOT_ACTIVE';
+
+    const deactivatedSubnoddit = await this.subnodditRepository.save(subnoddit);
+
+    return { subnoddit: deactivatedSubnoddit };
   }
 
   private async isSubnodditValid(userId: number, subnodditId: number): Promise<SubnodditEntity> {
