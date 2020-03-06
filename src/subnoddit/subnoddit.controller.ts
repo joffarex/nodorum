@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UsePipes, Scope, Inject, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, UsePipes, Scope, Inject, Put, Param, Delete, UseGuards } from '@nestjs/common';
 import { SubnodditService } from './subnoddit.service';
 import { JoiValidationPipe } from 'src/shared/pipes/joi-validation.pipe';
 import { filterSchema, createSchema, updateSchema } from './validator';
@@ -6,6 +6,7 @@ import { FilterDto, CreateSubnodditDto, UpdateSubnodditDto } from './dto';
 import { SubnodditsBody, SubnodditBody } from './interfaces/subnoddit.interface';
 import { REQUEST } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 @Controller({
   path: 'subnoddit',
@@ -25,17 +26,20 @@ export class SubnodditController {
   }
 
   @Post('/create')
+  @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(createSchema))
   async create(@Body() createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
     return this.subnodditService.create(this.request.user.id, createSubnodditDto)
   }
 
   @Put('/:subnodditId/update')
+  @UseGuards(AuthGuard)
   async update(@Param('subnodditId') subnodditId: number, @Body(new JoiValidationPipe(updateSchema)) updateSubnodditDto: UpdateSubnodditDto): Promise<SubnodditBody> {
     return this.subnodditService.update(this.request.user.id, subnodditId, updateSubnodditDto);
   }
 
   @Delete('/:subnodditId/delete')
+  @UseGuards(AuthGuard)
   async delete(@Param('subnodditId') subnodditId: number): Promise<{ message: string}> {
     return this.subnodditService.delete(this.request.user.id, subnodditId);
   }  

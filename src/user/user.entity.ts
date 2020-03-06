@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
-// import { Post } from 'src/post/post.entity';
+import { PostEntity } from 'src/post/post.entity';
 // import { Comment } from 'src/comment/comment.entity';
 // import { Category } from 'src/category/category.entity';
 
@@ -66,11 +66,11 @@ export class UserEntity extends ExtendedEntity {
   )
   subnoddits!: SubnodditEntity[];
 
-  // @OneToMany(
-  //   type => Post,
-  //   post => post.user,
-  // )
-  // posts!: Post[];
+  @OneToMany(
+    () => PostEntity,
+    post => post.user,
+  )
+  posts!: PostEntity[];
 
   // @OneToMany(
   //   type => Comment,

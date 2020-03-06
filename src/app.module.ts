@@ -5,9 +5,10 @@ import { AppLogger } from './app.logger';
 import { UserModule } from './user/user.module';
 import { config } from 'src/config';
 import { SubnodditModule } from './subnoddit/subnoddit.module';
+import { PostModule } from './post/post.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(config.database), AuthModule, UserModule, SubnodditModule],
+  imports: [TypeOrmModule.forRoot(config.database), AuthModule, UserModule, SubnodditModule, PostModule],
 })
 export class AppModule {
   private logger = new AppLogger('AppModule');

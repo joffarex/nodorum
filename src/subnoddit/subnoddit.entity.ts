@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
+import { PostEntity } from 'src/post/post.entity';
 
 export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE';
 
@@ -41,4 +42,10 @@ export class SubnodditEntity extends ExtendedEntity {
     user => user.subnoddits,
   )
   user!: UserEntity;
+
+  @OneToMany(
+    () => PostEntity,
+    post => post.subnoddit
+  )
+  posts!: PostEntity[];
 }
