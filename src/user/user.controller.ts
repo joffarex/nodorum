@@ -9,7 +9,7 @@ import { REQUEST } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
 @Controller({
-  path: 'users',
+  path: 'user',
   scope: Scope.REQUEST,
 })
 export class UserController {
