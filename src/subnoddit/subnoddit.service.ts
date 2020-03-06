@@ -22,7 +22,7 @@ export class SubnodditService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
+  async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
     const subnoddit = await this.subnodditRepository
@@ -34,10 +34,16 @@ export class SubnodditService {
       throw new BadRequestException('Name is taken');
     }
 
+    const user = await this.userRepository.findOne(userId);
+    if (!user) {
+      throw new UnauthorizedException()
+    }
+
     const newSubnoddit = new SubnodditEntity();
     newSubnoddit.name = name;
     if (image) newSubnoddit.image = image; // TODO: upload to s3
     newSubnoddit.about = about;
+    newSubnoddit.user = user;
 
     const savedSubnoddit = await this.subnodditRepository.save(newSubnoddit);
     return { subnoddit: savedSubnoddit };
@@ -118,6 +124,8 @@ export class SubnodditService {
   async delete(userId: number, subnodditId: number): Promise<{ message: string }> {
     const subnoddit = await this.isSubnodditValid(userId, subnodditId);
 
+    // TODO: restrict subnoddit removal if there are posts
+
     const { affected } = await this.subnodditRepository.delete(subnoddit.id);
 
     if (affected !== 1) {
@@ -125,26 +133,6 @@ export class SubnodditService {
     }
 
     return { message: 'Post successfully removed.' };
-  }
-
-  async activate(userId: number, subnodditId: number): Promise<SubnodditBody> {
-    const subnoddit = await this.isSubnodditValid(userId, subnodditId);
-
-    subnoddit.status = 'ACTIVE';
-
-    const activatedSubnoddit = await this.subnodditRepository.save(subnoddit);
-
-    return { subnoddit: activatedSubnoddit };
-  }
-
-  async deactivate(userId: number, subnodditId: number): Promise<SubnodditBody> {
-    const subnoddit = await this.isSubnodditValid(userId, subnodditId);
-
-    subnoddit.status = 'NOT_ACTIVE';
-
-    const deactivatedSubnoddit = await this.subnodditRepository.save(subnoddit);
-
-    return { subnoddit: deactivatedSubnoddit };
   }
 
   private async isSubnodditValid(userId: number, subnodditId: number): Promise<SubnodditEntity> {

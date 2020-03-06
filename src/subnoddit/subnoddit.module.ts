@@ -9,5 +9,6 @@ import { UserEntity } from 'src/user/user.entity';
   imports: [TypeOrmModule.forFeature([SubnodditEntity, UserEntity])],
   controllers: [SubnodditController],
   providers: [SubnodditService],
+  exports: [SubnodditService],
 })
 export class SubnodditModule {}
