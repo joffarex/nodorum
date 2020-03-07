@@ -71,8 +71,8 @@ export class PostService {
 
     return {
       posts,
-      postsCount
-    }
+      postsCount,
+    };
   }
 
   async newsFeed(userId: number, filter: FilterDto): Promise<PostsBody> {
@@ -99,8 +99,8 @@ export class PostService {
 
     return {
       posts,
-      postsCount
-    }
+      postsCount,
+    };
   }
 
   async create(userId: number, createPostDto: CreatePostDto): Promise<PostBody> {
@@ -250,13 +250,13 @@ export class PostService {
       post.votes = Number(postVotes.sum) || 0;
     }
 
-    if('byVotes' in filter) {
+    if ('byVotes' in filter) {
       if (filter.byVotes === 'DESC') {
         posts.sort((a: PostEntity, b: PostEntity) => b.votes - a.votes);
       }
 
       if (filter.byVotes === 'ASC') {
-        posts.sort((a: PostEntity, b: PostEntity) => (a.votes - b.votes));
+        posts.sort((a: PostEntity, b: PostEntity) => a.votes - b.votes);
       }
     }
 

@@ -94,15 +94,15 @@ export class CommentService {
       }
     }
 
-    
-    if('byVotes' in filter) {
+    if ('byVotes' in filter) {
       if (filter.byVotes === 'DESC') {
         comments.sort((a: CommentEntity, b: CommentEntity) => b.votes - a.votes);
       }
 
       if (filter.byVotes === 'ASC') {
-        comments.sort((a: CommentEntity, b: CommentEntity) => (a.votes - b.votes));
-      }    }
+        comments.sort((a: CommentEntity, b: CommentEntity) => a.votes - b.votes);
+      }
+    }
 
     return {
       comments,
