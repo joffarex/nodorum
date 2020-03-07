@@ -174,7 +174,7 @@ export class PostService {
     const postVote = await this.postVoteRepository
       .createQueryBuilder('postvotes')
       .where('"postvotes"."postId" = :postId', { postId })
-      .andWhere('"postvotes"."userId" = :userId', { userId })
+      .andWhere('"postvotes"."userId" = :userId', { userId: user.id })
       .getOne();
 
     if (postVote?.direction === direction) {
@@ -189,7 +189,7 @@ export class PostService {
       // If vote does not exist, create it
       const newPostVote = new PostVoteEntity();
       newPostVote.direction = direction;
-      newPostVote.userId = userId;
+      newPostVote.user = user;
       newPostVote.post = post;
       await this.postVoteRepository.save(newPostVote);
     }
