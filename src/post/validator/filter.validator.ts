@@ -5,4 +5,5 @@ export const filterSchema = Joi.object().keys({
   limit: Joi.number(),
   offset: Joi.number(),
   subnodditId: Joi.number(),
+  byVotes: Joi.string().allow('DESC', 'ASC'),
 });
