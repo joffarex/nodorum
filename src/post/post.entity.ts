@@ -14,7 +14,10 @@ export class PostEntity extends ExtendedEntity {
   })
   title!: string;
 
-  @Column('text')
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   text!: string;
 
   @Column({
