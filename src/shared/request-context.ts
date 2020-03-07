@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ServerResponse } from 'http';
 import uuid from 'uuid';
 import cls from 'cls-hooked';
-import { UserEntity } from 'src/user/user.entity';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 export class RequestContext {
   public static nsid = uuid.v4();
@@ -36,11 +36,11 @@ export class RequestContext {
     return null;
   }
 
-  public static currentUser(): UserEntity | null {
+  public static currentUser(): JwtPayload | null {
     const requestContext = RequestContext.currentRequestContext();
 
     if (requestContext && requestContext instanceof RequestContext) {
-      const user: UserEntity = requestContext.request.user;
+      const user: JwtPayload = requestContext.request.user;
       if (user) {
         return user;
       }

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { config } from '../../config';
+import { config } from 'src/config';
 
 export * from './entity';
 export * from './filters';
