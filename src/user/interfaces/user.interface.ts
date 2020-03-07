@@ -1,3 +1,5 @@
+import { FollowerEntity } from '../follower.entity';
+
 export interface UserData {
   id: number;
   username: string;
@@ -13,4 +15,9 @@ export interface UserData {
 
 export interface UserBody {
   user: UserData;
+}
+
+export interface FollowersBody {
+  followers: FollowerEntity[];
+  followersCount: number;
 }

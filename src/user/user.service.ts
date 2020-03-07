@@ -5,19 +5,23 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { UserBody } from './interfaces/user.interface';
+import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { RegisterUserDto, UpdateUserDto, LoginUserDto } from './dto';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash, verify } from 'argon2';
 import { AppLogger } from '../app.logger';
+import { FollowerEntity } from './follower.entity';
 
 @Injectable()
 export class UserService {
   private logger = new AppLogger('UserService');
 
-  constructor(@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>) {}
+  constructor(
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
+  ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
     const { username, email, password, displayName, profileImage, bio } = registerUserDto;
@@ -129,5 +133,60 @@ export class UserService {
     }
 
     return { message: 'User successfully removed.' };
+  }
+
+  async followAction(userId: number, userToFollowId: number): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const userToFollow = await this.userRepository.findOne(userToFollowId);
+
+    if (!userToFollow) {
+      throw new NotFoundException();
+    }
+
+    const isFollowing = await this.followerRepository.findOne({ userId: userToFollowId, followerId: userId });
+
+    if (isFollowing) {
+      const { affected } = await this.followerRepository.delete(isFollowing.id);
+
+      if (affected !== 1) {
+        throw new InternalServerErrorException();
+      }
+
+      return { message: 'User unfollowed.' };
+    } else {
+      const follower = new FollowerEntity();
+      follower.userId = userToFollowId;
+      follower.followerId = userId;
+
+      const newFollower = await this.followerRepository.save(follower);
+      console.log(newFollower);
+
+      return { message: 'User follower.' };
+    }
+  }
+
+  async getFollowers(userId: number): Promise<FollowersBody> {
+    const user = await this.userRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    // TODO: experimental, subject to change
+    const qb = this.followerRepository.createQueryBuilder('followers').leftJoinAndSelect('followers.userId', 'user');
+
+    const followers = await qb.getMany();
+
+    const followersCount = await qb.getCount();
+
+    return {
+      followers,
+      followersCount,
+    };
   }
 }
