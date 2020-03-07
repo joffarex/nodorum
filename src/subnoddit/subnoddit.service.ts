@@ -36,7 +36,7 @@ export class SubnodditService {
 
     const user = await this.userRepository.findOne(userId);
     if (!user) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException();
     }
 
     const newSubnoddit = new SubnodditEntity();

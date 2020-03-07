@@ -10,7 +10,7 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Controller('user')
 export class UserController {
-  constructor( private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get('/me')
   @UseGuards(AuthGuard)
@@ -19,7 +19,6 @@ export class UserController {
   }
 
   @Get('/:id')
-  // @Roles('user')
   async findOne(@Param('id') id: number): Promise<UserBody> {
     return this.userService.findOne(id);
   }

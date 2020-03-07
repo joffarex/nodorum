@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Body, Post, Put, Delete, UsePipes,UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Body, Post, Put, Delete, UsePipes, UseGuards } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
@@ -11,7 +11,7 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Controller('post')
 export class PostController {
-  constructor( private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) {}
 
   @Post('/')
   async findMany(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto): Promise<PostsBody> {
@@ -31,7 +31,11 @@ export class PostController {
   }
 
   @Put('/:postId/update')
-  async update(@Param('postId') postId: number, @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto, @User() user: JwtPayload) {
+  async update(
+    @Param('postId') postId: number,
+    @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto,
+    @User() user: JwtPayload,
+  ) {
     return this.postService.update(user.id, postId, updatePostDto);
   }
 
@@ -44,7 +48,7 @@ export class PostController {
   async vote(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(voteSchema)) votePostDto: VotePostDto,
-    @User() user: JwtPayload
+    @User() user: JwtPayload,
   ): Promise<{ message: string }> {
     return this.postService.vote(user.id, postId, votePostDto);
   }

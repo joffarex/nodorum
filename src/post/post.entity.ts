@@ -4,7 +4,6 @@ import { UserEntity } from 'src/user/user.entity';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { PostVoteEntity } from './post-vote.entity';
 
-
 @Entity({ name: 'posts' })
 export class PostEntity extends ExtendedEntity {
   @Column({

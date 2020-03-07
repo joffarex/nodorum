@@ -9,6 +9,6 @@ import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([PostEntity, UserEntity, SubnodditEntity])],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
 })
 export class PostModule {}

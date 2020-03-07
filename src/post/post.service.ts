@@ -34,7 +34,7 @@ export class PostService {
       .where('"postvotes"."postId" = :postId', { postId: post.id })
       .getRawOne();
 
-    post.votes =  Number(postVotes.sum) || 0 
+    post.votes = Number(postVotes.sum) || 0;
 
     return { post };
   }
@@ -53,8 +53,8 @@ export class PostService {
       qb.where('"post"."userId" = :userId', { userId: user.id });
     }
 
-    if('subnodditId' in filter) {
-      const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId)
+    if ('subnodditId' in filter) {
+      const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
 
       if (!subnoddit) {
         throw new NotFoundException();
@@ -132,9 +132,9 @@ export class PostService {
     if (text) post.text = text;
     if (attachment) post.attachment = attachment;
     if (subnodditId) {
-      const subnoddit = await this.subnodditRepository.findOne(subnodditId)
-      if(!subnoddit) {
-        throw new NotFoundException()
+      const subnoddit = await this.subnodditRepository.findOne(subnodditId);
+      if (!subnoddit) {
+        throw new NotFoundException();
       }
       post.subnoddit = subnoddit;
     }

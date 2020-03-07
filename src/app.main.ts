@@ -40,7 +40,7 @@ export class AppMain {
     this.app.use(cors());
     this.app.use(qs());
     this.app.useGlobalFilters(new HttpExceptionFilter());
-    this.app.setGlobalPrefix('/api/v1')
+    this.app.setGlobalPrefix('/api/v1');
     if (config.isProduction) {
       this.app.use(helmet());
     }

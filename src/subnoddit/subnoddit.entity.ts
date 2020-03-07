@@ -45,7 +45,7 @@ export class SubnodditEntity extends ExtendedEntity {
 
   @OneToMany(
     () => PostEntity,
-    post => post.subnoddit
+    post => post.subnoddit,
   )
   posts!: PostEntity[];
 }
