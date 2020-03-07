@@ -35,4 +35,14 @@ export class UserController {
   async delete(@User() user: JwtPayload): Promise<{ message: string }> {
     return this.userService.delete(user.id);
   }
+
+  @Get('/email/:email')
+  async findOneByEmail(@Param('email') email: string): Promise<UserBody> {
+    return this.userService.findOneByEmail(email);
+  }
+
+  @Get('/username/:username')
+  async findOneByUsername(@Param('username') username: string): Promise<UserBody> {
+    return this.userService.findOneByUsername(username);
+  }
 }

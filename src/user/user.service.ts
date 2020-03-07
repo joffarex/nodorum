@@ -81,6 +81,22 @@ export class UserService {
     return { user };
   }
 
+  async findOneByEmail(email: string): Promise<UserBody> {
+    const user = await this.userRepository.findOne({ email });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return { user };
+  }
+
+  async findOneByUsername(username: string): Promise<UserBody> {
+    const user = await this.userRepository.findOne({ username });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return { user };
+  }
+
   async update(id: number, dto: UpdateUserDto): Promise<UserBody> {
     const { displayName, profileImage, bio } = dto;
     // ensure that user exists
