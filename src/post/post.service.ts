@@ -114,7 +114,7 @@ export class PostService {
 
     const post = new PostEntity();
     post.title = title;
-    post.text = text;
+    if(text) post.text = text;
     post.subnoddit = subnoddit;
     if (attachment) post.attachment = attachment;
 

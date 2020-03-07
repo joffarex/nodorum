@@ -1,6 +1,6 @@
 export class CreatePostDto {
   title!: string;
-  text!: string;
+  text?: string;
   attachment?: string;
   subnodditId!: number;
 }
