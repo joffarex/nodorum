@@ -27,6 +27,7 @@ export class AuthController {
       id: user.id,
       email: user.email,
       username: user.username,
+      // TODO: maybe add other fields
     };
 
     const accessToken = this.authService.getAccessToken(payload);

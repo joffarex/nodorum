@@ -1,24 +1,21 @@
-import { Controller, Get, Param, Body, Put, Delete, UsePipes, UseGuards, Scope, Inject } from '@nestjs/common';
+import { Controller, Get, Param, Body, Put, Delete, UsePipes, UseGuards } from '@nestjs/common';
 import { UpdateUserDto } from './dto';
 import { UserService } from './user.service';
 import { UserBody } from './interfaces/user.interface';
 import { updateSchema } from './validator';
 import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
 import { AuthGuard } from '../shared/guards/auth.guard';
-import { REQUEST } from '@nestjs/core';
-import { FastifyRequest } from 'fastify';
+import { User } from 'src/shared/decorators';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
-@Controller({
-  path: 'user',
-  scope: Scope.REQUEST,
-})
+@Controller('user')
 export class UserController {
-  constructor(@Inject(REQUEST) private readonly request: FastifyRequest, private readonly userService: UserService) {}
+  constructor( private readonly userService: UserService) {}
 
   @Get('/me')
   @UseGuards(AuthGuard)
-  async me(): Promise<UserBody> {
-    return this.userService.findOne(this.request.user.id);
+  async me(@User() user: JwtPayload): Promise<UserBody> {
+    return this.userService.findOne(user.id);
   }
 
   @Get('/:id')
@@ -30,13 +27,13 @@ export class UserController {
   @Put('/update')
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(updateSchema))
-  async update(@Body() updateUserDto: UpdateUserDto): Promise<UserBody> {
-    return this.userService.update(this.request.user.id, updateUserDto);
+  async update(@Body() updateUserDto: UpdateUserDto, @User() user: JwtPayload): Promise<UserBody> {
+    return this.userService.update(user.id, updateUserDto);
   }
 
   @Delete('/delete')
   @UseGuards(AuthGuard)
-  async delete(): Promise<{ message: string }> {
-    return this.userService.delete(this.request.user.id);
+  async delete(@User() user: JwtPayload): Promise<{ message: string }> {
+    return this.userService.delete(user.id);
   }
 }

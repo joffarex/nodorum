@@ -1,4 +1,4 @@
-import { UserData } from 'src/app/user/interfaces/user.interface';
+import { UserData } from 'src/user/interfaces/user.interface';
 
 export class JwtDto {
   user?: UserData;

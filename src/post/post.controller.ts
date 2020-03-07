@@ -1,20 +1,17 @@
-import { Controller, Get, Param, Body, Post, Put, Delete, UsePipes, Scope, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Body, Post, Put, Delete, UsePipes,UseGuards } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { createSchema, updateSchema, filterSchema } from './validator';
 import { voteSchema } from './validator/vote-post.validator';
-import { REQUEST } from '@nestjs/core';
-import { FastifyRequest } from 'fastify';
 import { JoiValidationPipe } from 'src/shared/pipes/joi-validation.pipe';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
+import { User } from 'src/shared/decorators';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
-@Controller({
-  path: 'post',
-  scope: Scope.REQUEST,
-})
+@Controller('post')
 export class PostController {
-  constructor(@Inject(REQUEST) private readonly request: FastifyRequest, private readonly postService: PostService) {}
+  constructor( private readonly postService: PostService) {}
 
   @Post('/')
   async findMany(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto): Promise<PostsBody> {
@@ -29,28 +26,26 @@ export class PostController {
   @Post('/create')
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(createSchema))
-  async create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(this.request.user.id, createPostDto);
+  async create(@Body() createPostDto: CreatePostDto, @User() user: JwtPayload) {
+    return this.postService.create(user.id, createPostDto);
   }
 
   @Put('/:postId/update')
-  @UseGuards(AuthGuard)
-  async update(@Param('postId') postId: number, @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto) {
-    return this.postService.update(this.request.user.id, postId, updatePostDto);
+  async update(@Param('postId') postId: number, @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto, @User() user: JwtPayload) {
+    return this.postService.update(user.id, postId, updatePostDto);
   }
 
   @Delete('/:postId/delete')
-  @UseGuards(AuthGuard)
-  async delete(@Param('postId') postId: number): Promise<{ message: string }> {
-    return this.postService.delete(this.request.user.id, postId);
+  async delete(@Param('postId') postId: number, @User() user: JwtPayload): Promise<{ message: string }> {
+    return this.postService.delete(user.id, postId);
   }
 
   @Post('/:postId/vote')
-  @UseGuards(AuthGuard)
   async vote(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(voteSchema)) votePostDto: VotePostDto,
+    @User() user: JwtPayload
   ): Promise<{ message: string }> {
-    return this.postService.vote(this.request.user.id, postId, votePostDto);
+    return this.postService.vote(user.id, postId, votePostDto);
   }
 }
