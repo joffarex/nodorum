@@ -1,9 +1,9 @@
-import { Entity, Column,  ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { CommentEntity } from './comment.entity';
 import { ExtendedEntity } from 'src/shared';
 import { UserEntity } from 'src/user/user.entity';
 
-@Entity({ name: 'commentvotes'})
+@Entity({ name: 'commentvotes' })
 export class CommentVoteEntity extends ExtendedEntity {
   @Column('integer')
   direction!: number;

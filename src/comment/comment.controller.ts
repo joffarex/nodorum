@@ -25,36 +25,39 @@ export class CommentController {
   async create(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(createSchema)) createCommentDto: CreateCommentDto,
-    @User() user: JwtPayload
+    @User() user: JwtPayload,
   ) {
     return this.commentService.create(user.id, postId, createCommentDto);
   }
 
   @Post('/:commentId/vote')
-    @UseGuards(AuthGuard)
-async vote(
+  @UseGuards(AuthGuard)
+  async vote(
     @Param('commentId') commentId: number,
     @Body(new JoiValidationPipe(voteSchema)) voteCommentDto: VoteCommentDto,
-    @User() user: JwtPayload
+    @User() user: JwtPayload,
   ): Promise<{ message: string }> {
     return this.commentService.vote(user.id, commentId, voteCommentDto);
   }
 
   @Put('/:postId/:commentId/update')
-    @UseGuards(AuthGuard)
-async update(
+  @UseGuards(AuthGuard)
+  async update(
     @Param('postId') postId: number,
     @Param('commentId') commentId: number,
     @Body(new JoiValidationPipe(updateSchema)) updateCommentDto: UpdateCommentDto,
-    @User() user: JwtPayload
+    @User() user: JwtPayload,
   ) {
     return this.commentService.update(user.id, postId, commentId, updateCommentDto);
   }
 
   @Delete('/:postId/:commentId/delete')
-    @UseGuards(AuthGuard)
-async delete(@Param('postId') postId: number, @Param('commentId') commentId: number, @User() user: JwtPayload): Promise<{ message: string }> {
-    
+  @UseGuards(AuthGuard)
+  async delete(
+    @Param('postId') postId: number,
+    @Param('commentId') commentId: number,
+    @User() user: JwtPayload,
+  ): Promise<{ message: string }> {
     return this.commentService.delete(user.id, postId, commentId);
   }
 }
