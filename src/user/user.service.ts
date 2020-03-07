@@ -88,7 +88,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ email ,  deletedAt: IsNull()});
+    const user = await this.userRepository.findOne({ email, deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException();
     }
@@ -96,7 +96,7 @@ export class UserService {
   }
 
   async findOneByUsername(username: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ username,  deletedAt: IsNull() });
+    const user = await this.userRepository.findOne({ username, deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException();
     }
@@ -106,7 +106,7 @@ export class UserService {
   async update(id: number, dto: UpdateUserDto): Promise<UserBody> {
     const { displayName, profileImage, bio } = dto;
     // ensure that user exists
-    const user = await this.userRepository.findOne({id, deletedAt: IsNull()});
+    const user = await this.userRepository.findOne({ id, deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException();
     }
@@ -126,12 +126,12 @@ export class UserService {
       throw new NotFoundException();
     }
 
-     // TODO: move deleted user in separate table
+    // TODO: move deleted user in separate table
 
     user.deletedAt = DateTime.local();
-    user.displayName = '[DELETED]'
-    user.username = '[DELETED]'
-    user.email = '[DELETED]'
+    user.displayName = '[DELETED]';
+    user.username = '[DELETED]';
+    user.email = '[DELETED]';
     user.displayName = 'pictures/blank-profile-picture-S4P3RS3CR3T';
 
     await this.userRepository.save(user);
@@ -146,7 +146,7 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    const userToFollow = await this.userRepository.findOne({id:userToFollowId,  deletedAt: IsNull()});
+    const userToFollow = await this.userRepository.findOne({ id: userToFollowId, deletedAt: IsNull() });
 
     if (!userToFollow) {
       throw new NotFoundException();
@@ -175,7 +175,7 @@ export class UserService {
   }
 
   async getFollowers(userId: number): Promise<FollowersBody> {
-    const user = await this.userRepository.findOne({id: userId,  deletedAt: IsNull()});
+    const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {
       throw new NotFoundException();
