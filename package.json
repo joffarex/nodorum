@@ -4,6 +4,14 @@
   "description": "",
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joffarex/noddit-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joffarex/noddit-server/issues"
+  },
+  "homepage": "https://github.com/joffarex/noddit-server#readme",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
