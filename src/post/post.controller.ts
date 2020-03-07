@@ -13,14 +13,15 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Post('/')
+  @Post('/all')
   async findMany(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto): Promise<PostsBody> {
     return this.postService.findMany(filter);
   }
 
-  @Get('/:postId')
-  async findOne(@Param('postId') postId: number): Promise<PostBody> {
-    return this.postService.findOne(postId);
+  @Post('/news-feed')
+  @UseGuards(AuthGuard)
+  async newsFeed(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto, @User() user: JwtPayload): Promise<PostsBody> {
+    return this.postService.newsFeed(user.id, filter);
   }
 
   @Post('/create')
@@ -28,6 +29,11 @@ export class PostController {
   @UsePipes(new JoiValidationPipe(createSchema))
   async create(@Body() createPostDto: CreatePostDto, @User() user: JwtPayload) {
     return this.postService.create(user.id, createPostDto);
+  }
+
+  @Get('/:postId')
+  async findOne(@Param('postId') postId: number): Promise<PostBody> {
+    return this.postService.findOne(postId);
   }
 
   @Put('/:postId/update')

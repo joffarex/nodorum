@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { Repository } from 'typeorm';
+import { FollowerEntity } from 'src/user/follower.entity';
 
 @Injectable()
 export class PostService {
@@ -15,6 +16,7 @@ export class PostService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(PostVoteEntity) private readonly postVoteRepository: Repository<PostVoteEntity>,
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
+    @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
   ) {}
 
   async findOne(id: number): Promise<PostBody> {
@@ -91,6 +93,54 @@ export class PostService {
       posts,
       postsCount,
     };
+  }
+
+  async newsFeed(userId: number, filter: FilterDto) {
+    const followingUsers = await this.followerRepository.find({followerId: userId})
+
+    const qb = this.postRepository.createQueryBuilder('post').leftJoinAndSelect('post.user', 'user')
+    .where('post.userId IN (:ids)', { ids: followingUsers.map(fu => fu.userId) })
+
+    
+    if ('subnodditId' in filter) {
+      const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
+
+      if (!subnoddit) {
+        throw new NotFoundException();
+      }
+
+      qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+    }
+
+    qb.orderBy('post.createdAt', 'DESC');
+
+    const postsCount = await qb.getCount();
+
+    // for pagination
+    if ('limit' in filter) {
+      qb.limit(filter.limit);
+    }
+
+    if ('offset' in filter) {
+      qb.offset(filter.offset);
+    }
+
+    const posts = await qb.getMany();
+
+    for (const post of posts) {
+      const postVotes = await this.postVoteRepository
+        .createQueryBuilder('post_vote')
+        .select('SUM(post_vote.direction)', 'sum')
+        .where('"post_vote"."postId" = :postId', { postId: post.id })
+        .getRawOne();
+      post.votes = Number(postVotes.sum) || 0;
+    }
+
+    return {
+      posts,
+      postsCount,
+    };
+
   }
 
   async create(userId: number, createPostDto: CreatePostDto): Promise<PostBody> {
