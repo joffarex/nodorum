@@ -96,12 +96,13 @@ export class PostService {
   }
 
   async newsFeed(userId: number, filter: FilterDto) {
-    const followingUsers = await this.followerRepository.find({followerId: userId})
+    const followingUsers = await this.followerRepository.find({ followerId: userId });
 
-    const qb = this.postRepository.createQueryBuilder('post').leftJoinAndSelect('post.user', 'user')
-    .where('post.userId IN (:ids)', { ids: followingUsers.map(fu => fu.userId) })
+    const qb = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.userId IN (:ids)', { ids: followingUsers.map(fu => fu.userId) });
 
-    
     if ('subnodditId' in filter) {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
 
@@ -140,7 +141,6 @@ export class PostService {
       posts,
       postsCount,
     };
-
   }
 
   async create(userId: number, createPostDto: CreatePostDto): Promise<PostBody> {

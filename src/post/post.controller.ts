@@ -20,7 +20,10 @@ export class PostController {
 
   @Post('/news-feed')
   @UseGuards(AuthGuard)
-  async newsFeed(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto, @User() user: JwtPayload): Promise<PostsBody> {
+  async newsFeed(
+    @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
+    @User() user: JwtPayload,
+  ): Promise<PostsBody> {
     return this.postService.newsFeed(user.id, filter);
   }
 
