@@ -1,16 +1,15 @@
-import { INestApplication, INestApplicationContext } from '@nestjs/common';
+import { INestApplicationContext } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
-import cors from 'cors';
-import helmet from 'helmet';
-import qs from 'qs-middleware';
+import helmet from 'fastify-helmet'
+import compress from 'fastify-compress'
 import { config } from './config';
 import { AppLogger } from './app.logger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters';
 
 export class AppMain {
-  private app!: INestApplication;
+  private app!: NestFastifyApplication;
   private logger = new AppLogger('Main');
 
   async bootstrap(): Promise<void> {
@@ -35,12 +34,13 @@ export class AppMain {
         logger: new AppLogger('Server'),
       }),
     );
-    this.app.use(cors());
-    this.app.use(qs());
+
+    this.app.enableCors()
+    this.app.register(compress)
     this.app.useGlobalFilters(new HttpExceptionFilter());
     this.app.setGlobalPrefix('/api/v1');
     if (config.isProduction) {
-      this.app.use(helmet());
+      this.app.register(helmet)
     }
   }
 
