@@ -3,4 +3,5 @@ export class FilterDto {
   limit?: number;
   offset?: number;
   subnodditId?: number;
+  byVotes?: 'DESC' | 'ASC';
 }

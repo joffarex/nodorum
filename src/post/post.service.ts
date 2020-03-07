@@ -6,7 +6,7 @@ import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FollowerEntity } from 'src/user/follower.entity';
 
 @Injectable()
@@ -65,37 +65,17 @@ export class PostService {
       qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
     }
 
-    qb.orderBy('post.createdAt', 'DESC');
-
     const postsCount = await qb.getCount();
 
-    // for pagination
-    if ('limit' in filter) {
-      qb.limit(filter.limit);
-    }
-
-    if ('offset' in filter) {
-      qb.offset(filter.offset);
-    }
-
-    const posts = await qb.getMany();
-
-    for (const post of posts) {
-      const postVotes = await this.postVoteRepository
-        .createQueryBuilder('post_vote')
-        .select('SUM(post_vote.direction)', 'sum')
-        .where('"post_vote"."postId" = :postId', { postId: post.id })
-        .getRawOne();
-      post.votes = Number(postVotes.sum) || 0;
-    }
+    const posts = await this.sortPosts(qb, filter);
 
     return {
       posts,
-      postsCount,
-    };
+      postsCount
+    }
   }
 
-  async newsFeed(userId: number, filter: FilterDto) {
+  async newsFeed(userId: number, filter: FilterDto): Promise<PostsBody> {
     const followingUsers = await this.followerRepository.find({ followerId: userId });
 
     const qb = this.postRepository
@@ -113,34 +93,14 @@ export class PostService {
       qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
     }
 
-    qb.orderBy('post.createdAt', 'DESC');
-
     const postsCount = await qb.getCount();
 
-    // for pagination
-    if ('limit' in filter) {
-      qb.limit(filter.limit);
-    }
-
-    if ('offset' in filter) {
-      qb.offset(filter.offset);
-    }
-
-    const posts = await qb.getMany();
-
-    for (const post of posts) {
-      const postVotes = await this.postVoteRepository
-        .createQueryBuilder('post_vote')
-        .select('SUM(post_vote.direction)', 'sum')
-        .where('"post_vote"."postId" = :postId', { postId: post.id })
-        .getRawOne();
-      post.votes = Number(postVotes.sum) || 0;
-    }
+    const posts = await this.sortPosts(qb, filter);
 
     return {
       posts,
-      postsCount,
-    };
+      postsCount
+    }
   }
 
   async create(userId: number, createPostDto: CreatePostDto): Promise<PostBody> {
@@ -265,5 +225,41 @@ export class PostService {
     }
 
     return post;
+  }
+
+  private async sortPosts(qb: SelectQueryBuilder<PostEntity>, filter: FilterDto): Promise<PostEntity[]> {
+    qb.orderBy('post.createdAt', 'DESC');
+
+    // for pagination
+    if ('limit' in filter) {
+      qb.limit(filter.limit);
+    }
+
+    if ('offset' in filter) {
+      qb.offset(filter.offset);
+    }
+
+    const posts = await qb.getMany();
+
+    for (const post of posts) {
+      const postVotes = await this.postVoteRepository
+        .createQueryBuilder('post_vote')
+        .select('SUM(post_vote.direction)', 'sum')
+        .where('"post_vote"."postId" = :postId', { postId: post.id })
+        .getRawOne();
+      post.votes = Number(postVotes.sum) || 0;
+    }
+
+    if('byVotes' in filter) {
+      if (filter.byVotes === 'DESC') {
+        posts.sort((a: PostEntity, b: PostEntity) => b.votes - a.votes);
+      }
+
+      if (filter.byVotes === 'ASC') {
+        posts.sort((a: PostEntity, b: PostEntity) => (a.votes - b.votes));
+      }
+    }
+
+    return posts;
   }
 }
