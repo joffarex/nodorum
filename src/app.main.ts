@@ -1,7 +1,6 @@
 import { INestApplication, INestApplicationContext } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
-import { useContainer } from 'class-validator';
 import cors from 'cors';
 import helmet from 'helmet';
 import qs from 'qs-middleware';
@@ -36,7 +35,6 @@ export class AppMain {
         logger: new AppLogger('Server'),
       }),
     );
-    useContainer(this.app.select(AppModule), { fallbackOnErrors: true });
     this.app.use(cors());
     this.app.use(qs());
     this.app.useGlobalFilters(new HttpExceptionFilter());
