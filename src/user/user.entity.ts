@@ -3,6 +3,7 @@ import { ExtendedEntity } from '../shared';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { PostEntity } from 'src/post/post.entity';
 import { CommentEntity } from 'src/comment/comment.entity';
+import { DateTime } from 'luxon';
 
 export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
 
@@ -11,14 +12,12 @@ export class UserEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',
     length: 255,
-    unique: true,
   })
   username!: string;
 
   @Column({
     type: 'varchar',
     length: 255,
-    unique: true,
   })
   email!: string;
 
@@ -76,4 +75,7 @@ export class UserEntity extends ExtendedEntity {
     comment => comment.user,
   )
   comments!: CommentEntity[];
+
+  @Column({ type: 'timestamp', nullable: true })
+  deletedAt!: DateTime;
 }

@@ -8,11 +8,12 @@ import {
 import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { RegisterUserDto, UpdateUserDto, LoginUserDto } from './dto';
 import { UserEntity } from './user.entity';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash, verify } from 'argon2';
 import { AppLogger } from '../app.logger';
 import { FollowerEntity } from './follower.entity';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,7 @@ export class UserService {
       .createQueryBuilder('users')
       .addSelect('user.password')
       .where('user.username = :username', { username })
+      .andWhere('user.deletedAt IS NULL')
       .getOne();
 
     if (!user) {
@@ -78,7 +80,7 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<UserBody> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne({ id, deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException();
     }
@@ -86,7 +88,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ email });
+    const user = await this.userRepository.findOne({ email ,  deletedAt: IsNull()});
     if (!user) {
       throw new NotFoundException();
     }
@@ -94,7 +96,7 @@ export class UserService {
   }
 
   async findOneByUsername(username: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ username });
+    const user = await this.userRepository.findOne({ username,  deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException();
     }
@@ -104,7 +106,7 @@ export class UserService {
   async update(id: number, dto: UpdateUserDto): Promise<UserBody> {
     const { displayName, profileImage, bio } = dto;
     // ensure that user exists
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne({id, deletedAt: IsNull()});
     if (!user) {
       throw new NotFoundException();
     }
@@ -124,25 +126,27 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    // affected only equals to one if everything was successful
-    // if it is anything other than one, that means we have an error
-    const { affected } = await this.userRepository.delete(id);
+     // TODO: move deleted user in separate table
 
-    if (affected !== 1) {
-      throw new InternalServerErrorException();
-    }
+    user.deletedAt = DateTime.local();
+    user.displayName = '[DELETED]'
+    user.username = '[DELETED]'
+    user.email = '[DELETED]'
+    user.displayName = 'pictures/blank-profile-picture-S4P3RS3CR3T';
+
+    await this.userRepository.save(user);
 
     return { message: 'User successfully removed.' };
   }
 
   async followAction(userId: number, userToFollowId: number): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne(userId);
+    const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    const userToFollow = await this.userRepository.findOne(userToFollowId);
+    const userToFollow = await this.userRepository.findOne({id:userToFollowId,  deletedAt: IsNull()});
 
     if (!userToFollow) {
       throw new NotFoundException();
@@ -171,7 +175,7 @@ export class UserService {
   }
 
   async getFollowers(userId: number): Promise<FollowersBody> {
-    const user = await this.userRepository.findOne(userId);
+    const user = await this.userRepository.findOne({id: userId,  deletedAt: IsNull()});
 
     if (!user) {
       throw new NotFoundException();
