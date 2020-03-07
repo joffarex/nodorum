@@ -2,8 +2,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { PostEntity } from 'src/post/post.entity';
-// import { Comment } from 'src/comment/comment.entity';
-// import { Category } from 'src/category/category.entity';
+import { CommentEntity } from 'src/comment/comment.entity';
 
 export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
 
@@ -72,15 +71,9 @@ export class UserEntity extends ExtendedEntity {
   )
   posts!: PostEntity[];
 
-  // @OneToMany(
-  //   type => Comment,
-  //   comment => comment.user,
-  // )
-  // comments!: Comment[];
-
-  // @OneToMany(
-  //   type => Category,
-  //   category => category.user,
-  // )
-  // categories!: Category[];
+  @OneToMany(
+    () => CommentEntity,
+    comment => comment.user,
+  )
+  comments!: CommentEntity[];
 }

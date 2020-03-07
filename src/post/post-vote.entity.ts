@@ -6,9 +6,6 @@ import { PostEntity } from './post.entity';
 @Entity({ name: 'postvotes' })
 export class PostVoteEntity extends ExtendedEntity {
   @Column('integer')
-  userId!: number;
-
-  @Column('integer')
   direction!: number;
 
   @ManyToOne(

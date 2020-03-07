@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
+import { CommentEntity } from 'src/comment/comment.entity';
 import { PostVoteEntity } from './post-vote.entity';
 
 @Entity({ name: 'posts' })
@@ -40,4 +41,10 @@ export class PostEntity extends ExtendedEntity {
     postVote => postVote.post,
   )
   votes!: number;
+
+  @OneToMany(
+    () => CommentEntity,
+    comment => comment.post,
+    )
+  comments!: CommentEntity[];
 }
