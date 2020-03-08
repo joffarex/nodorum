@@ -4,7 +4,7 @@ import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  // constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
@@ -18,13 +18,13 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    // const user = await this.authService.verifyJwtToken(token);
+    const user = await this.authService.verifyJwtToken(token);
 
-    // if (!user) {
-    //   return false;
-    // }
+    if (!user) {
+      return false;
+    }
 
-    // request.user = user;
+    request.user = user;
 
     return true;
   }

@@ -4,11 +4,13 @@ import { SubnodditService } from './subnoddit.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubnodditEntity } from './subnoddit.entity';
 import { UserEntity } from 'src/user/user.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SubnodditEntity, UserEntity])],
+  imports: [UserModule, TypeOrmModule.forFeature([SubnodditEntity, UserEntity])],
   controllers: [SubnodditController],
-  providers: [SubnodditService],
+  providers: [SubnodditService, AuthService],
   exports: [SubnodditService],
 })
 export class SubnodditModule {}

@@ -6,10 +6,12 @@ import { CommentEntity } from './comment.entity';
 import { PostEntity } from 'src/post/post.entity';
 import { UserEntity } from 'src/user/user.entity';
 import { CommentVoteEntity } from './comment-vote.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CommentEntity, PostEntity, UserEntity, CommentVoteEntity])],
+  imports: [UserModule, TypeOrmModule.forFeature([CommentEntity, PostEntity, UserEntity, CommentVoteEntity])],
   controllers: [CommentController],
-  providers: [CommentService],
+  providers: [CommentService, AuthService],
 })
 export class CommentModule {}
