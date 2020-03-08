@@ -1,64 +1,11 @@
 import { readFileSync } from 'fs';
-import { ConnectionOptions } from 'typeorm';
 
 const appPackage = readFileSync(`${__dirname}/../../package.json`, {
   encoding: 'utf8',
 });
 const appData = JSON.parse(appPackage);
 
-interface Config {
-  appRootPath: string;
-  version: string;
-  name: string;
-  description: string;
-  uuid: string;
-  jwtSecret: string;
-  isProduction: boolean;
-  salt: string;
-  passwordMinLength: number;
-  mail: {
-    from: string;
-  };
-  database: ConnectionOptions;
-  session: {
-    domain: string;
-    secret: string;
-    timeout: number;
-    refresh: {
-      secret: string;
-      timeout: number;
-    };
-    passwordReset: {
-      secret: string;
-      timeout: number;
-    };
-    verify: {
-      secret: string;
-      timeout: number;
-    };
-  };
-  // aws: {
-  //   apiKey: string;
-  //   secretKey: string;
-  //   region: string;
-  //   s3: {
-  //     bucketName: string;
-  //   };
-  // };
-  port: number;
-  host: string;
-  logger: {
-    level: string;
-  };
-  validator: {
-    validationError: {
-      target: boolean;
-      value: boolean;
-    };
-  };
-}
-
-export const config: Config = {
+export default () => ({
   appRootPath: `${__dirname}/../app`,
   version: appData.version,
   name: appData.name,
@@ -73,7 +20,6 @@ export const config: Config = {
   },
   database: {
     type: 'postgres',
-    // url: process.env.APP_DATABASE_SECRET_URL,
     host: process.env.APP_DATABASE_HOST,
     port: Number(process.env.APP_DATABASE_PORT),
     username: process.env.APP_DATABASE_USERNAME,
@@ -104,14 +50,6 @@ export const config: Config = {
       timeout: Number(process.env.APP_SESSION_VERIFY_TIMEOUT),
     },
   },
-  // aws: {
-  //   apiKey: process.env.APP_AWS_API_KEY || 'apikey',
-  //   secretKey: process.env.APP_AWS_SECRET_KEY || 'secretkey',
-  //   region: process.env.APP_AWS_REGION || 'region',
-  //   s3: {
-  //     bucketName: process.env.APP_AWS_S3_BUCKET_NAME || 'bucket',
-  //   },
-  // },
   port: Number(process.env.APP_PORT),
   host: process.env.APP_HOST || 'localhost',
   logger: {
@@ -123,4 +61,4 @@ export const config: Config = {
       value: false,
     },
   },
-};
+})
