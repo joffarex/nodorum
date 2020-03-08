@@ -205,11 +205,11 @@ export class CommentService {
       .andWhere('"comment_vote"."userId" = :userId', { userId: user.id })
       .getOne();
 
-    if (commentVote?.direction === direction) {
+    if (commentVote && commentVote.direction === direction) {
       // if vote is the same, set direction to 0
       commentVote.direction = 0;
       await this.commentVoteRepository.save(commentVote);
-    } else if (commentVote?.direction || commentVote?.direction === 0) {
+    } else if ((commentVote && commentVote.direction )|| (commentVote && commentVote.direction === 0)) {
       // If vote exists or is 0, set direction to whatever input is
       commentVote.direction = direction;
       await this.commentVoteRepository.save(commentVote);

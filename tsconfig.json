@@ -1,20 +1,17 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "commonjs",
     "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es2017",
+    "target": "esnext",
     "sourceMap": false,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "esModuleInterop": true,
     "strict": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "lib": ["esnext", "dom"]
   },
   "exclude": ["node_modules", "dist"]
 }

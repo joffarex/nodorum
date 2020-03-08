@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConnectionOptions } from 'typeorm';
 
 const appPackage = readFileSync(`${__dirname}/../../package.json`, {
@@ -38,20 +37,18 @@ interface Config {
       timeout: number;
     };
   };
-  aws: {
-    apiKey: string;
-    secretKey: string;
-    region: string;
-    s3: {
-      bucketName: string;
-    };
-  };
+  // aws: {
+  //   apiKey: string;
+  //   secretKey: string;
+  //   region: string;
+  //   s3: {
+  //     bucketName: string;
+  //   };
+  // };
   port: number;
   host: string;
-  microservice: MicroserviceOptions;
   logger: {
     level: string;
-    transports?: any[];
   };
   validator: {
     validationError: {
@@ -76,8 +73,13 @@ export const config: Config = {
   },
   database: {
     type: 'postgres',
-    url: process.env.APP_DATABASE_SECRET_URL,
-    // synchronize: true,
+    // url: process.env.APP_DATABASE_SECRET_URL,
+    host: process.env.APP_DATABASE_HOST,
+    port: Number(process.env.APP_DATABASE_PORT),
+    username: process.env.APP_DATABASE_USERNAME,
+    password: process.env.APP_DATABASE_PASSWORD,
+    database: process.env.APP_DATABASE_NAME,
+    synchronize: true,
     logging: 'all',
     // migrationsRun: true,
     // migrations: [
@@ -102,19 +104,16 @@ export const config: Config = {
       timeout: Number(process.env.APP_SESSION_VERIFY_TIMEOUT),
     },
   },
-  aws: {
-    apiKey: process.env.APP_AWS_API_KEY || 'apikey',
-    secretKey: process.env.APP_AWS_SECRET_KEY || 'secretkey',
-    region: process.env.APP_AWS_REGION || 'region',
-    s3: {
-      bucketName: process.env.APP_AWS_S3_BUCKET_NAME || 'bucket',
-    },
-  },
+  // aws: {
+  //   apiKey: process.env.APP_AWS_API_KEY || 'apikey',
+  //   secretKey: process.env.APP_AWS_SECRET_KEY || 'secretkey',
+  //   region: process.env.APP_AWS_REGION || 'region',
+  //   s3: {
+  //     bucketName: process.env.APP_AWS_S3_BUCKET_NAME || 'bucket',
+  //   },
+  // },
   port: Number(process.env.APP_PORT),
   host: process.env.APP_HOST || 'localhost',
-  microservice: {
-    transport: Transport.TCP,
-  },
   logger: {
     level: process.env.APP_LOGGER_LEVEL || 'error',
   },

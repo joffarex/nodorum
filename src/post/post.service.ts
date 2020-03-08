@@ -187,11 +187,11 @@ export class PostService {
       .andWhere('"postvotes"."userId" = :userId', { userId: user.id })
       .getOne();
 
-    if (postVote?.direction === direction) {
+    if (postVote && postVote.direction === direction) {
       // if vote is the same, set direction to 0
       postVote.direction = 0;
       await this.postVoteRepository.save(postVote);
-    } else if (postVote?.direction || postVote?.direction === 0) {
+    } else if ((postVote && postVote.direction )|| (postVote && postVote.direction === 0)) {
       // If vote exists or is 0, set direction to whatever input is
       postVote.direction = direction;
       await this.postVoteRepository.save(postVote);

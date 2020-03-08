@@ -28,17 +28,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@hapi/joi": "^17.1.0",
     "@nestjs/common": "^6.11.11",
     "@nestjs/config": "^0.2.4",
     "@nestjs/core": "^6.11.11",
-    "@nestjs/microservices": "^6.11.11",
-    "@nestjs/passport": "^6.2.0",
     "@nestjs/platform-fastify": "^6.11.11",
     "@nestjs/swagger": "^4.3.2",
     "@nestjs/typeorm": "^6.3.3",
     "argon2": "^0.26.1",
     "async": "^3.2.0",
-    "async-exit-hook": "^2.0.1",
     "aws-sdk": "^2.631.0",
     "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
@@ -47,14 +45,11 @@
     "fastify-swagger": "^2.5.0",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^1.22.0",
-    "multer-s3": "^2.9.0",
     "nodemailer": "^6.4.4",
     "pg": "^7.18.2",
-    "pino-pretty": "^3.6.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
-    "tslib": "^1.11.1",
     "typeorm": "^0.2.24",
     "uuid": "^7.0.2",
     "winston": "^3.2.1"
@@ -88,7 +83,7 @@
     "ts-loader": "^6.2.1",
     "ts-node": "^8.6.2",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.8.3"
+    "typescript": "3.7.5"
   },
   "jest": {
     "moduleFileExtensions": [

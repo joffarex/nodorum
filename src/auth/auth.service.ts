@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import jwt from 'jsonwebtoken';
 import { v1 as uuidv1 } from 'uuid';
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
 import { config } from 'src/config';
+import { UserService } from 'src/user/user.service';
 
 export type Token = {
   id: string;
@@ -14,8 +14,9 @@ export type Token = {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
-
+  constructor(
+    private readonly userService: UserService
+  ) {}
   // TODO: implement redis store for refresh tokens via microservice
   private refreshTokens: Token[] = [];
 
@@ -86,7 +87,7 @@ export class AuthService {
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
     // TODO: implement this
-    const { user } = await this.userService.findOne(decoded.id);
+    const {user} = await this.userService.findOne(decoded.id)
 
     if (!user) {
       throw new ForbiddenException();
