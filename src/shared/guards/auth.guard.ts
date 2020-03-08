@@ -13,6 +13,10 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
+    if (!authorization.startsWith('Bearer')) {
+      return false;
+    }
+
     const token = authorization.split(' ')[1];
     if (!token) {
       return false;
