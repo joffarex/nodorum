@@ -1,22 +1,43 @@
-import { INestApplicationContext } from '@nestjs/common';
+import { INestApplicationContext, InternalServerErrorException } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'fastify-helmet'
 import compress from 'fastify-compress'
-import { config } from './config';
 import { AppLogger } from './app.logger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters';
+import { ConfigService } from '@nestjs/config';
 
 export class AppMain {
   private app!: NestFastifyApplication;
-  private logger = new AppLogger('Main');
+  private logger = new AppLogger('Server');
 
   async bootstrap(): Promise<void> {
-    await this.createServer();
-    // this.createMicroservices();
-    // await this.startMicroservices();
-    return this.startServer();
+    this.app = await NestFactory.create<NestFastifyApplication>(
+      AppModule,
+      new FastifyAdapter({
+        logger: false,
+      }),
+    );
+
+      const config = this.app.get(ConfigService);
+
+    this.app.enableCors()
+    this.app.register(compress)
+    this.app.useGlobalFilters(new HttpExceptionFilter());
+    if (config.get<boolean>('isProduction')) {
+      this.app.register(helmet)
+    }
+
+    const port = config.get<number>('port')
+    const host = config.get<string>('host');
+
+    if (!port || !host) {
+      throw new InternalServerErrorException()
+    }
+
+    await this.app.listen(port);
+    this.logger.log(`Server listening on http://${host}:${port}`)
   }
 
   async shutdown(): Promise<void> {
@@ -25,35 +46,5 @@ export class AppMain {
 
   public getContext(): Promise<INestApplicationContext> {
     return NestFactory.createApplicationContext(AppModule);
-  }
-
-  private async createServer(): Promise<void> {
-    this.app = await NestFactory.create<NestFastifyApplication>(
-      AppModule,
-      new FastifyAdapter({
-        logger: new AppLogger('Server'),
-      }),
-    );
-
-    this.app.enableCors()
-    this.app.register(compress)
-    this.app.useGlobalFilters(new HttpExceptionFilter());
-    this.app.setGlobalPrefix('/api/v1');
-    if (config.isProduction) {
-      this.app.register(helmet)
-    }
-  }
-
-  // private createMicroservices(): void {
-  // 	this.microservice = this.app.connectMicroservice(config.microservice);
-  // }
-
-  // private startMicroservices(): Promise<void> {
-  // 	return this.app.startAllMicroservicesAsync();
-  // }
-
-  private async startServer(): Promise<void> {
-    await this.app.listen(config.port, config.host);
-    this.logger.log(`Server is listening http://${config.host}:${config.port}`);
   }
 }
