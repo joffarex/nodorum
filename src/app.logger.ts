@@ -14,7 +14,7 @@ export class AppLogger implements LoggerService {
       format: format.combine(format.label({ label }), format.timestamp(), myFormat),
       transports: [
         new transports.File({ filename: 'error.log', level: 'error' }),
-        new transports.File({ filename: 'out.log' }),
+        new transports.File({ filename: 'out.log', level: 'debug' }),
         new transports.Console(),
       ],
     });
