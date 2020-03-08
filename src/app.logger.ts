@@ -10,10 +10,11 @@ export class AppLogger implements LoggerService {
 
   constructor(label: string) {
     this.logger = createLogger({
+      level: 'info',
       format: format.combine(format.label({ label }), format.timestamp(), myFormat),
       transports: [
-        new transports.File({ filename: 'quick-start-error.log', level: 'error' }),
-        new transports.File({ filename: 'quick-start-combined.log' }),
+        new transports.File({ filename: 'error.log', level: 'error' }),
+        new transports.File({ filename: 'out.log' }),
         new transports.Console(),
       ],
     });
