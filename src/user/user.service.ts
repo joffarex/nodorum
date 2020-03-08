@@ -29,8 +29,8 @@ export class UserService {
     // check if username and email are unique
     const user = await this.userRepository
       .createQueryBuilder('users')
-      .where('user.username = :username', { username })
-      .orWhere('user.email = :email', { email })
+      .where('users.username = :username', { username })
+      .orWhere('users.email = :email', { email })
       .getOne();
 
     if (user) {
@@ -57,20 +57,22 @@ export class UserService {
     const { username, password } = loginUserDto;
 
     // find if user exists
-    const user = await this.userRepository
+    const qb = await this.userRepository
       .createQueryBuilder('users')
-      .addSelect('user.password')
-      .where('user.username = :username', { username })
-      .andWhere('user.deletedAt IS NULL')
-      .getOne();
+      .where('users.username = :username', { username })
+      .andWhere('users.deletedAt IS NULL')
+
+    const user = await qb.getOne()
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const userWithPassword = await qb.addSelect('users.password').getOne()
+
     // check if passwords match
     /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-    const match = await verify(user.password!, password);
+    const match = await verify(userWithPassword!.password!, password);
 
     if (!match) {
       throw new UnauthorizedException('Invalid credentials');
