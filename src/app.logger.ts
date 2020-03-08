@@ -1,6 +1,5 @@
 import { LoggerService } from '@nestjs/common';
 import { transports, createLogger, Logger, format } from 'winston';
-import { config } from './config';
 
 const myFormat = format.printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;
@@ -11,7 +10,6 @@ export class AppLogger implements LoggerService {
 
   constructor(label: string) {
     this.logger = createLogger({
-      level: config.logger.level,
       format: format.combine(format.label({ label }), format.timestamp(), myFormat),
       transports: [
         new transports.File({ filename: 'quick-start-error.log', level: 'error' }),
@@ -39,21 +37,5 @@ export class AppLogger implements LoggerService {
 
   debug(message: string) {
     this.logger.debug(message);
-  }
-
-  silly(message: string) {
-    this.logger.silly(message);
-  }
-
-  child(message: string) {
-    this.logger.child(message);
-  }
-
-  fatal(message: string) {
-    console.error(message); // TODO
-  }
-
-  trace(message: string) {
-    console.error(message); // TODO
   }
 }
