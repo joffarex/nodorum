@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -22,10 +22,12 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    const user = await this.authService.verifyJwtToken(token);
+    let user;
 
-    if (!user) {
-      return false;
+    try {
+      user = await this.authService.verifyJwtToken(token);
+    } catch (err) {
+      throw new ForbiddenException(err);
     }
 
     request.user = user;
