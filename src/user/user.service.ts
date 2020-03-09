@@ -81,7 +81,7 @@ export class UserService {
   async findOne(id: number): Promise<UserBody> {
     const user = await this.userRepository.findOne({ id, deletedAt: IsNull() });
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
     return { user };
   }
@@ -89,7 +89,7 @@ export class UserService {
   async findOneByEmail(email: string): Promise<UserBody> {
     const user = await this.userRepository.findOne({ email, deletedAt: IsNull() });
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
     return { user };
   }
@@ -97,7 +97,7 @@ export class UserService {
   async findOneByUsername(username: string): Promise<UserBody> {
     const user = await this.userRepository.findOne({ username, deletedAt: IsNull() });
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
     return { user };
   }
@@ -107,7 +107,7 @@ export class UserService {
     // ensure that user exists
     const user = await this.userRepository.findOne({ id, deletedAt: IsNull() });
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
 
     if (displayName) user.displayName = displayName;
@@ -122,7 +122,7 @@ export class UserService {
     // ensure that user exists
     const user = await this.userRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
 
     // TODO: move deleted user in separate table
@@ -135,20 +135,20 @@ export class UserService {
 
     await this.userRepository.save(user);
 
-    return { message: 'User successfully removed.' };
+    return { message: 'User successfully removed' };
   }
 
   async followAction(userId: number, userToFollowId: number): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
 
     const userToFollow = await this.userRepository.findOne({ id: userToFollowId, deletedAt: IsNull() });
 
     if (!userToFollow) {
-      throw new NotFoundException();
+      throw new NotFoundException('User who you are trying to follow does not exist');
     }
 
     const isFollowing = await this.followerRepository.findOne({ userId: userToFollowId, followerId: userId });
@@ -157,19 +157,17 @@ export class UserService {
       const { affected } = await this.followerRepository.delete(isFollowing.id);
 
       if (affected !== 1) {
-        throw new InternalServerErrorException();
+        throw new InternalServerErrorException('Database error');
       }
 
-      return { message: 'User unfollowed.' };
+      return { message: 'User unfollowed' };
     } else {
       const follower = new FollowerEntity();
       follower.userId = userToFollowId;
       follower.followerId = userId;
 
-      const newFollower = await this.followerRepository.save(follower);
-      console.log(newFollower);
-
-      return { message: 'User follower.' };
+      await this.followerRepository.save(follower);
+      return { message: 'User follower' };
     }
   }
 
@@ -177,7 +175,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
 
     // TODO: experimental, subject to change
