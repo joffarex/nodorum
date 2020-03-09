@@ -68,8 +68,6 @@ export class AuthService {
         }
 
         if (!decoded) {
-          console.log(decoded);
-          console.log('Decoded does not exist');
           return reject('Token is invalid');
         }
 
