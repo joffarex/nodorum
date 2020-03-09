@@ -1,11 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ServerResponse } from 'http';
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 import cls from 'cls-hooked';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 export class RequestContext {
-  public static nsid = uuid()
+  public static nsid = uuid();
   public readonly id: number;
   public request: FastifyRequest;
   public reply: FastifyReply<ServerResponse>;

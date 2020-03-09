@@ -1,8 +1,8 @@
 import { INestApplicationContext, InternalServerErrorException } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
-import helmet from 'fastify-helmet'
-import compress from 'fastify-compress'
+import helmet from 'fastify-helmet';
+import compress from 'fastify-compress';
 import { AppLogger } from './app.logger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters';
@@ -20,24 +20,24 @@ export class AppMain {
       }),
     );
 
-      const config = this.app.get(ConfigService);
+    const config = this.app.get(ConfigService);
 
-    this.app.enableCors()
-    this.app.register(compress)
+    this.app.enableCors();
+    this.app.register(compress);
     this.app.useGlobalFilters(new HttpExceptionFilter());
     if (config.get<boolean>('isProduction')) {
-      this.app.register(helmet)
+      this.app.register(helmet);
     }
 
-    const port = config.get<number>('port')
+    const port = config.get<number>('port');
     const host = config.get<string>('host');
 
     if (!port || !host) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException();
     }
 
     await this.app.listen(port);
-    this.logger.log(`Server listening on http://${host}:${port}`)
+    this.logger.log(`Server listening on http://${host}:${port}`);
   }
 
   async shutdown(): Promise<void> {

@@ -11,7 +11,10 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [UserModule, TypeOrmModule.forFeature([PostEntity, UserEntity, SubnodditEntity, PostVoteEntity, FollowerEntity])],
+  imports: [
+    UserModule,
+    TypeOrmModule.forFeature([PostEntity, UserEntity, SubnodditEntity, PostVoteEntity, FollowerEntity]),
+  ],
   controllers: [PostController],
   providers: [PostService, AuthService],
 })

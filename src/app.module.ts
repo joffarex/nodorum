@@ -1,5 +1,5 @@
-import {Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -12,7 +12,7 @@ import config from './config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config]
+      load: [config],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -25,6 +25,11 @@ import config from './config';
       }),
       inject: [ConfigService],
     }),
-    AuthModule, UserModule, SubnodditModule, PostModule, CommentModule],
+    AuthModule,
+    UserModule,
+    SubnodditModule,
+    PostModule,
+    CommentModule,
+  ],
 })
 export class AppModule {}

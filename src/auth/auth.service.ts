@@ -15,24 +15,20 @@ export type Token = {
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly configService: ConfigService
-  ) {}
+  constructor(private readonly userService: UserService, private readonly configService: ConfigService) {}
   // TODO: implement redis store for refresh tokens via microservice
   private refreshTokens: Token[] = [];
 
-  private jwtSecret = this.configService.get<string>('jwtSecret')
-  private refreshSecret = this.configService.get<string>('session.refresh.secret')
-  private issuer = this.configService.get<string>('uuid')
-  private timeout = this.configService.get<number>('session.timeout')
-  private refreshTimeout = this.configService.get<number>('session.refresh.timeout')
-  private logger = new AppLogger('AuthService')
+  private jwtSecret = this.configService.get<string>('jwtSecret');
+  private refreshSecret = this.configService.get<string>('session.refresh.secret');
+  private issuer = this.configService.get<string>('uuid');
+  private timeout = this.configService.get<number>('session.timeout');
+  private refreshTimeout = this.configService.get<number>('session.refresh.timeout');
+  private logger = new AppLogger('AuthService');
 
   public getAccessToken(payload: JwtPayload): string {
-
-    if(!this.jwtSecret || !this.timeout || !this.issuer) {
-      throw new InternalServerErrorException()
+    if (!this.jwtSecret || !this.timeout || !this.issuer) {
+      throw new InternalServerErrorException();
     }
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.timeout, issuer: this.issuer });
   }
@@ -45,8 +41,8 @@ export class AuthService {
       this.refreshTokens = this.refreshTokens.filter(token => token.userId !== payload.id);
     }
 
-    if(!this.jwtSecret || !this.refreshTimeout) {
-      throw new InternalServerErrorException()
+    if (!this.jwtSecret || !this.refreshTimeout) {
+      throw new InternalServerErrorException();
     }
 
     const refreshToken = jwt.sign(payload, this.jwtSecret, { expiresIn: this.refreshTimeout });
@@ -62,8 +58,8 @@ export class AuthService {
 
   public verifyJwtToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
-      if(!this.jwtSecret) {
-        throw new InternalServerErrorException()
+      if (!this.jwtSecret) {
+        throw new InternalServerErrorException();
       }
 
       jwt.verify(token, this.jwtSecret, (err, decoded) => {
@@ -72,8 +68,8 @@ export class AuthService {
         }
 
         if (!decoded) {
-          console.log(decoded)
-          console.log('Decoded does not exist')
+          console.log(decoded);
+          console.log('Decoded does not exist');
           return reject('Token is invalid');
         }
 
@@ -83,8 +79,8 @@ export class AuthService {
   }
 
   public getUpdatedRefreshToken(oldRefreshToken: string, payload: JwtPayload): string {
-    if(!this.refreshSecret || !this.refreshTimeout) {
-      throw new InternalServerErrorException()
+    if (!this.refreshSecret || !this.refreshTimeout) {
+      throw new InternalServerErrorException();
     }
     // create new refresh token
     const newRefreshToken = jwt.sign(payload, this.refreshSecret, { expiresIn: this.refreshTimeout });
@@ -104,14 +100,14 @@ export class AuthService {
   }
 
   public async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
-    if(!this.jwtSecret ) {
-      throw new InternalServerErrorException()
+    if (!this.jwtSecret) {
+      throw new InternalServerErrorException();
     }
 
     const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
 
     // TODO: implement this
-    const {user} = await this.userService.findOne(decoded.id)
+    const { user } = await this.userService.findOne(decoded.id);
 
     if (!user) {
       throw new ForbiddenException();

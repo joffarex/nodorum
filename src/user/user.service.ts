@@ -60,15 +60,15 @@ export class UserService {
     const qb = await this.userRepository
       .createQueryBuilder('users')
       .where('users.username = :username', { username })
-      .andWhere('users.deletedAt IS NULL')
+      .andWhere('users.deletedAt IS NULL');
 
-    const user = await qb.getOne()
+    const user = await qb.getOne();
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const userWithPassword = await qb.addSelect('users.password').getOne()
+    const userWithPassword = await qb.addSelect('users.password').getOne();
 
     // check if passwords match
     /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */

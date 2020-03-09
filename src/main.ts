@@ -8,9 +8,12 @@ logger.log(`Start`);
 const app = new AppMain();
 
 // bootstrap app
-  app.bootstrap().then(() => {
+app
+  .bootstrap()
+  .then(() => {
     logger.log('Server started');
-  }).catch(err => {
+  })
+  .catch(err => {
     logger.error(err.message, err.stack);
     process.exit(1);
-  })
+  });

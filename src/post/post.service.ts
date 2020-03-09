@@ -191,7 +191,7 @@ export class PostService {
       // if vote is the same, set direction to 0
       postVote.direction = 0;
       await this.postVoteRepository.save(postVote);
-    } else if ((postVote && postVote.direction )|| (postVote && postVote.direction === 0)) {
+    } else if ((postVote && postVote.direction) || (postVote && postVote.direction === 0)) {
       // If vote exists or is 0, set direction to whatever input is
       postVote.direction = direction;
       await this.postVoteRepository.save(postVote);
