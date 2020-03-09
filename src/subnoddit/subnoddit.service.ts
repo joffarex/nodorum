@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AppLogger } from 'src/app.logger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubnodditEntity } from './subnoddit.entity';
 import { Repository } from 'typeorm';
@@ -15,8 +14,6 @@ import { UserEntity } from 'src/user/user.entity';
 
 @Injectable()
 export class SubnodditService {
-  private logger = new AppLogger('SubnodditService');
-
   constructor(
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -7,6 +7,8 @@ import { SubnodditModule } from './subnoddit/subnoddit.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import config from './config';
+import { AppLogger } from './app.logger';
+import { RequestContextMiddleware } from './shared';
 
 @Module({
   imports: [
@@ -32,4 +34,14 @@ import config from './config';
     CommentModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  private logger = new AppLogger(AppModule.name);
+
+  constructor() {
+    this.logger.log('Initialize constructor');
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestContextMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

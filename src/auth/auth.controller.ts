@@ -21,7 +21,7 @@ export class AuthController {
   @UsePipes(new JoiValidationPipe(loginSchema))
   public async login(@Body() loginUserDto: LoginUserDto): Promise<JwtDto> {
     const { user } = await this.userService.login(loginUserDto);
-    this.logger.debug(`[login] User ${user.username} logging`);
+    this.logger.debug(`[login] user ${user.username}:${user.email} logging`);
 
     const payload: JwtPayload = {
       id: user.id,
@@ -45,9 +45,9 @@ export class AuthController {
   @UsePipes(new JoiValidationPipe(registerSchema))
   public async register(@Body() registerUserDto: RegisterUserDto): Promise<UserBody> {
     const { user } = await this.userService.register(registerUserDto);
-    this.logger.debug(`[register] User ${user.username} register`);
+    this.logger.debug(`[register] user ${user.username}:${user.email} registering`);
     // TODO: implement emails
-    this.logger.debug(`[register] Send registration email for email ${user.email}`);
+    // this.logger.debug(`[register] Send registration email for email ${user.email}`);
     return { user };
   }
 

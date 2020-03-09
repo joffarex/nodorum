@@ -11,14 +11,11 @@ import { UserEntity } from './user.entity';
 import { Repository, IsNull } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash, verify } from 'argon2';
-import { AppLogger } from '../app.logger';
 import { FollowerEntity } from './follower.entity';
 import { DateTime } from 'luxon';
 
 @Injectable()
 export class UserService {
-  private logger = new AppLogger('UserService');
-
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,

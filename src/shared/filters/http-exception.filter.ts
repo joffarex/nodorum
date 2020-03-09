@@ -5,7 +5,7 @@ import { AppLogger } from '../../app.logger';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  private logger = new AppLogger('HTtpError');
+  private logger = new AppLogger('HttpError');
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
