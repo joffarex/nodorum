@@ -1,5 +1,5 @@
 import {Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -14,17 +14,17 @@ import config from './config';
       isGlobal: true,
       load: [config]
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'noddit.cmhmvv8ismwh.eu-west-1.rds.amazonaws.com',
-      port: 5432,
-      username: 'postgres' ,
-      password: 'Zfvfy2XQks3RTaLr',
-      database: 'noddit',
-      synchronize: true,
-      logging: 'all',
-      entities: [`dist/**/*.entity{.ts,.js}`],
-    },),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('database.url'),
+        synchronize: configService.get<boolean>('database.synchronize'),
+        logging: configService.get<boolean>('isProduction') ? false : 'all',
+        entities: configService.get<Array<string>>('database.entities'),
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule, UserModule, SubnodditModule, PostModule, CommentModule],
 })
 export class AppModule {}

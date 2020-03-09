@@ -20,17 +20,8 @@ export default () => ({
   },
   database: {
     type: 'postgres',
-    host: process.env.APP_DATABASE_HOST,
-    port: Number(process.env.APP_DATABASE_PORT),
-    username: process.env.APP_DATABASE_USERNAME,
-    password: process.env.APP_DATABASE_PASSWORD,
-    database: process.env.APP_DATABASE_NAME,
+    url: process.env.APP_DATABASE_URL,
     synchronize: true,
-    logging: 'all',
-    // migrationsRun: true,
-    // migrations: [
-    // 	__dirname + '/../migrations/*{.ts,.js}'
-    // ],
     entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
   },
   session: {
