@@ -10,5 +10,6 @@ declare module 'fastify' {
     Body = any
   > {
     user: JwtPayload;
+    rcid: string;
   }
 }
