@@ -11,9 +11,12 @@ import { Repository } from 'typeorm';
 import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
 import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { UserEntity } from 'src/user/user.entity';
+import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class SubnodditService {
+  private logger = new AppLogger('SubnodditService')
+
   constructor(
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
@@ -28,12 +31,13 @@ export class SubnodditService {
       .getOne();
 
     if (subnoddit) {
-      throw new BadRequestException('Name is taken');
+      throw new BadRequestException(`Subnoddit with the name '${name}' already exists`);
     }
 
     const user = await this.userRepository.findOne(userId);
     if (!user) {
-      throw new UnauthorizedException();
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      throw new NotFoundException('User not found');
     }
 
     const newSubnoddit = new SubnodditEntity();
@@ -55,7 +59,7 @@ export class SubnodditService {
       .getOne();
 
     if (!subnoddit) {
-      throw new NotFoundException();
+      throw new NotFoundException('Subnoddit not found');
     }
 
     return { subnoddit };
@@ -71,7 +75,7 @@ export class SubnodditService {
       const user = await this.userRepository.findOne({ username: filter.username });
 
       if (!user) {
-        throw new NotFoundException();
+        throw new NotFoundException('User not found');
       }
 
       qb.andWhere('"subnoddits"."userId" = :userId', { userId: user.id });
@@ -141,7 +145,7 @@ export class SubnodditService {
       .getOne();
 
     if (!subnoddit) {
-      throw new NotFoundException();
+      throw new NotFoundException('Subnoddit not found');
     }
 
     if (subnoddit.user.id !== userId) {
