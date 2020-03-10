@@ -2,7 +2,13 @@ import { LoggerService } from '@nestjs/common';
 import { transports, createLogger, Logger, format } from 'winston';
 
 const myFormat = format.printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
+  const data = {
+    timestamp,
+    message,
+    label,
+    level,
+  };
+  return JSON.stringify(data);
 });
 
 export class AppLogger implements LoggerService {
@@ -20,8 +26,8 @@ export class AppLogger implements LoggerService {
     });
   }
 
-  error(message: string, trace: string) {
-    this.logger.error(message, trace);
+  error(message: string) {
+    this.logger.error(message);
   }
 
   warn(message: string) {
