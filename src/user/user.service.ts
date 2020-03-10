@@ -167,7 +167,7 @@ export class UserService {
       follower.followerId = userId;
 
       await this.followerRepository.save(follower);
-      return { message: 'User follower' };
+      return { message: 'User followed' };
     }
   }
 
