@@ -13,6 +13,8 @@ import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { UserEntity } from 'src/user/user.entity';
 import { AppLogger } from 'src/app.logger';
 import { PostEntity } from 'src/post/post.entity';
+import { ConfigService } from '@nestjs/config';
+import { AwsS3Service } from 'src/aws/aws-s3.service';
 
 @Injectable()
 export class SubnodditService {
@@ -22,6 +24,8 @@ export class SubnodditService {
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly configService: ConfigService
   ) {}
 
   async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
@@ -44,7 +48,26 @@ export class SubnodditService {
 
     const newSubnoddit = new SubnodditEntity();
     newSubnoddit.name = name;
-    if (image) newSubnoddit.image = image; // TODO: upload to s3
+    if (image) {
+      const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+
+      const bucketName = this.configService.get<string>('aws.s3BucketName')
+
+      if(!bucketName) {
+        throw new InternalServerErrorException()
+      }
+
+      const {key} = await this.awsS3Service.upload({
+      Bucket: bucketName,
+      Key: `pictures/subnoddit/${newSubnoddit.id}.png`,
+      Body: base64,
+      ACL: 'public-read',
+      ContentEncoding: 'base64',
+      ContentType: `image/png`,
+    })
+
+    newSubnoddit.image = key
+    }
     newSubnoddit.about = about;
     newSubnoddit.user = user;
 
@@ -126,8 +149,6 @@ export class SubnodditService {
 
   async delete(userId: number, subnodditId: number): Promise<{ message: string }> {
     const subnoddit = await this.isSubnodditValid(userId, subnodditId);
-
-    // TODO: restrict subnoddit removal if there are posts
 
     const subnodditPostsCount = await this.getSubnodditPostsCount(subnoddit.id);
 
