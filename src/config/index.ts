@@ -58,4 +58,10 @@ export default () => ({
     password: process.env.REDIS_PASSWORD,
   },
   smtpTransport: process.env.SMTP_URL,
+  aws: {
+    accessKeyId: process.env.AWS_API_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_REGION,
+    s3BucketName: process.env.AWS_S3_BUCKET_NAME,
+  },
 });
