@@ -8,7 +8,7 @@ import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import config from './config';
 import { AppLogger } from './app.logger';
-import {MailerModule, PugAdapter} from '@nest-modules/mailer'
+import { MailerModule, PugAdapter } from '@nest-modules/mailer';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import {MailerModule, PugAdapter} from '@nest-modules/mailer'
       useFactory: (configService: ConfigService) => ({
         transport: configService.get<string>('smtpTransport'),
         defaults: {
-          from:'"noddit" <no-reply@noddit.app>',
+          from: '"noddit" <no-reply@noddit.app>',
         },
         template: {
           dir: `${__dirname}/../templates`,
@@ -43,7 +43,6 @@ import {MailerModule, PugAdapter} from '@nest-modules/mailer'
         },
       }),
       inject: [ConfigService],
-
     }),
     AuthModule,
     UserModule,
