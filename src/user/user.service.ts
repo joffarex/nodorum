@@ -196,7 +196,7 @@ export class UserService {
     };
   }
 
-  private async uploadProfileImage(profileImage: string, username: string,  opts: AwsS3UploadOptions): Promise<string> {
+  private async uploadProfileImage(profileImage: string, username: string, opts: AwsS3UploadOptions): Promise<string> {
     const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
@@ -205,14 +205,17 @@ export class UserService {
       throw new InternalServerErrorException();
     }
 
-    const { key } = await this.awsS3Service.upload({
-      Bucket: bucketName,
-      Key: `pictures/user/${username}.png`,
-      Body: base64,
-      ACL: 'public-read',
-      ContentEncoding: 'base64',
-      ContentType: `image/png`,
-    }, opts);
+    const { key } = await this.awsS3Service.upload(
+      {
+        Bucket: bucketName,
+        Key: `pictures/user/${username}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      },
+      opts,
+    );
 
     return key;
   }

@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 
-
 @Injectable()
 export class SubnodditService {
   private logger = new AppLogger('SubnodditService');
@@ -30,7 +29,11 @@ export class SubnodditService {
     private readonly configService: ConfigService,
   ) {}
 
-  async create(userId: number, createSubnodditDto: CreateSubnodditDto, opts: AwsS3UploadOptions): Promise<SubnodditBody> {
+  async create(
+    userId: number,
+    createSubnodditDto: CreateSubnodditDto,
+    opts: AwsS3UploadOptions,
+  ): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
     const subnoddit = await this.subnodditRepository
@@ -185,14 +188,17 @@ export class SubnodditService {
       throw new InternalServerErrorException();
     }
 
-    const { key } = await this.awsS3Service.upload({
-      Bucket: bucketName,
-      Key: `pictures/subnoddit/${name}.png`,
-      Body: base64,
-      ACL: 'public-read',
-      ContentEncoding: 'base64',
-      ContentType: `image/png`,
-    }, opts);
+    const { key } = await this.awsS3Service.upload(
+      {
+        Bucket: bucketName,
+        Key: `pictures/subnoddit/${name}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      },
+      opts,
+    );
 
     return key;
   }

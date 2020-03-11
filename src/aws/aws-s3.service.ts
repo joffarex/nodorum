@@ -18,10 +18,10 @@ export class AwsS3Service {
     try {
       const info = await this.s3.putObject(params).promise();
 
-      if(opts) {
-      this.logger.debug(logFormat(opts.rcid, 'upload', `success[S3]: ${JSON.stringify(info)}`, {}, opts.user))
+      if (opts) {
+        this.logger.debug(logFormat(opts.rcid, 'upload', `success[S3]: ${JSON.stringify(info)}`, {}, opts.user));
       }
-      
+
       return {
         key: params.Key,
       };

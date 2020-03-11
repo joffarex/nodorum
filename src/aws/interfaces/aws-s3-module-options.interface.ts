@@ -9,5 +9,5 @@ export interface AwsS3ModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'>
 
 export interface AwsS3UploadOptions {
   rcid: string;
-  user: JwtPayload | null
+  user: JwtPayload | null;
 }
