@@ -9,6 +9,7 @@ import { CommentModule } from './comment/comment.module';
 import config from './config';
 import { AppLogger } from './app.logger';
 import { RequestContextMiddleware } from './shared';
+import {MailerModule, PugAdapter} from '@nest-modules/mailer'
 
 @Module({
   imports: [
@@ -26,6 +27,24 @@ import { RequestContextMiddleware } from './shared';
         entities: configService.get<Array<string>>('database.entities'),
       }),
       inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        transport: configService.get<string>('smtpTransport'),
+        defaults: {
+          from:'"noddit" <no-reply@noddit.app>',
+        },
+        template: {
+          dir: `${__dirname}/../templates`,
+          adapter: new PugAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+      inject: [ConfigService],
+
     }),
     AuthModule,
     UserModule,

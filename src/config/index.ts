@@ -57,4 +57,5 @@ export default () => ({
     port: 6379,
     password: process.env.REDIS_PASSWORD,
   },
+  smtpTransport: process.env.SMTP_URL,
 });
