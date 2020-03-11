@@ -8,9 +8,12 @@ import { CommentBody, CommentsBody } from './interfaces/comment.interface';
 import { FilterDto } from 'src/post/dto';
 import { CreateCommentDto, UpdateCommentDto, VoteCommentDto } from './dto';
 import { CommentVoteEntity } from './comment-vote.entity';
+import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class CommentService {
+  private logger = new AppLogger('CommentService')
+
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
@@ -26,7 +29,7 @@ export class CommentService {
       .getOne();
 
     if (!comment) {
-      throw new NotFoundException();
+      throw new NotFoundException('Comment not found');
     }
 
     return { comment };
@@ -36,7 +39,7 @@ export class CommentService {
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const qb = this.commentRepository
@@ -55,7 +58,7 @@ export class CommentService {
       const user = await this.userRepository.findOne({ username: filter.username });
 
       if (!user) {
-        throw new NotFoundException();
+        throw new NotFoundException('User not found');
       }
 
       qb.andWhere('"comment"."userId" = :userId', { userId: user.id });
@@ -116,13 +119,14 @@ export class CommentService {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['comments'] });
 
     if (!user) {
-      throw new NotFoundException();
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      throw new NotFoundException('User not found');
     }
 
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const comment = new CommentEntity();
@@ -151,7 +155,7 @@ export class CommentService {
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const comment = await this.isCommentValid(userId, commentId);
@@ -167,7 +171,7 @@ export class CommentService {
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const comment = await this.isCommentValid(userId, commentId);
@@ -190,13 +194,14 @@ export class CommentService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      throw new NotFoundException();
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      throw new NotFoundException('User not found');
     }
 
     const comment = await this.commentRepository.findOne(commentId);
 
     if (!comment) {
-      throw new NotFoundException();
+      throw new NotFoundException('Comment not found');
     }
 
     const commentVote = await this.commentVoteRepository
@@ -233,7 +238,7 @@ export class CommentService {
       .getOne();
 
     if (!comment) {
-      throw new NotFoundException();
+      throw new NotFoundException('Comment not found');
     }
 
     if (comment.user.id !== userId) {

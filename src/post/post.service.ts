@@ -8,9 +8,12 @@ import { PostBody, PostsBody } from './interfaces/post.interface';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FollowerEntity } from 'src/user/follower.entity';
+import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class PostService {
+  private logger = new AppLogger('PostService')
+
   constructor(
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
@@ -27,7 +30,7 @@ export class PostService {
       .getOne();
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const postVotes = await this.postVoteRepository
@@ -49,7 +52,7 @@ export class PostService {
       const user = await this.userRepository.findOne({ username: filter.username });
 
       if (!user) {
-        throw new NotFoundException();
+        throw new NotFoundException('User not found');
       }
 
       qb.where('"post"."userId" = :userId', { userId: user.id });
@@ -59,7 +62,7 @@ export class PostService {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
 
       if (!subnoddit) {
-        throw new NotFoundException();
+        throw new NotFoundException('Subnoddit not found');
       }
 
       qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
@@ -87,7 +90,7 @@ export class PostService {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
 
       if (!subnoddit) {
-        throw new NotFoundException();
+        throw new NotFoundException('Subnoddit not found');
       }
 
       qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
@@ -109,7 +112,7 @@ export class PostService {
     const subnoddit = await this.subnodditRepository.findOne(subnodditId);
 
     if (!subnoddit) {
-      throw new NotFoundException();
+      throw new NotFoundException('Subnoddit not found');
     }
 
     const post = new PostEntity();
@@ -123,7 +126,8 @@ export class PostService {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['posts'] });
 
     if (!user) {
-      throw new NotFoundException();
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      throw new NotFoundException('User not found');
     }
 
     user.posts.push(post);
@@ -144,7 +148,7 @@ export class PostService {
     if (subnodditId) {
       const subnoddit = await this.subnodditRepository.findOne(subnodditId);
       if (!subnoddit) {
-        throw new NotFoundException();
+        throw new NotFoundException('Subnoddit not found');
       }
       post.subnoddit = subnoddit;
     }
@@ -172,13 +176,14 @@ export class PostService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      throw new NotFoundException();
+      this.logger.error(`[vote] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      throw new NotFoundException('User not found');
     }
 
     const post = await this.postRepository.findOne(postId);
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     const postVote = await this.postVoteRepository
