@@ -2,6 +2,8 @@ import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import AWS from 'aws-sdk';
 import { AppLogger } from 'src/app.logger';
 import { CLIENT_CONFIG } from './aws.constants';
+import { logFormat } from 'src/shared';
+import { AwsS3UploadOptions } from './interfaces/aws-s3-module-options.interface';
 
 @Injectable()
 export class AwsS3Service {
@@ -12,12 +14,14 @@ export class AwsS3Service {
     this.s3 = new AWS.S3(this.clientConfig);
   }
 
-  async upload(params: AWS.S3.Types.PutObjectRequest): Promise<{ key: string }> {
+  async upload(params: AWS.S3.Types.PutObjectRequest, opts?: AwsS3UploadOptions): Promise<{ key: string }> {
     try {
       const info = await this.s3.putObject(params).promise();
 
-      this.logger.log(`success[S3]: ${JSON.stringify(info)}`);
-
+      if(opts) {
+      this.logger.debug(logFormat(opts.rcid, 'upload', `success[S3]: ${JSON.stringify(info)}`, {}, opts.user))
+      }
+      
       return {
         key: params.Key,
       };
