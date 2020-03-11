@@ -21,12 +21,12 @@ export class CommentController {
   async getCommentTree(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
-    @Rcid() rcid: string
+    @Rcid() rcid: string,
   ): Promise<CommentsBody> {
     const commentsBody = await this.commentService.getCommentTree(postId, null, filter);
     this.logger.debug(logFormat(rcid, 'getCommentTree', 'found all comments', filter, null));
 
-    return commentsBody
+    return commentsBody;
   }
 
   @Post(':postId/create')
@@ -35,12 +35,14 @@ export class CommentController {
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(createSchema)) createCommentDto: CreateCommentDto,
     @User() user: JwtPayload,
-    @Rcid() rcid: string
+    @Rcid() rcid: string,
   ): Promise<CommentBody> {
     const commentBody = await this.commentService.create(user.id, postId, createCommentDto);
-    this.logger.debug(logFormat(rcid, 'create', `comment with id: ${commentBody.comment.id} created`, createCommentDto, user));
+    this.logger.debug(
+      logFormat(rcid, 'create', `comment with id: ${commentBody.comment.id} created`, createCommentDto, user),
+    );
 
-    return commentBody
+    return commentBody;
   }
 
   @Post('/:commentId/vote')
@@ -49,9 +51,9 @@ export class CommentController {
     @Param('commentId') commentId: number,
     @Body(new JoiValidationPipe(voteSchema)) voteCommentDto: VoteCommentDto,
     @User() user: JwtPayload,
-    @Rcid() rcid: string
+    @Rcid() rcid: string,
   ): Promise<{ message: string }> {
-    const res= await this.commentService.vote(user.id, commentId, voteCommentDto);
+    const res = await this.commentService.vote(user.id, commentId, voteCommentDto);
     this.logger.debug(logFormat(rcid, 'vote', `${res} (commentId: ${commentId})`, {}, user));
 
     return res;
@@ -64,12 +66,14 @@ export class CommentController {
     @Param('commentId') commentId: number,
     @Body(new JoiValidationPipe(updateSchema)) updateCommentDto: UpdateCommentDto,
     @User() user: JwtPayload,
-    @Rcid() rcid: string
+    @Rcid() rcid: string,
   ): Promise<CommentBody> {
     const commentBody = await this.commentService.update(user.id, postId, commentId, updateCommentDto);
-    this.logger.debug(logFormat(rcid, 'update', `comment with id: ${commentBody.comment.id} updated`, updateCommentDto, user));
+    this.logger.debug(
+      logFormat(rcid, 'update', `comment with id: ${commentBody.comment.id} updated`, updateCommentDto, user),
+    );
 
-    return commentBody
+    return commentBody;
   }
 
   @Delete('/:postId/:commentId/delete')
@@ -78,7 +82,7 @@ export class CommentController {
     @Param('postId') postId: number,
     @Param('commentId') commentId: number,
     @User() user: JwtPayload,
-    @Rcid() rcid: string
+    @Rcid() rcid: string,
   ): Promise<{ message: string }> {
     const res = await this.commentService.delete(user.id, postId, commentId);
     this.logger.debug(logFormat(rcid, 'remove', `comment with id: ${commentId} removed`, {}, user));

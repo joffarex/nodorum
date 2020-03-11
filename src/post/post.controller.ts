@@ -19,11 +19,14 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('/all')
-  async findMany(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto, @Rcid() rcid: string): Promise<PostsBody> {
+  async findMany(
+    @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
+    @Rcid() rcid: string,
+  ): Promise<PostsBody> {
     const postsBody = await this.postService.findMany(filter);
     this.logger.debug(logFormat(rcid, 'findMany', 'found all posts', filter, null));
 
-    return postsBody
+    return postsBody;
   }
 
   @Post('/news-feed')
@@ -31,7 +34,8 @@ export class PostController {
   async newsFeed(
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
     @User() user: JwtPayload,
-   @Rcid() rcid: string): Promise<PostsBody> {
+    @Rcid() rcid: string,
+  ): Promise<PostsBody> {
     const postsBody = await this.postService.newsFeed(user.id, filter);
     this.logger.debug(logFormat(rcid, 'newsFeed', 'found all news feed posts', filter, user));
 
@@ -40,11 +44,15 @@ export class PostController {
 
   @Post('/create')
   @UseGuards(AuthGuard)
-  async create(@Body(new JoiValidationPipe(createSchema)) createPostDto: CreatePostDto, @User() user: JwtPayload, @Rcid() rcid: string): Promise<PostBody> {
+  async create(
+    @Body(new JoiValidationPipe(createSchema)) createPostDto: CreatePostDto,
+    @User() user: JwtPayload,
+    @Rcid() rcid: string,
+  ): Promise<PostBody> {
     const postBody = await this.postService.create(user.id, createPostDto);
     this.logger.debug(logFormat(rcid, 'create', `post with id: ${postBody.post.id} created`, createPostDto, user));
 
-    return postBody
+    return postBody;
   }
 
   @Get('/:postId')
@@ -52,23 +60,28 @@ export class PostController {
     const postBody = await this.postService.findOne(postId);
     this.logger.debug(logFormat(rcid, 'findOne', `post with id: ${postBody.post.id} found`, {}, null));
 
-    return postBody
+    return postBody;
   }
 
   @Put('/:postId/update')
   async update(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto,
-    @User() user: JwtPayload,  @Rcid() rcid: string
+    @User() user: JwtPayload,
+    @Rcid() rcid: string,
   ): Promise<PostBody> {
     const postBody = await this.postService.update(user.id, postId, updatePostDto);
     this.logger.debug(logFormat(rcid, 'update', `post with id: ${postBody.post.id} updated`, updatePostDto, user));
 
-    return postBody
+    return postBody;
   }
 
   @Delete('/:postId/delete')
-  async delete(@Param('postId') postId: number, @User() user: JwtPayload, @Rcid() rcid: string): Promise<{ message: string }> {
+  async delete(
+    @Param('postId') postId: number,
+    @User() user: JwtPayload,
+    @Rcid() rcid: string,
+  ): Promise<{ message: string }> {
     const res = await this.postService.delete(user.id, postId);
     this.logger.debug(logFormat(rcid, 'delete', `post with id: ${postId} removed`, {}, user));
 
@@ -80,7 +93,8 @@ export class PostController {
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(voteSchema)) votePostDto: VotePostDto,
     @User() user: JwtPayload,
-  @Rcid() rcid: string): Promise<{ message: string }> {
+    @Rcid() rcid: string,
+  ): Promise<{ message: string }> {
     const res = await this.postService.vote(user.id, postId, votePostDto);
     this.logger.debug(logFormat(rcid, 'vote', `${res} (postId: ${postId})`, {}, user));
 

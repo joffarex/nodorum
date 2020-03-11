@@ -12,7 +12,7 @@ import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class CommentService {
-  private logger = new AppLogger('CommentService')
+  private logger = new AppLogger('CommentService');
 
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
@@ -119,7 +119,7 @@ export class CommentService {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['comments'] });
 
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
@@ -194,7 +194,7 @@ export class CommentService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 

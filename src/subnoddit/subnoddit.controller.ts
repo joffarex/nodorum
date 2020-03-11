@@ -18,30 +18,45 @@ export class SubnodditController {
   constructor(private readonly subnodditService: SubnodditService) {}
 
   @Post('/')
-  async findMany(@Body(new JoiValidationPipe(filterSchema)) filter: FilterDto, @Rcid() rcid: string): Promise<SubnodditsBody> {
+  async findMany(
+    @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
+    @Rcid() rcid: string,
+  ): Promise<SubnodditsBody> {
     const subnodditsBody = await this.subnodditService.findMany(filter);
     this.logger.debug(logFormat(rcid, 'findMany', 'found all subnoddits', filter, null));
 
-    return subnodditsBody
+    return subnodditsBody;
   }
 
   @Get('/:subnodditId')
   async findOne(@Param('subnodditId') subnodditId: number, @Rcid() rcid: string): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.findOne(subnodditId);
-    this.logger.debug(`[findOne] subnoddit with id: ${subnodditBody.subnoddit.id} found`)
+    this.logger.debug(`[findOne] subnoddit with id: ${subnodditBody.subnoddit.id} found`);
     this.logger.debug(logFormat(rcid, 'findOne', `subnoddit with id: ${subnodditBody.subnoddit.id} found`, {}, null));
 
-    return subnodditBody
+    return subnodditBody;
   }
 
   @Post('/create')
   @UseGuards(AuthGuard)
-  async create(@Body(new JoiValidationPipe(createSchema)) createSubnodditDto: CreateSubnodditDto, @User() user: JwtPayload, @Rcid() rcid: string): Promise<SubnodditBody> {
+  async create(
+    @Body(new JoiValidationPipe(createSchema)) createSubnodditDto: CreateSubnodditDto,
+    @User() user: JwtPayload,
+    @Rcid() rcid: string,
+  ): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.create(user.id, createSubnodditDto);
-    this.logger.debug(`[create] subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id})  created`)
-    this.logger.debug(logFormat(rcid, 'create', `subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id}) created`, createSubnodditDto, user));
+    this.logger.debug(`[create] subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id})  created`);
+    this.logger.debug(
+      logFormat(
+        rcid,
+        'create',
+        `subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id}) created`,
+        createSubnodditDto,
+        user,
+      ),
+    );
 
-    return subnodditBody
+    return subnodditBody;
   }
 
   @Put('/:subnodditId/update')
@@ -50,16 +65,29 @@ export class SubnodditController {
     @Param('subnodditId') subnodditId: number,
     @Body(new JoiValidationPipe(updateSchema)) updateSubnodditDto: UpdateSubnodditDto,
     @User() user: JwtPayload,
-  @Rcid() rcid: string): Promise<SubnodditBody> {
+    @Rcid() rcid: string,
+  ): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.update(user.id, subnodditId, updateSubnodditDto);
-    this.logger.debug(logFormat(rcid, 'update', `subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id}) updated`, updateSubnodditDto, user));
+    this.logger.debug(
+      logFormat(
+        rcid,
+        'update',
+        `subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id}) updated`,
+        updateSubnodditDto,
+        user,
+      ),
+    );
 
-    return subnodditBody
+    return subnodditBody;
   }
 
   @Delete('/:subnodditId/delete')
   @UseGuards(AuthGuard)
-  async delete(@Param('subnodditId') subnodditId: number, @User() user: JwtPayload, @Rcid() rcid: string): Promise<{ message: string }> {
+  async delete(
+    @Param('subnodditId') subnodditId: number,
+    @User() user: JwtPayload,
+    @Rcid() rcid: string,
+  ): Promise<{ message: string }> {
     const res = await this.subnodditService.delete(user.id, subnodditId);
     this.logger.debug(logFormat(rcid, 'delete', `subnoddit with id: ${subnodditId} removed`, {}, user));
 

@@ -15,7 +15,7 @@ import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class SubnodditService {
-  private logger = new AppLogger('SubnodditService')
+  private logger = new AppLogger('SubnodditService');
 
   constructor(
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
@@ -36,7 +36,7 @@ export class SubnodditService {
 
     const user = await this.userRepository.findOne(userId);
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 

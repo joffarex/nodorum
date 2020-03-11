@@ -12,7 +12,7 @@ import { AppLogger } from 'src/app.logger';
 
 @Injectable()
 export class PostService {
-  private logger = new AppLogger('PostService')
+  private logger = new AppLogger('PostService');
 
   constructor(
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
@@ -126,7 +126,7 @@ export class PostService {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['posts'] });
 
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
@@ -176,7 +176,7 @@ export class PostService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      this.logger.error(`[vote] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`)
+      this.logger.error(`[vote] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
