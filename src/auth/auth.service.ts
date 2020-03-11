@@ -113,7 +113,6 @@ export class AuthService {
 
     const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
 
-    // TODO: implement this
     const { user } = await this.userService.findOne(decoded.id);
 
     if (!user) {

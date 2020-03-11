@@ -14,6 +14,6 @@ app
     logger.log('Server started');
   })
   .catch(err => {
-    logger.error(err.message, err.stack);
+    logger.error(err.message);
     process.exit(1);
   });

@@ -8,7 +8,6 @@ import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import config from './config';
 import { AppLogger } from './app.logger';
-import { RequestContextMiddleware } from './shared';
 import {MailerModule, PugAdapter} from '@nest-modules/mailer'
 
 @Module({
@@ -58,9 +57,5 @@ export class AppModule {
 
   constructor() {
     this.logger.log('Initialize constructor');
-  }
-
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestContextMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }
