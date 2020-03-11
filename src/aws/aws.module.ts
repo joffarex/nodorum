@@ -1,6 +1,7 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { AwsS3ModuleAsyncOptions } from './interfaces/aws-s3-module-options.interface';
 import { AwsS3Service } from './aws-s3.service';
+import { CLIENT_CONFIG } from './aws.constants';
 
 @Module({})
 export class AwsModule {
@@ -9,7 +10,7 @@ export class AwsModule {
       module: AwsModule,
       providers: [
         {
-          provide: 'CLIENT_CONFIG',
+          provide: CLIENT_CONFIG,
           useFactory: options.useFactory,
           inject: options.inject || [],
         },
