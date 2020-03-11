@@ -8,6 +8,8 @@ import { AuthGuard } from '../shared/guards/auth.guard';
 import { User } from 'src/shared/decorators';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AppLogger } from 'src/app.logger';
+import { Rcid } from 'src/shared/decorators/rcid.decorator';
+import { logFormat } from 'src/shared';
 
 @Controller('user')
 export class UserController {
@@ -17,14 +19,17 @@ export class UserController {
 
   @Get('/me')
   @UseGuards(AuthGuard)
-  async me(@User() user: JwtPayload): Promise<UserBody> {
-    return this.userService.findOne(user.id);
+  async me(@User() user: JwtPayload, @Rcid() rcid: string): Promise<UserBody> {
+    const userBody = await this.userService.findOne(user.id);
+    this.logger.debug(logFormat(rcid, 'me', '', {}, user));
+
+    return userBody;
   }
 
   @Get('/:userId')
-  async findOne(@Param('userId') userId: number): Promise<UserBody> {
+  async findOne(@Param('userId') userId: number, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOne(userId);
-    this.logger.debug(`[findOne] user with id: ${userBody.user.id} found`);
+    this.logger.debug(logFormat(rcid, 'findOne', `user with id: ${userBody.user.id} found`, {}, null));
 
     return userBody;
   }
@@ -34,34 +39,37 @@ export class UserController {
   async update(
     @Body(new JoiValidationPipe(updateSchema)) updateUserDto: UpdateUserDto,
     @User() user: JwtPayload,
+    @Rcid() rcid: string,
   ): Promise<UserBody> {
     const userBody = await this.userService.update(user.id, updateUserDto);
-    this.logger.debug(`[update] user with id: ${userBody.user.id} updated`);
+    this.logger.debug(logFormat(rcid, 'update', `user with id: ${userBody.user.id} updated`, updateUserDto, user));
 
     return userBody;
   }
 
   @Delete('/delete')
   @UseGuards(AuthGuard)
-  async delete(@User() user: JwtPayload): Promise<{ message: string }> {
+  async delete(@User() user: JwtPayload, @Rcid() rcid: string): Promise<{ message: string }> {
     const res = await this.userService.delete(user.id);
-    this.logger.debug(`[delete] user with id: ${user.id} deleted`);
+    this.logger.debug(logFormat(rcid, 'delete', `user with id: ${user.id} deleted`, {}, user));
 
     return res;
   }
 
   @Get('/email/:email')
-  async findOneByEmail(@Param('email') email: string): Promise<UserBody> {
+  async findOneByEmail(@Param('email') email: string, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOneByEmail(email);
-    this.logger.debug(`[findOneByEmail] user with email: ${userBody.user.email} found`);
+    this.logger.debug(logFormat(rcid, 'findOneByEmail', `user with email: ${userBody.user.email} found`, {}, null));
 
     return userBody;
   }
 
   @Get('/username/:username')
-  async findOneByUsername(@Param('username') username: string): Promise<UserBody> {
+  async findOneByUsername(@Param('username') username: string, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOneByUsername(username);
-    this.logger.debug(`[findOneByUsername] user with username: ${userBody.user.username} found`);
+    this.logger.debug(
+      logFormat(rcid, 'findOneByUsername', `user with username: ${userBody.user.username} found`, {}, null),
+    );
 
     return userBody;
   }
@@ -70,12 +78,21 @@ export class UserController {
   async followAction(
     @Param('userToFollowId') userToFollowId: number,
     @User() user: JwtPayload,
+    @Rcid() rcid: string,
   ): Promise<{ message: string }> {
-    return this.userService.followAction(user.id, userToFollowId);
+    const res = await this.userService.followAction(user.id, userToFollowId);
+    this.logger.debug(
+      logFormat(rcid, 'followAction', `${res} (userId: ${user.id} - userToFollowId: ${userToFollowId})`, {}, user),
+    );
+
+    return res;
   }
 
   @Get('/followers/:userId')
-  async getFollowers(@Param(':userId') userId: number): Promise<FollowersBody> {
-    return this.userService.getFollowers(userId);
+  async getFollowers(@Param(':userId') userId: number, @Rcid() rcid: string): Promise<FollowersBody> {
+    const followersBody = await this.userService.getFollowers(userId);
+    this.logger.debug(logFormat(rcid, 'getFollowers', `get followers for user id: ${userId}`, {}, null));
+
+    return followersBody;
   }
 }

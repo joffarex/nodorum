@@ -9,6 +9,8 @@ import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
 import { registerSchema, loginSchema } from './validator';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { AuthService } from './auth.service';
+import { Rcid } from 'src/shared/decorators/rcid.decorator';
+import { logFormat } from 'src/shared';
 
 @Controller('auth')
 export class AuthController {
@@ -18,10 +20,12 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UsePipes(new JoiValidationPipe(loginSchema))
-  public async login(@Body() loginUserDto: LoginUserDto): Promise<JwtDto> {
+  public async login(
+    @Body(new JoiValidationPipe(loginSchema)) loginUserDto: LoginUserDto,
+    @Rcid() rcid: string,
+  ): Promise<JwtDto> {
     const { user } = await this.userService.login(loginUserDto);
-    this.logger.debug(`[login] user ${user.username}:${user.email} logging`);
+    this.logger.debug(logFormat(rcid, 'login', `user (${user.username}:${user.email})`, loginUserDto, null));
 
     const payload: JwtPayload = {
       id: user.id,
@@ -42,20 +46,24 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(201)
-  @UsePipes(new JoiValidationPipe(registerSchema))
-  public async register(@Body() registerUserDto: RegisterUserDto): Promise<UserBody> {
+  public async register(
+    @Body(new JoiValidationPipe(registerSchema)) registerUserDto: RegisterUserDto,
+    @Rcid() rcid: string,
+  ): Promise<UserBody> {
     const { user } = await this.userService.register(registerUserDto);
-    this.logger.debug(`[register] user ${user.username}:${user.email} registering`);
-    // TODO: implement emails
-    // this.logger.debug(`[register] Send registration email for email ${user.email}`);
+    this.logger.debug(
+      logFormat(rcid, 'register', `user ${user.username}:${user.email} registering`, registerUserDto, null),
+    );
+
     return { user };
   }
 
   @Post('refresh-token')
   @HttpCode(200)
-  public async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<JwtDto> {
+  public async refreshToken(@Body() refreshTokenDto: RefreshTokenDto, @Rcid() rcid: string): Promise<JwtDto> {
     const { refreshToken } = refreshTokenDto;
-    this.logger.debug(`[refresh] Token ${refreshToken}`);
+    this.logger.debug(logFormat(rcid, 'refresh', `token ${refreshToken}`, refreshTokenDto, null));
+
     if (!refreshToken) {
       throw new ForbiddenException();
     }
