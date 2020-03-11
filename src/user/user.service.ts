@@ -195,7 +195,7 @@ export class UserService {
     };
   }
 
-  private uploadProfileImage(profileImage: string, username: string): Promise<string> {
+  private async uploadProfileImage(profileImage: string, username: string): Promise<string> {
     const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
