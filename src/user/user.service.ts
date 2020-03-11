@@ -15,6 +15,7 @@ import { FollowerEntity } from './follower.entity';
 import { DateTime } from 'luxon';
 import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { ConfigService } from '@nestjs/config';
+import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 
 @Injectable()
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
+  async register(registerUserDto: RegisterUserDto, opts: AwsS3UploadOptions): Promise<UserBody> {
     const { username, email, password, displayName, profileImage, bio } = registerUserDto;
     // check if username and email are unique
     const user = await this.userRepository
@@ -46,7 +47,7 @@ export class UserService {
     newUser.password = await hash(password);
     // optional fields
     if (displayName) newUser.displayName = displayName;
-    if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username);
+    if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username, opts);
     if (bio) newUser.bio = bio;
 
     // return saved user
@@ -195,7 +196,7 @@ export class UserService {
     };
   }
 
-  private async uploadProfileImage(profileImage: string, username: string): Promise<string> {
+  private async uploadProfileImage(profileImage: string, username: string,  opts: AwsS3UploadOptions): Promise<string> {
     const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
@@ -211,7 +212,7 @@ export class UserService {
       ACL: 'public-read',
       ContentEncoding: 'base64',
       ContentType: `image/png`,
-    });
+    }, opts);
 
     return key;
   }

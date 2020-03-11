@@ -15,6 +15,8 @@ import { AppLogger } from 'src/app.logger';
 import { PostEntity } from 'src/post/post.entity';
 import { ConfigService } from '@nestjs/config';
 import { AwsS3Service } from 'src/aws/aws-s3.service';
+import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
+
 
 @Injectable()
 export class SubnodditService {
@@ -28,7 +30,7 @@ export class SubnodditService {
     private readonly configService: ConfigService,
   ) {}
 
-  async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
+  async create(userId: number, createSubnodditDto: CreateSubnodditDto, opts: AwsS3UploadOptions): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
     const subnoddit = await this.subnodditRepository
@@ -48,7 +50,7 @@ export class SubnodditService {
 
     const newSubnoddit = new SubnodditEntity();
     newSubnoddit.name = name;
-    if (image) newSubnoddit.image = await this.uploadImage(image, name);
+    if (image) newSubnoddit.image = await this.uploadImage(image, name, opts);
     newSubnoddit.about = about;
     newSubnoddit.user = user;
 
@@ -174,7 +176,7 @@ export class SubnodditService {
       .getCount();
   }
 
-  private async uploadImage(image: string, name: string): Promise<string> {
+  private async uploadImage(image: string, name: string, opts: AwsS3UploadOptions): Promise<string> {
     const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
@@ -190,7 +192,7 @@ export class SubnodditService {
       ACL: 'public-read',
       ContentEncoding: 'base64',
       ContentType: `image/png`,
-    });
+    }, opts);
 
     return key;
   }

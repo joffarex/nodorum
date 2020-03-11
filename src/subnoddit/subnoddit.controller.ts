@@ -44,7 +44,7 @@ export class SubnodditController {
     @User() user: JwtPayload,
     @Rcid() rcid: string,
   ): Promise<SubnodditBody> {
-    const subnodditBody = await this.subnodditService.create(user.id, createSubnodditDto);
+    const subnodditBody = await this.subnodditService.create(user.id, createSubnodditDto, { rcid, user });
     this.logger.debug(`[create] subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id})  created`);
     this.logger.debug(
       logFormat(
