@@ -1,7 +1,7 @@
-## NODDIT-SERVER
+## NODDIT SERVER
 
 > :construction: Documentation is partially or completely unfinished.
 
-noddit is a reddit-like forum build with NodeJS.
+Server for a reddit-like forum build with NestJS
 
 > :warning: **DISCLAIMER**: this project is not finished
