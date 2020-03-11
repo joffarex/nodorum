@@ -12,6 +12,7 @@ import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface'
 import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { UserEntity } from 'src/user/user.entity';
 import { AppLogger } from 'src/app.logger';
+import { PostEntity } from 'src/post/post.entity';
 
 @Injectable()
 export class SubnodditService {
@@ -20,6 +21,7 @@ export class SubnodditService {
   constructor(
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
   ) {}
 
   async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
@@ -50,7 +52,7 @@ export class SubnodditService {
     return { subnoddit: savedSubnoddit };
   }
 
-  async findOne(subnodditId: number): Promise<SubnodditBody> {
+  async findOne(subnodditId: number): Promise<SubnodditBody & {subnodditPostsCount: number}> {
     const subnoddit = await this.subnodditRepository
       .createQueryBuilder('subnoddits')
       .leftJoinAndSelect('subnoddits.user', 'user')
@@ -62,7 +64,9 @@ export class SubnodditService {
       throw new NotFoundException('Subnoddit not found');
     }
 
-    return { subnoddit };
+    const subnodditPostsCount = await this.getSubnodditPostsCount(subnoddit.id)
+
+    return { subnoddit, subnodditPostsCount };
   }
 
   async findMany(filter: FilterDto): Promise<SubnodditsBody> {
@@ -100,8 +104,6 @@ export class SubnodditService {
 
     const subnoddits = await qb.getMany();
 
-    // TODO: get posts cound
-
     return {
       subnodditsCount,
       subnoddits,
@@ -126,6 +128,12 @@ export class SubnodditService {
     const subnoddit = await this.isSubnodditValid(userId, subnodditId);
 
     // TODO: restrict subnoddit removal if there are posts
+
+    const subnodditPostsCount = await this.getSubnodditPostsCount(subnoddit.id)
+
+    if(subnodditPostsCount > 0) {
+      throw new BadRequestException(`There are ${subnodditPostsCount} posts in this subnoddit and it can not be removed`)
+    }
 
     const { affected } = await this.subnodditRepository.delete(subnoddit.id);
 
@@ -153,5 +161,10 @@ export class SubnodditService {
     }
 
     return subnoddit;
+  }
+
+  private async getSubnodditPostsCount(subnodditId: number): Promise<number> {
+    return this.postRepository
+    .createQueryBuilder('posts').where('"posts"."subnodditId" = :subnodditId', {subnodditId }).getCount()
   }
 }
