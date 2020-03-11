@@ -13,12 +13,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash, verify } from 'argon2';
 import { FollowerEntity } from './follower.entity';
 import { DateTime } from 'luxon';
+import { AwsS3Service } from 'src/aws/aws-s3.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly configService: ConfigService
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
@@ -42,7 +46,26 @@ export class UserService {
     newUser.password = await hash(password);
     // optional fields
     if (displayName) newUser.displayName = displayName;
-    if (profileImage) newUser.profileImage = profileImage; // TODO: upload image to s3
+    if (profileImage) {
+      const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+
+      const bucketName = this.configService.get<string>('aws.s3BucketName')
+
+      if(!bucketName) {
+        throw new InternalServerErrorException()
+      }
+
+      const {key} = await this.awsS3Service.upload({
+      Bucket: bucketName,
+      Key: `pictures/user/${newUser.id}.png`,
+      Body: base64,
+      ACL: 'public-read',
+      ContentEncoding: 'base64',
+      ContentType: `image/png`,
+    })
+
+    newUser.profileImage = key
+    }
     if (bio) newUser.bio = bio;
 
     // return saved user
