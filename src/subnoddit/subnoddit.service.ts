@@ -48,26 +48,7 @@ export class SubnodditService {
 
     const newSubnoddit = new SubnodditEntity();
     newSubnoddit.name = name;
-    if (image) {
-      const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
-
-      const bucketName = this.configService.get<string>('aws.s3BucketName');
-
-      if (!bucketName) {
-        throw new InternalServerErrorException();
-      }
-
-      const { key } = await this.awsS3Service.upload({
-        Bucket: bucketName,
-        Key: `pictures/subnoddit/${newSubnoddit.id}.png`,
-        Body: base64,
-        ACL: 'public-read',
-        ContentEncoding: 'base64',
-        ContentType: `image/png`,
-      });
-
-      newSubnoddit.image = key;
-    }
+    if (image) newSubnoddit.image = await this.uploadImage(image, name);
     newSubnoddit.about = about;
     newSubnoddit.user = user;
 
@@ -191,5 +172,26 @@ export class SubnodditService {
       .createQueryBuilder('posts')
       .where('"posts"."subnodditId" = :subnodditId', { subnodditId })
       .getCount();
+  }
+
+  private async uploadImage(image: string, name: string): Promise<string> {
+    const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+
+    const bucketName = this.configService.get<string>('aws.s3BucketName');
+
+    if (!bucketName) {
+      throw new InternalServerErrorException();
+    }
+
+    const { key } = await this.awsS3Service.upload({
+      Bucket: bucketName,
+      Key: `pictures/subnoddit/${name}.png`,
+      Body: base64,
+      ACL: 'public-read',
+      ContentEncoding: 'base64',
+      ContentType: `image/png`,
+    });
+
+    return key;
   }
 }

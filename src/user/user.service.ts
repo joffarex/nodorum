@@ -46,26 +46,7 @@ export class UserService {
     newUser.password = await hash(password);
     // optional fields
     if (displayName) newUser.displayName = displayName;
-    if (profileImage) {
-      const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
-
-      const bucketName = this.configService.get<string>('aws.s3BucketName');
-
-      if (!bucketName) {
-        throw new InternalServerErrorException();
-      }
-
-      const { key } = await this.awsS3Service.upload({
-        Bucket: bucketName,
-        Key: `pictures/user/${newUser.id}.png`,
-        Body: base64,
-        ACL: 'public-read',
-        ContentEncoding: 'base64',
-        ContentType: `image/png`,
-      });
-
-      newUser.profileImage = key;
-    }
+    if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username);
     if (bio) newUser.bio = bio;
 
     // return saved user
@@ -212,5 +193,26 @@ export class UserService {
       followers,
       followersCount,
     };
+  }
+
+  private uploadProfileImage(profileImage: string, username: string): Promise<string> {
+    const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+
+    const bucketName = this.configService.get<string>('aws.s3BucketName');
+
+    if (!bucketName) {
+      throw new InternalServerErrorException();
+    }
+
+    const { key } = await this.awsS3Service.upload({
+      Bucket: bucketName,
+      Key: `pictures/user/${username}.png`,
+      Body: base64,
+      ACL: 'public-read',
+      ContentEncoding: 'base64',
+      ContentType: `image/png`,
+    });
+
+    return key;
   }
 }
