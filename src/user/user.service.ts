@@ -22,7 +22,7 @@ export class UserService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
     private readonly awsS3Service: AwsS3Service,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
@@ -49,22 +49,22 @@ export class UserService {
     if (profileImage) {
       const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
-      const bucketName = this.configService.get<string>('aws.s3BucketName')
+      const bucketName = this.configService.get<string>('aws.s3BucketName');
 
-      if(!bucketName) {
-        throw new InternalServerErrorException()
+      if (!bucketName) {
+        throw new InternalServerErrorException();
       }
 
-      const {key} = await this.awsS3Service.upload({
-      Bucket: bucketName,
-      Key: `pictures/user/${newUser.id}.png`,
-      Body: base64,
-      ACL: 'public-read',
-      ContentEncoding: 'base64',
-      ContentType: `image/png`,
-    })
+      const { key } = await this.awsS3Service.upload({
+        Bucket: bucketName,
+        Key: `pictures/user/${newUser.id}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      });
 
-    newUser.profileImage = key
+      newUser.profileImage = key;
     }
     if (bio) newUser.bio = bio;
 

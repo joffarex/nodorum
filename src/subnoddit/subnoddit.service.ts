@@ -25,7 +25,7 @@ export class SubnodditService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
     private readonly awsS3Service: AwsS3Service,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
@@ -51,22 +51,22 @@ export class SubnodditService {
     if (image) {
       const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
-      const bucketName = this.configService.get<string>('aws.s3BucketName')
+      const bucketName = this.configService.get<string>('aws.s3BucketName');
 
-      if(!bucketName) {
-        throw new InternalServerErrorException()
+      if (!bucketName) {
+        throw new InternalServerErrorException();
       }
 
-      const {key} = await this.awsS3Service.upload({
-      Bucket: bucketName,
-      Key: `pictures/subnoddit/${newSubnoddit.id}.png`,
-      Body: base64,
-      ACL: 'public-read',
-      ContentEncoding: 'base64',
-      ContentType: `image/png`,
-    })
+      const { key } = await this.awsS3Service.upload({
+        Bucket: bucketName,
+        Key: `pictures/subnoddit/${newSubnoddit.id}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      });
 
-    newSubnoddit.image = key
+      newSubnoddit.image = key;
     }
     newSubnoddit.about = about;
     newSubnoddit.user = user;
