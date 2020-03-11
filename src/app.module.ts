@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -9,6 +9,7 @@ import { CommentModule } from './comment/comment.module';
 import config from './config';
 import { AppLogger } from './app.logger';
 import { MailerModule, PugAdapter } from '@nest-modules/mailer';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -44,11 +45,21 @@ import { MailerModule, PugAdapter } from '@nest-modules/mailer';
       }),
       inject: [ConfigService],
     }),
+    AwsModule.forRootS3Async({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        accessKeyId: configService.get<string>('aws.accessKeyId'),
+        secretAccessKey: configService.get<string>('aws.accessKeyId'),
+        region: configService.get<string>('aws.accessKeyId'),
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     UserModule,
     SubnodditModule,
     PostModule,
     CommentModule,
+    AwsModule,
   ],
 })
 export class AppModule {
