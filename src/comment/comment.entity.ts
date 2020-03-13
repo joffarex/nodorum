@@ -1,10 +1,12 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
 import { PostEntity } from 'src/post/post.entity';
 import { PostVoteEntity } from 'src/post/post-vote.entity';
 
 @Entity({ name: 'comments' })
+@Index(['postId', 'parentId'])
+@Index(['postId', 'parentId', 'userId'])
 export class CommentEntity extends ExtendedEntity {
   @Column('text')
   text!: string;

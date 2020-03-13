@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
@@ -6,6 +6,7 @@ import { CommentEntity } from 'src/comment/comment.entity';
 import { PostVoteEntity } from './post-vote.entity';
 
 @Entity({ name: 'posts' })
+@Index(['userId', 'subnodditId'])
 export class PostEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',
@@ -31,12 +32,14 @@ export class PostEntity extends ExtendedEntity {
     () => UserEntity,
     user => user.posts,
   )
+  @Index()
   user!: UserEntity;
 
   @ManyToOne(
     () => SubnodditEntity,
     subnoddit => subnoddit.posts,
   )
+  @Index()
   subnoddit!: SubnodditEntity;
 
   @OneToMany(

@@ -83,9 +83,9 @@ export class CommentService {
     if (commentsCount > 0) {
       for (const comment of comments) {
         const postVotes = await this.commentVoteRepository
-          .createQueryBuilder('comment_vote')
-          .select('SUM(comment_vote.direction)', 'sum')
-          .where('"comment_vote"."commentId" = :commentId', { commentId: comment.id })
+          .createQueryBuilder('commentvotes')
+          .select('SUM(commentvotes.direction)', 'sum')
+          .where('"commentvotes"."commentId" = :commentId', { commentId: comment.id })
           .getRawOne();
 
         comment.votes = Number(postVotes.sum) || 0;
@@ -205,9 +205,9 @@ export class CommentService {
     }
 
     const commentVote = await this.commentVoteRepository
-      .createQueryBuilder('comment_vote')
-      .where('"comment_vote"."commentId" = :commentId', { commentId })
-      .andWhere('"comment_vote"."userId" = :userId', { userId: user.id })
+      .createQueryBuilder('commentvotes')
+      .where('"commentvotes"."commentId" = :commentId', { commentId })
+      .andWhere('"commentvotes"."userId" = :userId', { userId: user.id })
       .getOne();
 
     if (commentVote && commentVote.direction === direction) {

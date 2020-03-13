@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from 'src/user/user.entity';
 import { PostEntity } from 'src/post/post.entity';
@@ -6,12 +6,15 @@ import { PostEntity } from 'src/post/post.entity';
 export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE';
 
 @Entity({ name: 'subnoddits' })
+@Index(['status', 'userId'])
+@Index(['status', 'userId', 'name'])
 export class SubnodditEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',
     length: 255,
     unique: true,
   })
+  @Index()
   name!: string;
 
   @Column({
@@ -35,6 +38,7 @@ export class SubnodditEntity extends ExtendedEntity {
     default: 'ACTIVE',
     select: false,
   })
+  @Index()
   status!: SubnodditStatus;
 
   @ManyToOne(

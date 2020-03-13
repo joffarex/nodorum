@@ -65,7 +65,11 @@ export class PostService {
         throw new NotFoundException('Subnoddit not found');
       }
 
-      qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+      if('username' in filter) {
+        qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+      } else {
+        qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+      }
     }
 
     const postsCount = await qb.getCount();
@@ -248,9 +252,9 @@ export class PostService {
 
     for (const post of posts) {
       const postVotes = await this.postVoteRepository
-        .createQueryBuilder('post_vote')
-        .select('SUM(post_vote.direction)', 'sum')
-        .where('"post_vote"."postId" = :postId', { postId: post.id })
+        .createQueryBuilder('postvotes')
+        .select('SUM(postvotes.direction)', 'sum')
+        .where('"postvotes"."postId" = :postId', { postId: post.id })
         .getRawOne();
       post.votes = Number(postVotes.sum) || 0;
     }

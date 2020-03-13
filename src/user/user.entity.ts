@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, Index } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { PostEntity } from 'src/post/post.entity';
@@ -8,17 +8,20 @@ import { DateTime } from 'luxon';
 export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
 
 @Entity({ name: 'users' })
+@Index(['id', 'deletedAt'])
 export class UserEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',
     length: 255,
   })
+  @Index()
   username!: string;
 
   @Column({
     type: 'varchar',
     length: 255,
   })
+  @Index()
   email!: string;
 
   @Column({
