@@ -5,7 +5,6 @@ import { v1 as uuidv1 } from 'uuid';
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
-import { AppLogger } from 'src/app.logger';
 import { RedisClient } from 'src/shared/redis.provider';
 
 export type Token = {
@@ -27,7 +26,6 @@ export class AuthService {
   private issuer = this.configService.get<string>('uuid');
   private timeout = this.configService.get<number>('session.timeout');
   private refreshTimeout = this.configService.get<number>('session.refresh.timeout');
-  private logger = new AppLogger('AuthService');
 
   public getAccessToken(payload: JwtPayload): string {
     if (!this.jwtSecret || !this.timeout || !this.issuer) {
@@ -154,6 +152,7 @@ export class AuthService {
 
     if (!_refreshTokens) {
       refreshTokens = [];
+      return refreshTokens;
     }
 
     /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */

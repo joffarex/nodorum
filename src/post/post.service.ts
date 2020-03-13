@@ -84,7 +84,7 @@ export class PostService {
     const qb = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
-      .where('post.userId IN (:ids)', { ids: followingUsers.map(fu => fu.userId) });
+      .where('post.userId IN (:id)', { id: followingUsers.map(fu => fu.userId) });
 
     if ('subnodditId' in filter) {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);

@@ -12,14 +12,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const reply = ctx.getResponse<FastifyReply<ServerResponse>>();
     const request = ctx.getRequest<FastifyRequest>();
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = exception.getStatus();
 
     const body = request.body ? request.body : {};
     const user = request.user ? request.user : null;
-
-    if (typeof exception === 'string') {
-      exception = new HttpException({ error: 'Undefined', message: exception }, status);
-    }
 
     if (typeof exception.message === 'string') {
       exception = new HttpException({ error: 'Undefined', message: exception.message }, status);

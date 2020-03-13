@@ -1,12 +1,12 @@
-import { Body, Controller, HttpCode, Post, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, HttpCode, Post } from '@nestjs/common';
 import { AppLogger } from '../app.logger';
 import { UserService } from '../user/user.service';
 import { JwtDto } from './dto/jwt.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UserBody } from '../user/interfaces/user.interface';
-import { RegisterUserDto, LoginUserDto } from '../user/dto';
+import { LoginUserDto, RegisterUserDto } from '../user/dto';
 import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
-import { registerSchema, loginSchema } from './validator';
+import { loginSchema, registerSchema } from './validator';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { AuthService } from './auth.service';
 import { Rcid } from 'src/shared/decorators/rcid.decorator';
@@ -55,6 +55,8 @@ export class AuthController {
       logFormat(rcid, 'register', `user ${user.username}:${user.email} registering`, registerUserDto, null),
     );
 
+    // TODO: send confirmation email to user
+
     return { user };
   }
 
@@ -68,8 +70,6 @@ export class AuthController {
       throw new ForbiddenException();
     }
 
-    const newTokens = await this.authService.refreshToken(refreshToken);
-
-    return newTokens;
+    return this.authService.refreshToken(refreshToken);
   }
 }

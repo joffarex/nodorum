@@ -39,12 +39,4 @@ export class AppMain {
     await this.app.listen(port);
     this.logger.log(`Server listening on http://${host}:${port}`);
   }
-
-  async shutdown(): Promise<void> {
-    await this.app.close();
-  }
-
-  public getContext(): Promise<INestApplicationContext> {
-    return NestFactory.createApplicationContext(AppModule);
-  }
 }
