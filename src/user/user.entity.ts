@@ -61,6 +61,9 @@ export class UserEntity extends ExtendedEntity {
   })
   status!: UserStatus;
 
+  @Column({ type: 'timestamp', nullable: true })
+  verifiedAt!: DateTime;
+
   @OneToMany(
     () => SubnodditEntity,
     subnoddit => subnoddit.user,

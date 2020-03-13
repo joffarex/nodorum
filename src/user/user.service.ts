@@ -196,6 +196,40 @@ export class UserService {
     };
   }
 
+  async markAsVerified(userId: number): Promise<UserBody> {
+    const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.status = 'VERIFIED';
+    user.verifiedAt = DateTime.local();
+
+    const verifiedUser = await this.userRepository.save(user);
+
+    return { user: verifiedUser };
+  }
+
+  async resetPassword(userId: number, password: string): Promise<UserBody> {
+    const user = await this.userRepository
+      .createQueryBuilder('users')
+      .where('users.id = :userId', { userId })
+      .andWhere('users.deletedAt IS NULL')
+      .addSelect('users.password')
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.password = await hash(password);
+
+    const savedUser = await this.userRepository.save(user);
+
+    return { user: savedUser };
+  }
+
   private async uploadProfileImage(profileImage: string, username: string, opts: AwsS3UploadOptions): Promise<string> {
     const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
