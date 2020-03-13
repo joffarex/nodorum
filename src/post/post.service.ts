@@ -65,7 +65,7 @@ export class PostService {
         throw new NotFoundException('Subnoddit not found');
       }
 
-      if('username' in filter) {
+      if ('username' in filter) {
         qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
       } else {
         qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
