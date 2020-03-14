@@ -1,4 +1,4 @@
 export class QueryDto {
-  id!: number
-  token!: string
+  id!: number;
+  token!: string;
 }

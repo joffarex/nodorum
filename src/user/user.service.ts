@@ -211,8 +211,6 @@ export class UserService {
     return { user: verifiedUser };
   }
 
-
-
   private async uploadProfileImage(profileImage: string, username: string, opts: AwsS3UploadOptions): Promise<string> {
     const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 

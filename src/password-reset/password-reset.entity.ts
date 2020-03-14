@@ -18,6 +18,6 @@ export class PasswordResetEntity extends ExtendedEntity {
   @Index()
   user!: UserEntity;
 
-  @Column({ type: 'timestamp'})
+  @Column({ type: 'timestamp' })
   expiredAt!: string;
 }

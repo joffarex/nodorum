@@ -9,6 +9,6 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, PasswordResetEntity])],
   controllers: [PasswordResetController],
-  providers: [PasswordResetService, ConfigService]
+  providers: [PasswordResetService, ConfigService],
 })
 export class PasswordResetModule {}
