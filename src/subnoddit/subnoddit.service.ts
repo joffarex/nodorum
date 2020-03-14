@@ -16,6 +16,7 @@ import { PostEntity } from 'src/post/post.entity';
 import { ConfigService } from '@nestjs/config';
 import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
+import { MessageResponse } from 'src/shared';
 
 @Injectable()
 export class SubnodditService {
@@ -133,7 +134,7 @@ export class SubnodditService {
     return { subnoddit: updatedSubnoddit };
   }
 
-  async delete(userId: number, subnodditId: number): Promise<{ message: string }> {
+  async delete(userId: number, subnodditId: number): Promise<MessageResponse> {
     const subnoddit = await this.isSubnodditValid(userId, subnodditId);
 
     const subnodditPostsCount = await this.getSubnodditPostsCount(subnoddit.id);

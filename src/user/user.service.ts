@@ -16,6 +16,7 @@ import { DateTime } from 'luxon';
 import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { ConfigService } from '@nestjs/config';
 import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
+import { MessageResponse } from 'src/shared';
 
 @Injectable()
 export class UserService {
@@ -123,7 +124,7 @@ export class UserService {
     return { user: updatedUser };
   }
 
-  async delete(id: number): Promise<{ message: string }> {
+  async delete(id: number): Promise<MessageResponse> {
     // ensure that user exists
     const user = await this.userRepository.findOne(id);
     if (!user) {
@@ -143,7 +144,7 @@ export class UserService {
     return { message: 'User successfully removed' };
   }
 
-  async followAction(userId: number, userToFollowId: number): Promise<{ message: string }> {
+  async followAction(userId: number, userToFollowId: number): Promise<MessageResponse> {
     const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {

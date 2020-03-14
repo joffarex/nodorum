@@ -9,6 +9,7 @@ import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FollowerEntity } from 'src/user/follower.entity';
 import { AppLogger } from 'src/app.logger';
+import { MessageResponse } from 'src/shared';
 
 @Injectable()
 export class PostService {
@@ -162,7 +163,7 @@ export class PostService {
     return { post: updatedPost };
   }
 
-  async delete(userId: number, postId: number): Promise<{ message: string }> {
+  async delete(userId: number, postId: number): Promise<MessageResponse> {
     const post = await this.isPostValid(userId, postId);
 
     const { affected } = await this.postRepository.delete(post.id);
@@ -174,7 +175,7 @@ export class PostService {
     return { message: 'Post successfully removed.' };
   }
 
-  async vote(userId: number, postId: number, votePostDto: VotePostDto): Promise<{ message: string }> {
+  async vote(userId: number, postId: number, votePostDto: VotePostDto): Promise<MessageResponse> {
     const { direction } = votePostDto;
 
     const user = await this.userRepository.findOne(userId);

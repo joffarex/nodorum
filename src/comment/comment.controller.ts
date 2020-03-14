@@ -9,7 +9,7 @@ import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { JoiValidationPipe } from 'src/shared/pipes/joi-validation.pipe';
 import { AppLogger } from 'src/app.logger';
 import { Rcid } from 'src/shared/decorators/rcid.decorator';
-import { logFormat } from 'src/shared';
+import { logFormat, MessageResponse } from 'src/shared';
 
 @Controller('comment')
 export class CommentController {
@@ -52,7 +52,7 @@ export class CommentController {
     @Body(new JoiValidationPipe(voteSchema)) voteCommentDto: VoteCommentDto,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.commentService.vote(user.id, commentId, voteCommentDto);
     this.logger.debug(logFormat(rcid, 'vote', `${res} (commentId: ${commentId})`, {}, user));
 
@@ -83,7 +83,7 @@ export class CommentController {
     @Param('commentId') commentId: number,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.commentService.delete(user.id, postId, commentId);
     this.logger.debug(logFormat(rcid, 'remove', `comment with id: ${commentId} removed`, {}, user));
 

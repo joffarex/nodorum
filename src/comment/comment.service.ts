@@ -9,6 +9,7 @@ import { FilterDto } from 'src/post/dto';
 import { CreateCommentDto, UpdateCommentDto, VoteCommentDto } from './dto';
 import { CommentVoteEntity } from './comment-vote.entity';
 import { AppLogger } from 'src/app.logger';
+import { MessageResponse } from 'src/shared';
 
 @Injectable()
 export class CommentService {
@@ -167,7 +168,7 @@ export class CommentService {
     return { comment: updatedComment };
   }
 
-  async delete(userId: number, postId: number, commentId: number): Promise<{ message: string }> {
+  async delete(userId: number, postId: number, commentId: number): Promise<MessageResponse> {
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
 
     if (!post) {
@@ -188,7 +189,7 @@ export class CommentService {
     return { message: 'Comment successfully removed.' };
   }
 
-  async vote(userId: number, commentId: number, voteCommentDto: VoteCommentDto): Promise<{ message: string }> {
+  async vote(userId: number, commentId: number, voteCommentDto: VoteCommentDto): Promise<MessageResponse> {
     const { direction } = voteCommentDto;
 
     const user = await this.userRepository.findOne(userId);

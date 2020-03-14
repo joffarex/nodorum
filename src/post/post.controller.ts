@@ -9,7 +9,7 @@ import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { User } from 'src/shared/decorators';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AppLogger } from 'src/app.logger';
-import { logFormat } from 'src/shared';
+import { logFormat, MessageResponse } from 'src/shared';
 import { Rcid } from 'src/shared/decorators/rcid.decorator';
 
 @Controller('post')
@@ -81,7 +81,7 @@ export class PostController {
     @Param('postId') postId: number,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.postService.delete(user.id, postId);
     this.logger.debug(logFormat(rcid, 'delete', `post with id: ${postId} removed`, {}, user));
 
@@ -94,7 +94,7 @@ export class PostController {
     @Body(new JoiValidationPipe(voteSchema)) votePostDto: VotePostDto,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.postService.vote(user.id, postId, votePostDto);
     this.logger.debug(logFormat(rcid, 'vote', `${res} (postId: ${postId})`, {}, user));
 

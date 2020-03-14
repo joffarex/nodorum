@@ -9,7 +9,7 @@ import { User } from 'src/shared/decorators';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AppLogger } from 'src/app.logger';
 import { Rcid } from 'src/shared/decorators/rcid.decorator';
-import { logFormat } from 'src/shared';
+import { logFormat, MessageResponse } from 'src/shared';
 
 @Controller('subnoddit')
 export class SubnodditController {
@@ -87,7 +87,7 @@ export class SubnodditController {
     @Param('subnodditId') subnodditId: number,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.subnodditService.delete(user.id, subnodditId);
     this.logger.debug(logFormat(rcid, 'delete', `subnoddit with id: ${subnodditId} removed`, {}, user));
 

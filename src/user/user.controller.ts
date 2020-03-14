@@ -9,7 +9,7 @@ import { User } from 'src/shared/decorators';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AppLogger } from 'src/app.logger';
 import { Rcid } from 'src/shared/decorators/rcid.decorator';
-import { logFormat } from 'src/shared';
+import { logFormat, MessageResponse } from 'src/shared';
 
 @Controller('user')
 export class UserController {
@@ -49,7 +49,7 @@ export class UserController {
 
   @Delete('/delete')
   @UseGuards(AuthGuard)
-  async delete(@User() user: JwtPayload, @Rcid() rcid: string): Promise<{ message: string }> {
+  async delete(@User() user: JwtPayload, @Rcid() rcid: string): Promise<MessageResponse> {
     const res = await this.userService.delete(user.id);
     this.logger.debug(logFormat(rcid, 'delete', `user with id: ${user.id} deleted`, {}, user));
 
@@ -79,7 +79,7 @@ export class UserController {
     @Param('userToFollowId') userToFollowId: number,
     @User() user: JwtPayload,
     @Rcid() rcid: string,
-  ): Promise<{ message: string }> {
+  ): Promise<MessageResponse> {
     const res = await this.userService.followAction(user.id, userToFollowId);
     this.logger.debug(
       logFormat(rcid, 'followAction', `${res} (userId: ${user.id} - userToFollowId: ${userToFollowId})`, {}, user),
