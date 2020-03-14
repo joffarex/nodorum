@@ -5,6 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   InternalServerErrorException,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -15,6 +16,8 @@ import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
 import { UserEntity } from 'src/user/user.entity';
 import { PostEntity } from 'src/post/post.entity';
+import { S3_TOKEN } from 'src/aws/s3';
+import S3 from 'aws-sdk/clients/s3';
 
 @Injectable()
 export class SubnodditService {
@@ -24,13 +27,11 @@ export class SubnodditService {
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
+    @Inject(S3_TOKEN) private readonly s3Client: S3,
     private readonly configService: ConfigService,
   ) {}
 
-  async create(
-    userId: number,
-    createSubnodditDto: CreateSubnodditDto,
-  ): Promise<SubnodditBody> {
+  async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
     const subnoddit = await this.subnodditRepository
@@ -177,7 +178,7 @@ export class SubnodditService {
   }
 
   private async uploadImage(image: string, name: string): Promise<string> {
-    // const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+    const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
 
@@ -185,19 +186,17 @@ export class SubnodditService {
       throw new InternalServerErrorException();
     }
 
-    // const { key } = await this.awsS3Service.upload(
-    //   {
-    //     Bucket: bucketName,
-    //     Key: `pictures/subnoddit/${name}.png`,
-    //     Body: base64,
-    //     ACL: 'public-read',
-    //     ContentEncoding: 'base64',
-    //     ContentType: `image/png`,
-    //   },
-    //   opts,
-    // );
-    const key = `pictures/subnoddit/${name}.png`
+    const { Key } = await this.s3Client
+      .upload({
+        Bucket: bucketName,
+        Key: `pictures/subnoddit/${name}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      })
+      .promise();
 
-    return key;
+    return Key;
   }
 }

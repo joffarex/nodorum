@@ -10,7 +10,11 @@ import { CommentVoteEntity } from './comment-vote.entity';
 import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [UserModule, AuthModule, TypeOrmModule.forFeature([CommentEntity, PostEntity, UserEntity, CommentVoteEntity])],
+  imports: [
+    AuthModule,
+    UserModule,
+    TypeOrmModule.forFeature([CommentEntity, PostEntity, UserEntity, CommentVoteEntity]),
+  ],
   controllers: [CommentController],
   providers: [CommentService],
 })

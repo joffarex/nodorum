@@ -9,7 +9,7 @@ import { PostEntity } from 'src/post/post.entity';
 import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [UserModule, TypeOrmModule.forFeature([SubnodditEntity, UserEntity, PostEntity]), AuthModule],
+  imports: [AuthModule, UserModule, TypeOrmModule.forFeature([SubnodditEntity, UserEntity, PostEntity])],
   controllers: [SubnodditController],
   providers: [SubnodditService],
   exports: [SubnodditService],

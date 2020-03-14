@@ -1,22 +1,13 @@
 import { Module, DynamicModule } from '@nestjs/common';
-import { AwsS3ModuleAsyncOptions } from './interfaces/aws-s3-module-options.interface';
-import { AwsS3Service } from './aws-s3.service';
-import { CLIENT_CONFIG } from './aws.constants';
+import { S3ConfigAsyncOptions } from './s3/interfaces/s3-options.interface';
+import { S3Module } from './s3/s3.module';
 
 @Module({})
 export class AwsModule {
-  static forRootS3Async(options: AwsS3ModuleAsyncOptions): DynamicModule {
+  static forRootS3Async(options: S3ConfigAsyncOptions): DynamicModule {
     return {
       module: AwsModule,
-      providers: [
-        {
-          provide: CLIENT_CONFIG,
-          useFactory: options.useFactory,
-          inject: options.inject || [],
-        },
-        AwsS3Service,
-      ],
-      exports: [AwsS3Service],
+      imports: [S3Module.forRootAsync(options)],
     };
   }
 }

@@ -48,10 +48,11 @@ import config from './config';
     }),
     AwsModule.forRootS3Async({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        accessKeyId: configService.get<string>('aws.accessKeyId'),
-        secretAccessKey: configService.get<string>('aws.accessKeyId'),
-        region: configService.get<string>('aws.accessKeyId'),
+      useFactory: async (configService: ConfigService) => ({
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        accessKeyId: configService.get<string>('aws.accessKeyId')!,
+        secretAccessKey: configService.get<string>('aws.accessKeyId')!,
+        region: configService.get<string>('aws.region')!,
       }),
       inject: [ConfigService],
     }),

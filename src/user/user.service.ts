@@ -2,12 +2,15 @@ import { Repository, IsNull } from 'typeorm';
 import { hash, verify } from 'argon2';
 import { DateTime } from 'luxon';
 import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { S3_TOKEN } from 'src/aws/s3';
+import S3 from 'aws-sdk/clients/s3';
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
   InternalServerErrorException,
+  Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +26,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
+    @Inject(S3_TOKEN) private readonly s3Client: S3,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
   ) {}
@@ -256,7 +260,7 @@ export class UserService {
   }
 
   private async uploadProfileImage(profileImage: string, username: string): Promise<string> {
-    // const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+    const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
 
@@ -264,21 +268,18 @@ export class UserService {
       throw new InternalServerErrorException();
     }
 
-    // const { key } = await this.awsS3Service.upload(
-    //   {
-    //     Bucket: bucketName,
-    //     Key: `pictures/user/${username}.png`,
-    //     Body: base64,
-    //     ACL: 'public-read',
-    //     ContentEncoding: 'base64',
-    //     ContentType: `image/png`,
-    //   },
-    //   opts,
-    // );
+    const { Key } = await this.s3Client
+      .upload({
+        Bucket: bucketName,
+        Key: `pictures/user/${username}.png`,
+        Body: base64,
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: `image/png`,
+      })
+      .promise();
 
-    const key = `/pictures/user/${username}.png`
-
-    return key;
+    return Key;
   }
 
   private signVerificationUrl(url: string): string {
