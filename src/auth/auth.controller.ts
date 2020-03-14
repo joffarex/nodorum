@@ -50,7 +50,7 @@ export class AuthController {
     @Body(new JoiValidationPipe(registerSchema)) registerUserDto: RegisterUserDto,
     @Rcid() rcid: string,
   ): Promise<UserBody> {
-    const { user } = await this.userService.register(registerUserDto, { rcid, user: null });
+    const { user } = await this.userService.register(registerUserDto);
     this.logger.debug(
       logFormat(rcid, 'register', `user ${user.username}:${user.email} registering`, registerUserDto, null),
     );

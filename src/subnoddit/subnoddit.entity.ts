@@ -6,8 +6,8 @@ import { PostEntity } from 'src/post/post.entity';
 export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE';
 
 @Entity({ name: 'subnoddits' })
-@Index(['status', 'userId'])
-@Index(['status', 'userId', 'name'])
+@Index(['status', 'user'])
+@Index(['status', 'user', 'name'])
 export class SubnodditEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',

@@ -4,8 +4,8 @@ import { CommentEntity } from './comment.entity';
 import { UserEntity } from 'src/user/user.entity';
 
 @Entity({ name: 'commentvotes' })
-@Index(['commentId', 'userId'])
-@Index(['commentId', 'direction'])
+@Index(['comment', 'user'])
+@Index(['comment', 'direction'])
 export class CommentVoteEntity extends ExtendedEntity {
   @Column('integer')
   direction!: number;

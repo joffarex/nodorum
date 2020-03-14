@@ -5,8 +5,8 @@ import { PostEntity } from 'src/post/post.entity';
 import { PostVoteEntity } from 'src/post/post-vote.entity';
 
 @Entity({ name: 'comments' })
-@Index(['postId', 'parentId'])
-@Index(['postId', 'parentId', 'userId'])
+@Index(['post', 'parentId'])
+@Index(['post', 'parentId', 'user'])
 export class CommentEntity extends ExtendedEntity {
   @Column('text')
   text!: string;

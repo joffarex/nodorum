@@ -17,20 +17,17 @@ import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } 
 import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { UserEntity } from './user.entity';
 import { FollowerEntity } from './follower.entity';
-import { AwsS3Service } from 'src/aws/aws-s3.service';
-import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
-    private readonly awsS3Service: AwsS3Service,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
   ) {}
 
-  async register(registerUserDto: RegisterUserDto, opts: AwsS3UploadOptions): Promise<UserBody> {
+  async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
     const { username, email, password, displayName, profileImage, bio } = registerUserDto;
     // check if username and email are unique
     const user = await this.userRepository
@@ -51,7 +48,7 @@ export class UserService {
     newUser.password = await hash(password);
     // optional fields
     if (displayName) newUser.displayName = displayName;
-    if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username, opts);
+    if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username);
     if (bio) newUser.bio = bio;
 
     // return saved user
@@ -258,8 +255,8 @@ export class UserService {
     return { user: verifiedUser };
   }
 
-  private async uploadProfileImage(profileImage: string, username: string, opts: AwsS3UploadOptions): Promise<string> {
-    const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+  private async uploadProfileImage(profileImage: string, username: string): Promise<string> {
+    // const base64 = Buffer.from(profileImage.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
 
@@ -267,17 +264,19 @@ export class UserService {
       throw new InternalServerErrorException();
     }
 
-    const { key } = await this.awsS3Service.upload(
-      {
-        Bucket: bucketName,
-        Key: `pictures/user/${username}.png`,
-        Body: base64,
-        ACL: 'public-read',
-        ContentEncoding: 'base64',
-        ContentType: `image/png`,
-      },
-      opts,
-    );
+    // const { key } = await this.awsS3Service.upload(
+    //   {
+    //     Bucket: bucketName,
+    //     Key: `pictures/user/${username}.png`,
+    //     Body: base64,
+    //     ACL: 'public-read',
+    //     ContentEncoding: 'base64',
+    //     ContentType: `image/png`,
+    //   },
+    //   opts,
+    // );
+
+    const key = `/pictures/user/${username}.png`
 
     return key;
   }

@@ -7,10 +7,9 @@ import { UserService } from './user.service';
 import { UserEntity } from './user.entity';
 import { FollowerEntity } from './follower.entity';
 import { AuthService } from 'src/auth/auth.service';
-import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, FollowerEntity]), AwsModule, MailerModule],
+  imports: [TypeOrmModule.forFeature([UserEntity, FollowerEntity]), MailerModule],
   controllers: [UserController],
   providers: [UserService, ...redisProvider, AuthService],
   exports: [UserService],

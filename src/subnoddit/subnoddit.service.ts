@@ -15,8 +15,6 @@ import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
 import { UserEntity } from 'src/user/user.entity';
 import { PostEntity } from 'src/post/post.entity';
-import { AwsS3Service } from 'src/aws/aws-s3.service';
-import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 
 @Injectable()
 export class SubnodditService {
@@ -26,14 +24,12 @@ export class SubnodditService {
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
-    private readonly awsS3Service: AwsS3Service,
     private readonly configService: ConfigService,
   ) {}
 
   async create(
     userId: number,
     createSubnodditDto: CreateSubnodditDto,
-    opts: AwsS3UploadOptions,
   ): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
@@ -54,7 +50,7 @@ export class SubnodditService {
 
     const newSubnoddit = new SubnodditEntity();
     newSubnoddit.name = name;
-    if (image) newSubnoddit.image = await this.uploadImage(image, name, opts);
+    if (image) newSubnoddit.image = await this.uploadImage(image, name);
     newSubnoddit.about = about;
     newSubnoddit.user = user;
 
@@ -180,8 +176,8 @@ export class SubnodditService {
       .getCount();
   }
 
-  private async uploadImage(image: string, name: string, opts: AwsS3UploadOptions): Promise<string> {
-    const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
+  private async uploadImage(image: string, name: string): Promise<string> {
+    // const base64 = Buffer.from(image.replace(/^body:image\/\w+;base64,/, ''), 'base64');
 
     const bucketName = this.configService.get<string>('aws.s3BucketName');
 
@@ -189,17 +185,18 @@ export class SubnodditService {
       throw new InternalServerErrorException();
     }
 
-    const { key } = await this.awsS3Service.upload(
-      {
-        Bucket: bucketName,
-        Key: `pictures/subnoddit/${name}.png`,
-        Body: base64,
-        ACL: 'public-read',
-        ContentEncoding: 'base64',
-        ContentType: `image/png`,
-      },
-      opts,
-    );
+    // const { key } = await this.awsS3Service.upload(
+    //   {
+    //     Bucket: bucketName,
+    //     Key: `pictures/subnoddit/${name}.png`,
+    //     Body: base64,
+    //     ACL: 'public-read',
+    //     ContentEncoding: 'base64',
+    //     ContentType: `image/png`,
+    //   },
+    //   opts,
+    // );
+    const key = `pictures/subnoddit/${name}.png`
 
     return key;
   }

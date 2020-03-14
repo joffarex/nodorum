@@ -6,7 +6,7 @@ import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { CommentEntity } from 'src/comment/comment.entity';
 
 @Entity({ name: 'posts' })
-@Index(['userId', 'subnodditId'])
+@Index(['user', 'subnoddit'])
 export class PostEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',

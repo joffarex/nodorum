@@ -4,8 +4,8 @@ import { PostEntity } from './post.entity';
 import { UserEntity } from 'src/user/user.entity';
 
 @Entity({ name: 'postvotes' })
-@Index(['userId', 'postId'])
-@Index(['direction', 'postId'])
+@Index(['user', 'post'])
+@Index(['direction', 'post'])
 export class PostVoteEntity extends ExtendedEntity {
   @Column('integer')
   direction!: number;
