@@ -7,15 +7,16 @@ import { UserEntity } from 'src/user/user.entity';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { PostVoteEntity } from './post-vote.entity';
 import { FollowerEntity } from 'src/user/follower.entity';
-import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from 'src/user/user.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     UserModule,
     TypeOrmModule.forFeature([PostEntity, UserEntity, SubnodditEntity, PostVoteEntity, FollowerEntity]),
   ],
   controllers: [PostController],
-  providers: [PostService, AuthService],
+  providers: [PostService],
 })
 export class PostModule {}

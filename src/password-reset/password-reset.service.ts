@@ -2,8 +2,9 @@ import { hash } from 'argon2';
 import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 import { Repository } from 'typeorm';
 import { DateTime } from 'luxon';
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nest-modules/mailer';
 import { MessageResponse } from 'src/shared';
 import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
@@ -13,8 +14,8 @@ import { PasswordResetEntity } from './password-reset.entity';
 @Injectable()
 export class PasswordResetService {
   constructor(
-    @Inject(UserEntity) private readonly userRepository: Repository<UserEntity>,
-    @Inject(PasswordResetEntity) private readonly passwordResetRepository: Repository<PasswordResetEntity>,
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(PasswordResetEntity) private readonly passwordResetRepository: Repository<PasswordResetEntity>,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
   ) {}

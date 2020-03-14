@@ -4,15 +4,14 @@ import { SubnodditController } from './subnoddit.controller';
 import { SubnodditService } from './subnoddit.service';
 import { SubnodditEntity } from './subnoddit.entity';
 import { UserEntity } from 'src/user/user.entity';
-import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from 'src/user/user.module';
 import { PostEntity } from 'src/post/post.entity';
-import { AwsS3Service } from 'src/aws/aws-s3.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [UserModule, TypeOrmModule.forFeature([SubnodditEntity, UserEntity, PostEntity])],
+  imports: [UserModule, TypeOrmModule.forFeature([SubnodditEntity, UserEntity, PostEntity]), AuthModule],
   controllers: [SubnodditController],
-  providers: [SubnodditService, AuthService, AwsS3Service],
+  providers: [SubnodditService],
   exports: [SubnodditService],
 })
 export class SubnodditModule {}
