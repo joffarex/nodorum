@@ -1,3 +1,4 @@
-export { registerSchema } from './register-user.validator';
-export { loginSchema } from './login-user.validator';
-export { updateSchema } from './update-user.validator';
+export * from './register-user.validator';
+export * from './login-user.validator';
+export * from './update-user.validator';
+export * from './send-email.validator';

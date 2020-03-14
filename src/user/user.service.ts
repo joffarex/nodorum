@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
-import { RegisterUserDto, UpdateUserDto, LoginUserDto } from './dto';
+import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
 import { UserEntity } from './user.entity';
 import { Repository, IsNull } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +17,7 @@ import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { ConfigService } from '@nestjs/config';
 import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 import { MessageResponse } from 'src/shared';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -197,7 +198,54 @@ export class UserService {
     };
   }
 
-  async markAsVerified(userId: number): Promise<UserBody> {
+  async verifyEmail(query: QueryDto, url: string): Promise<MessageResponse> {
+    const { id } = query;
+
+    const user = await this.userRepository
+      .createQueryBuilder('users')
+      .addSelect('verifiedAt')
+      .where('users.id = :id', { id })
+      .getOne();
+
+    if (!user || !this.hasValidVerificationUrl(url, query)) {
+      throw new BadRequestException('Invalid activation link');
+    }
+
+    if (user.verifiedAt && user.status === 'VERIFIED') {
+      throw new BadRequestException('Email already verified');
+    }
+
+    await this.markAsVerified(user.id);
+
+    return { message: 'Email verified successfully' };
+  }
+
+  async sendEmail(sendEmailDto: SendEmailDto) {
+    const { email } = sendEmailDto;
+
+    const user = await this.userRepository.findOne({ email, deletedAt: IsNull() });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.verifiedAt && user.status === 'VERIFIED') {
+      throw new BadRequestException('Email already verified');
+    }
+
+    const link = this.verificationUrl(user);
+
+    // TODO: send email
+    console.log({
+      to: user.email,
+      subject: 'Verify your email address',
+      text: link,
+    });
+
+    return { message: `Email sent to ${user.email}` };
+  }
+
+  private async markAsVerified(userId: number): Promise<UserBody> {
     const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
     if (!user) {
@@ -234,5 +282,37 @@ export class UserService {
     );
 
     return key;
+  }
+
+  private signVerificationUrl(url: string): string {
+    return createHmac('sha256', 'secret')
+      .update(url)
+      .digest('hex');
+  }
+
+  private verificationUrl(user: UserEntity): string {
+    const { id, email } = user;
+    const token = createHash('sha1')
+      .update(email)
+      .digest('hex');
+    const expires = DateTime.local().plus({ minutes: 15 });
+
+    const host = this.configService.get<string>('host');
+    const url = `${host}//email/verify?id=${id}&token=${token}&expires=${expires}`;
+    const signature = this.signVerificationUrl(url);
+
+    return `${url}&signature=${signature}`;
+  }
+
+  private hasValidVerificationUrl(path: string, query: any): boolean {
+    const host = this.configService.get<string>('host');
+    const url = `${host}${path}`;
+    const original = url.slice(0, url.lastIndexOf('&'));
+    const signature = this.signVerificationUrl(original);
+
+    return (
+      timingSafeEqual(Buffer.from(signature), Buffer.from(query.signature)) &&
+      query.expires > DateTime.local().toString()
+    );
   }
 }

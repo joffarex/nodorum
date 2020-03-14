@@ -61,7 +61,7 @@ export class UserEntity extends ExtendedEntity {
   })
   status!: UserStatus;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, select: false })
   verifiedAt!: DateTime;
 
   @OneToMany(

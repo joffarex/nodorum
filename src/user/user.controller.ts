@@ -1,14 +1,13 @@
-import { Controller, Get, Param, Body, Put, Delete, UseGuards, Post } from '@nestjs/common';
-import { UpdateUserDto } from './dto';
+import { Controller, Get, Param, Body, Put, Delete, UseGuards, Post, Query } from '@nestjs/common';
+import { UpdateUserDto, SendEmailDto, QueryDto } from './dto';
 import { UserService } from './user.service';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
-import { updateSchema } from './validator';
+import { updateSchema, sendEmailSchema } from './validator';
 import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
 import { AuthGuard } from '../shared/guards/auth.guard';
-import { User } from 'src/shared/decorators';
+import { User, ReqUrl, Rcid } from 'src/shared/decorators';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AppLogger } from 'src/app.logger';
-import { Rcid } from 'src/shared/decorators/rcid.decorator';
 import { logFormat, MessageResponse } from 'src/shared';
 
 @Controller('user')
@@ -32,6 +31,22 @@ export class UserController {
     this.logger.debug(logFormat(rcid, 'findOne', `user with id: ${userBody.user.id} found`, {}, null));
 
     return userBody;
+  }
+
+  @Post('/email/verify')
+  async verifyEmail(@Query() query: QueryDto, @ReqUrl() url: string, @Rcid() rcid: string): Promise<MessageResponse> {
+    const res = await this.userService.verifyEmail(query, url);
+    this.logger.debug(logFormat(rcid, 'verify', res.message, {}, null));
+
+    return res;
+  }
+
+  @Post('/email/send')
+  async sendEmail(@Body(new JoiValidationPipe(sendEmailSchema)) sendEmailDto: SendEmailDto, @Rcid() rcid: string) {
+    const res = await this.userService.sendEmail(sendEmailDto);
+    this.logger.debug(logFormat(rcid, 'verify', res.message, sendEmailDto, null));
+
+    return res;
   }
 
   @Put('/update')
