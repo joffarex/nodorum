@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailerService } from '@nest-modules/mailer';
 import { MessageResponse } from 'src/shared';
 import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
@@ -26,6 +27,7 @@ export class UserService {
     @InjectRepository(FollowerEntity) private readonly followerRepository: Repository<FollowerEntity>,
     private readonly awsS3Service: AwsS3Service,
     private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async register(registerUserDto: RegisterUserDto, opts: AwsS3UploadOptions): Promise<UserBody> {
@@ -132,8 +134,6 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // TODO: move deleted user in separate table
-
     user.deletedAt = DateTime.local();
     user.displayName = '[DELETED]';
     user.username = '[DELETED]';
@@ -185,7 +185,6 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // TODO: experimental, subject to change
     const qb = this.followerRepository.createQueryBuilder('followers').leftJoinAndSelect('followers.userId', 'user');
 
     const followers = await qb.getMany();
@@ -235,8 +234,7 @@ export class UserService {
 
     const link = this.verificationUrl(user);
 
-    // TODO: send email
-    console.log({
+    await this.mailerService.sendMail({
       to: user.email,
       subject: 'Verify your email address',
       text: link,

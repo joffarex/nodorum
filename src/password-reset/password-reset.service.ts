@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { DateTime } from 'luxon';
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { MailerService } from '@nest-modules/mailer';
 import { MessageResponse } from 'src/shared';
 import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
 import { UserEntity } from 'src/user/user.entity';
@@ -15,6 +16,7 @@ export class PasswordResetService {
     @Inject(UserEntity) private readonly userRepository: Repository<UserEntity>,
     @Inject(PasswordResetEntity) private readonly passwordResetRepository: Repository<PasswordResetEntity>,
     private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<MessageResponse> {
@@ -34,8 +36,7 @@ export class PasswordResetService {
 
     const savedReset = await this.passwordResetRepository.save(reset);
 
-    // TODO: send email
-    console.log({
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Reset your password',
       text: this.url(savedReset.id, token),
@@ -63,8 +64,7 @@ export class PasswordResetService {
         .delete(),
     ]);
 
-    // TODO: send mail
-    console.log({
+    await this.mailerService.sendMail({
       to: user.email,
       subject: 'Password reset',
       text: 'Your password was successfully reset',

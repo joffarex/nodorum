@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailerService } from '@nest-modules/mailer';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserEntity } from './user.entity';
@@ -10,7 +11,7 @@ import { AwsS3Service } from 'src/aws/aws-s3.service';
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, FollowerEntity])],
   controllers: [UserController],
-  providers: [UserService, AuthService, AwsS3Service],
+  providers: [UserService, AuthService, AwsS3Service, MailerService],
   exports: [UserService],
 })
 export class UserModule {}
