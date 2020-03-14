@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm';
-import { CommentEntity } from './comment.entity';
 import { ExtendedEntity } from 'src/shared';
+import { CommentEntity } from './comment.entity';
 import { UserEntity } from 'src/user/user.entity';
 
 @Entity({ name: 'commentvotes' })

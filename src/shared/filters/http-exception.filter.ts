@@ -1,7 +1,7 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ServerResponse } from 'http';
-import { AppLogger } from '../../app.logger';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { AppLogger } from 'src/app.logger';
 import { logFormat } from '../log-format';
 
 @Catch(HttpException)

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PasswordResetController } from './password-reset.controller';
-import { PasswordResetService } from './password-reset.service';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/user.entity';
 import { PasswordResetEntity } from './password-reset.entity';
-import { ConfigService } from '@nestjs/config';
+import { PasswordResetController } from './password-reset.controller';
+import { PasswordResetService } from './password-reset.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, PasswordResetEntity])],

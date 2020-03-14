@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CommentController } from './comment.controller';
-import { CommentService } from './comment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CommentEntity } from './comment.entity';
 import { PostEntity } from 'src/post/post.entity';
 import { UserEntity } from 'src/user/user.entity';
-import { CommentVoteEntity } from './comment-vote.entity';
-import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from 'src/user/user.module';
+import { AuthService } from 'src/auth/auth.service';
+import { CommentController } from './comment.controller';
+import { CommentService } from './comment.service';
+import { CommentEntity } from './comment.entity';
+import { CommentVoteEntity } from './comment-vote.entity';
 
 @Module({
   imports: [UserModule, TypeOrmModule.forFeature([CommentEntity, PostEntity, UserEntity, CommentVoteEntity])],

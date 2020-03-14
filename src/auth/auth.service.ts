@@ -1,11 +1,11 @@
-import { Injectable, InternalServerErrorException, Inject } from '@nestjs/common';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
 import jwt from 'jsonwebtoken';
 import { v1 as uuidv1 } from 'uuid';
+import { Injectable, InternalServerErrorException, Inject } from '@nestjs/common';
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
 import { RedisClient } from 'src/shared/redis.provider';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 export type Token = {
   id: string;

@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm';
-import { ExtendedEntity } from '../shared';
+import { ExtendedEntity } from 'src/shared';
 import { UserEntity } from 'src/user/user.entity';
 
 @Entity({ name: 'passwordreset' })

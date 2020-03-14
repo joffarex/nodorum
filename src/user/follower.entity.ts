@@ -1,5 +1,5 @@
 import { Entity, Column, Index } from 'typeorm';
-import { ExtendedEntity } from '../shared';
+import { ExtendedEntity } from 'src/shared';
 
 @Entity({ name: 'followers' })
 @Index(['userId', 'followerId'])

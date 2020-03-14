@@ -1,3 +1,3 @@
-export { createSchema } from './create-subnoddit.validator';
-export { updateSchema } from './update-subnoddit.validator';
-export { filterSchema } from './filter.validator';
+export * from './create-subnoddit.validator';
+export * from './update-subnoddit.validator';
+export * from './filter.validator';

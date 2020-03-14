@@ -1,3 +1,7 @@
+import { Repository, IsNull } from 'typeorm';
+import { hash, verify } from 'argon2';
+import { DateTime } from 'luxon';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
 import {
   Injectable,
   BadRequestException,
@@ -5,19 +9,15 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { UserBody, FollowersBody } from './interfaces/user.interface';
-import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
-import { UserEntity } from './user.entity';
-import { Repository, IsNull } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { hash, verify } from 'argon2';
-import { FollowerEntity } from './follower.entity';
-import { DateTime } from 'luxon';
-import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { ConfigService } from '@nestjs/config';
-import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
+import { InjectRepository } from '@nestjs/typeorm';
 import { MessageResponse } from 'src/shared';
-import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
+import { UserBody, FollowersBody } from './interfaces/user.interface';
+import { UserEntity } from './user.entity';
+import { FollowerEntity } from './follower.entity';
+import { AwsS3Service } from 'src/aws/aws-s3.service';
+import { AwsS3UploadOptions } from 'src/aws/interfaces/aws-s3-module-options.interface';
 
 @Injectable()
 export class UserService {

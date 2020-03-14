@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailerModule, PugAdapter } from '@nest-modules/mailer';
+import { AppLogger } from './app.logger';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { SubnodditModule } from './subnoddit/subnoddit.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
-import config from './config';
-import { AppLogger } from './app.logger';
-import { MailerModule, PugAdapter } from '@nest-modules/mailer';
 import { AwsModule } from './aws/aws.module';
 import { PasswordResetModule } from './password-reset/password-reset.module';
+import config from './config';
 
 @Module({
   imports: [

@@ -1,13 +1,13 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { UserEntity } from 'src/user/user.entity';
-import { PasswordResetEntity } from './password-reset.entity';
 import { hash } from 'argon2';
 import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
-import { ConfigService } from '@nestjs/config';
+import { Repository } from 'typeorm';
 import { DateTime } from 'luxon';
-import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MessageResponse } from 'src/shared';
+import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
+import { UserEntity } from 'src/user/user.entity';
+import { PasswordResetEntity } from './password-reset.entity';
 
 @Injectable()
 export class PasswordResetService {

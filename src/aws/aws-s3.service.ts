@@ -1,8 +1,8 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import AWS from 'aws-sdk';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { AppLogger } from 'src/app.logger';
-import { CLIENT_CONFIG } from './aws.constants';
 import { logFormat } from 'src/shared';
+import { CLIENT_CONFIG } from './aws.constants';
 import { AwsS3UploadOptions } from './interfaces/aws-s3-module-options.interface';
 
 @Injectable()

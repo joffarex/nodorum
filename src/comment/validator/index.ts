@@ -1,4 +1,4 @@
-export { createSchema } from './create-comment.validator';
-export { updateSchema } from './update-comment.validator';
-export { voteSchema } from './vote-comment.validator';
-export { filterSchema } from './filter.validator';
+export * from './create-comment.validator';
+export * from './update-comment.validator';
+export * from './vote-comment.validator';
+export * from './filter.validator';

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubnodditController } from './subnoddit.controller';
 import { SubnodditService } from './subnoddit.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubnodditEntity } from './subnoddit.entity';
 import { UserEntity } from 'src/user/user.entity';
 import { AuthService } from 'src/auth/auth.service';

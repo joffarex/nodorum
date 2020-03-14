@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm';
-import { ExtendedEntity } from '../shared';
-import { UserEntity } from 'src/user/user.entity';
+import { ExtendedEntity } from 'src/shared';
 import { PostEntity } from './post.entity';
+import { UserEntity } from 'src/user/user.entity';
 
 @Entity({ name: 'postvotes' })
 @Index(['userId', 'postId'])

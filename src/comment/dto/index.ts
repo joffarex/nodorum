@@ -1,4 +1,4 @@
-export { CreateCommentDto } from './create-comment.dto';
-export { UpdateCommentDto } from './update-comment.dto';
-export { FilterDto } from './filter.dto';
-export { VoteCommentDto } from './vote-comment.dto';
+export * from './create-comment.dto';
+export * from './update-comment.dto';
+export * from './filter.dto';
+export * from './vote-comment.dto';

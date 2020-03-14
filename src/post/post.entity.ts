@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
-import { ExtendedEntity } from '../shared';
+import { ExtendedEntity } from 'src/shared';
+import { PostVoteEntity } from './post-vote.entity';
 import { UserEntity } from 'src/user/user.entity';
 import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
 import { CommentEntity } from 'src/comment/comment.entity';
-import { PostVoteEntity } from './post-vote.entity';
 
 @Entity({ name: 'posts' })
 @Index(['userId', 'subnodditId'])

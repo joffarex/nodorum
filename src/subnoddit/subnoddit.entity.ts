@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
-import { ExtendedEntity } from '../shared';
+import { ExtendedEntity } from 'src/shared';
 import { UserEntity } from 'src/user/user.entity';
 import { PostEntity } from 'src/post/post.entity';
 

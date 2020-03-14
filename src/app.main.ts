@@ -1,12 +1,12 @@
-import { INestApplicationContext, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'fastify-helmet';
 import compress from 'fastify-compress';
 import { AppLogger } from './app.logger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters';
-import { ConfigService } from '@nestjs/config';
 
 export class AppMain {
   private app!: NestFastifyApplication;

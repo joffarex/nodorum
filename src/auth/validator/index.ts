@@ -1,2 +1,2 @@
-export { registerSchema } from './register.validator';
-export { loginSchema } from './login.validator';
+export * from './register.validator';
+export * from './login.validator';

@@ -1,15 +1,14 @@
 import { Controller, Param, Body, Post, Put, Delete, UseGuards } from '@nestjs/common';
-import { CommentService } from './comment.service';
-import { CommentsBody, CommentBody } from './interfaces/comment.interface';
-import { FilterDto, CreateCommentDto, UpdateCommentDto, VoteCommentDto } from './dto';
-import { createSchema, updateSchema, voteSchema, filterSchema } from './validator';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-import { User } from 'src/shared/decorators';
-import { AuthGuard } from 'src/shared/guards/auth.guard';
-import { JoiValidationPipe } from 'src/shared/pipes/joi-validation.pipe';
-import { AppLogger } from 'src/app.logger';
-import { Rcid } from 'src/shared/decorators/rcid.decorator';
+import { User, Rcid } from 'src/shared/decorators';
+import { JoiValidationPipe } from 'src/shared/pipes';
+import { AuthGuard } from 'src/shared/guards';
 import { logFormat, MessageResponse } from 'src/shared';
+import { AppLogger } from 'src/app.logger';
+import { createSchema, updateSchema, voteSchema, filterSchema } from './validator';
+import { FilterDto, CreateCommentDto, UpdateCommentDto, VoteCommentDto } from './dto';
+import { CommentsBody, CommentBody } from './interfaces/comment.interface';
+import { CommentService } from './comment.service';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Controller('comment')
 export class CommentController {

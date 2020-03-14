@@ -1,5 +1,5 @@
-import { LoggerService } from '@nestjs/common';
 import { transports, createLogger, Logger, format } from 'winston';
+import { LoggerService } from '@nestjs/common';
 
 const myFormat = format.printf(({ level, message, label, timestamp }) => {
   const data = {

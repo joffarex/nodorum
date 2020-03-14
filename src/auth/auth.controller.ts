@@ -1,16 +1,15 @@
 import { Body, Controller, ForbiddenException, HttpCode, Post } from '@nestjs/common';
+import { JoiValidationPipe } from 'src/shared/pipes';
+import { Rcid } from 'src/shared/decorators';
+import { logFormat } from 'src/shared';
 import { AppLogger } from '../app.logger';
-import { UserService } from '../user/user.service';
-import { JwtDto } from './dto/jwt.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UserBody } from '../user/interfaces/user.interface';
-import { LoginUserDto, RegisterUserDto } from '../user/dto';
-import { JoiValidationPipe } from '../shared/pipes/joi-validation.pipe';
 import { loginSchema, registerSchema } from './validator';
+import { JwtDto, RefreshTokenDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { AuthService } from './auth.service';
-import { Rcid } from 'src/shared/decorators/rcid.decorator';
-import { logFormat } from 'src/shared';
+import { UserService } from '../user/user.service';
+import { UserBody } from '../user/interfaces/user.interface';
+import { LoginUserDto, RegisterUserDto } from '../user/dto';
 
 @Controller('auth')
 export class AuthController {

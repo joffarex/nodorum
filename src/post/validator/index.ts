@@ -1,3 +1,4 @@
-export { createSchema } from './create-post.validator';
-export { updateSchema } from './update-post.validator';
-export { filterSchema } from './filter.validator';
+export * from './create-post.validator';
+export * from './update-post.validator';
+export * from './filter.validator';
+export * from './vote-post.validator';
