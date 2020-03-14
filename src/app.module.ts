@@ -10,6 +10,7 @@ import config from './config';
 import { AppLogger } from './app.logger';
 import { MailerModule, PugAdapter } from '@nest-modules/mailer';
 import { AwsModule } from './aws/aws.module';
+import { PasswordResetModule } from './password-reset/password-reset.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { AwsModule } from './aws/aws.module';
     PostModule,
     CommentModule,
     AwsModule,
+    PasswordResetModule,
   ],
 })
 export class AppModule {
