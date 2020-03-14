@@ -46,14 +46,13 @@ export class AuthService {
     const token = {
       id: uuidv1(),
       userId: payload.id,
+      tokenId: payload.tokenId,
       refreshToken,
     };
 
     const updatedRefreshTokens = refreshTokens.push(token);
 
     await this.redisClient.set(`${payload.id}`, JSON.stringify(updatedRefreshTokens));
-
-    // TODO: log updated refresh tokens
 
     return refreshToken;
   }
@@ -131,6 +130,7 @@ export class AuthService {
 
     // user's data for new tokens
     const payload = {
+      tokenId: uuidv1(),
       id: user.id,
       email: user.email,
       username: user.username,

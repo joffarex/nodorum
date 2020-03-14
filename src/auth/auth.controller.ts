@@ -1,3 +1,4 @@
+import { v1 as uuidv1 } from 'uuid';
 import { Body, Controller, ForbiddenException, HttpCode, Post } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/shared/pipes';
 import { Rcid } from 'src/shared/decorators';
@@ -27,10 +28,10 @@ export class AuthController {
     this.logger.debug(logFormat(rcid, 'login', `user (${user.username}:${user.email})`, loginUserDto, null));
 
     const payload: JwtPayload = {
+      tokenId: uuidv1(),
       id: user.id,
       email: user.email,
       username: user.username,
-      // TODO: maybe add other fields
     };
 
     const accessToken = this.authService.getAccessToken(payload);
@@ -53,8 +54,6 @@ export class AuthController {
     this.logger.debug(
       logFormat(rcid, 'register', `user ${user.username}:${user.email} registering`, registerUserDto, null),
     );
-
-    // TODO: send confirmation email to user
 
     return { user };
   }
