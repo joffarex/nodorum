@@ -9,14 +9,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { SubnodditEntity } from './subnoddit.entity';
 import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
-import { UserEntity } from 'src/user/user.entity';
-import { PostEntity } from 'src/post/post.entity';
-import { S3_TOKEN } from 'src/aws/s3';
+import { UserEntity } from '../user/user.entity';
+import { PostEntity } from '../post/post.entity';
+import { S3_TOKEN } from '../aws/s3';
 import S3 from 'aws-sdk/clients/s3';
 
 @Injectable()

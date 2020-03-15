@@ -1,14 +1,14 @@
 import { Controller, Post, Body, Get, Put, Param, Delete, UseGuards } from '@nestjs/common';
-import { User, Rcid } from 'src/shared/decorators';
-import { JoiValidationPipe } from 'src/shared/pipes';
-import { AuthGuard } from 'src/shared/guards';
-import { logFormat, MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { User, Rcid } from '../shared/decorators';
+import { JoiValidationPipe } from '../shared/pipes';
+import { AuthGuard } from '../shared/guards';
+import { logFormat, MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { filterSchema, createSchema, updateSchema } from './validator';
 import { FilterDto, CreateSubnodditDto, UpdateSubnodditDto } from './dto';
 import { SubnodditsBody, SubnodditBody } from './interfaces/subnoddit.interface';
 import { SubnodditService } from './subnoddit.service';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('subnoddit')
 export class SubnodditController {

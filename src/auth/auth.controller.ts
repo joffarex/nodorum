@@ -1,8 +1,8 @@
 import { v1 as uuidv1 } from 'uuid';
 import { Body, Controller, ForbiddenException, HttpCode, Post } from '@nestjs/common';
-import { JoiValidationPipe } from 'src/shared/pipes';
-import { Rcid } from 'src/shared/decorators';
-import { logFormat } from 'src/shared';
+import { JoiValidationPipe } from '../shared/pipes';
+import { Rcid } from '../shared/decorators';
+import { logFormat } from '../shared';
 import { AppLogger } from '../app.logger';
 import { loginSchema, registerSchema } from './validator';
 import { JwtDto, RefreshTokenDto } from './dto';

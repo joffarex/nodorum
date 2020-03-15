@@ -2,7 +2,7 @@ import { Repository, IsNull } from 'typeorm';
 import { hash, verify } from 'argon2';
 import { DateTime } from 'luxon';
 import { createHash, createHmac, timingSafeEqual } from 'crypto';
-import { S3_TOKEN } from 'src/aws/s3';
+import { S3_TOKEN } from '../aws/s3';
 import S3 from 'aws-sdk/clients/s3';
 import {
   Injectable,
@@ -15,7 +15,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nest-modules/mailer';
-import { MessageResponse } from 'src/shared';
+import { MessageResponse } from '../shared';
 import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { UserEntity } from './user.entity';

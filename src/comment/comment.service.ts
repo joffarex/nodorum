@@ -1,13 +1,13 @@
 import { Repository } from 'typeorm';
 import { Injectable, NotFoundException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { CreateCommentDto, UpdateCommentDto, VoteCommentDto, FilterDto } from './dto';
 import { CommentBody, CommentsBody } from './interfaces/comment.interface';
 import { CommentEntity } from './comment.entity';
-import { UserEntity } from 'src/user/user.entity';
-import { PostEntity } from 'src/post/post.entity';
+import { UserEntity } from '../user/user.entity';
+import { PostEntity } from '../post/post.entity';
 import { CommentVoteEntity } from './comment-vote.entity';
 
 @Injectable()

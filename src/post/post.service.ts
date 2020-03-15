@@ -1,15 +1,15 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Injectable, NotFoundException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { PostEntity } from './post.entity';
 import { PostVoteEntity } from './post-vote.entity';
-import { UserEntity } from 'src/user/user.entity';
-import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
-import { FollowerEntity } from 'src/user/follower.entity';
+import { UserEntity } from '../user/user.entity';
+import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
+import { FollowerEntity } from '../user/follower.entity';
 
 @Injectable()
 export class PostService {

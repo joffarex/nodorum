@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
-import { UserEntity } from 'src/user/user.entity';
-import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
+import { UserEntity } from '../user/user.entity';
+import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { PostVoteEntity } from './post-vote.entity';
-import { FollowerEntity } from 'src/user/follower.entity';
-import { UserModule } from 'src/user/user.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { FollowerEntity } from '../user/follower.entity';
+import { UserModule } from '../user/user.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [

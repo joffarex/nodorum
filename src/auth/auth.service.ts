@@ -3,8 +3,8 @@ import { v1 as uuidv1 } from 'uuid';
 import { Injectable, InternalServerErrorException, Inject } from '@nestjs/common';
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from 'src/user/user.service';
-import { RedisClient } from 'src/shared/redis.provider';
+import { UserService } from '../user/user.service';
+import { RedisClient } from '../shared/redis.provider';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 export type Token = {

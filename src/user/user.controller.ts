@@ -1,14 +1,14 @@
 import { Controller, Get, Param, Body, Put, Delete, UseGuards, Post, Query } from '@nestjs/common';
-import { AuthGuard } from 'src/shared/guards';
-import { JoiValidationPipe } from 'src/shared/pipes';
-import { User, ReqUrl, Rcid } from 'src/shared/decorators';
-import { logFormat, MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { AuthGuard } from '../shared/guards';
+import { JoiValidationPipe } from '../shared/pipes';
+import { User, ReqUrl, Rcid } from '../shared/decorators';
+import { logFormat, MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { updateSchema, sendEmailSchema } from './validator';
 import { UpdateUserDto, SendEmailDto, QueryDto } from './dto';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { UserService } from './user.service';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('user')
 export class UserController {

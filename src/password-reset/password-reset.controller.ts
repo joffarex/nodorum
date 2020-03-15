@@ -1,8 +1,8 @@
 import { Controller, Post, Body, Query } from '@nestjs/common';
-import { JoiValidationPipe } from 'src/shared/pipes';
-import { Rcid } from 'src/shared/decorators';
-import { logFormat, MessageResponse } from 'src/shared';
-import { AppLogger } from 'src/app.logger';
+import { JoiValidationPipe } from '../shared/pipes';
+import { Rcid } from '../shared/decorators';
+import { logFormat, MessageResponse } from '../shared';
+import { AppLogger } from '../app.logger';
 import { forgotPasswordSchema, resetPasswordSchema } from './validator';
 import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
 import { PasswordResetService } from './password-reset.service';

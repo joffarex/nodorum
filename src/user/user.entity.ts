@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
 import { Entity, Column, OneToMany, Index } from 'typeorm';
-import { ExtendedEntity } from 'src/shared';
-import { SubnodditEntity } from 'src/subnoddit/subnoddit.entity';
-import { PostEntity } from 'src/post/post.entity';
-import { CommentEntity } from 'src/comment/comment.entity';
+import { ExtendedEntity } from '../shared';
+import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
+import { PostEntity } from '../post/post.entity';
+import { CommentEntity } from '../comment/comment.entity';
 
 export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
 

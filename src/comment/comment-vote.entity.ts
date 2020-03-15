@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm';
-import { ExtendedEntity } from 'src/shared';
+import { ExtendedEntity } from '../shared';
 import { CommentEntity } from './comment.entity';
-import { UserEntity } from 'src/user/user.entity';
+import { UserEntity } from '../user/user.entity';
 
 @Entity({ name: 'commentvotes' })
 @Index(['comment', 'user'])

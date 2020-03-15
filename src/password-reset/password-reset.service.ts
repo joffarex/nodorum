@@ -6,9 +6,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nest-modules/mailer';
-import { MessageResponse } from 'src/shared';
+import { MessageResponse } from '../shared';
 import { ForgotPasswordDto, ResetPasswordDto, QueryDto } from './dto';
-import { UserEntity } from 'src/user/user.entity';
+import { UserEntity } from '../user/user.entity';
 import { PasswordResetEntity } from './password-reset.entity';
 
 @Injectable()
