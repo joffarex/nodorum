@@ -50,7 +50,7 @@ export class PostService {
 
     // if there are both username and subnodditId in filter, there is something wrong with front
     if ('username' in filter && 'subnodditId' in filter) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Wrong filters');
     }
 
     // if username is specified, get user's posts
