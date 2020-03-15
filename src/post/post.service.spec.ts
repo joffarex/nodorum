@@ -1,13 +1,13 @@
+import { NotFoundException, Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { getOneSpy, getRawOneSpy, mockRepositoryFactory } from '../shared/mocks';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
 import { PostVoteEntity } from './post-vote.entity';
 import { UserEntity } from '../user/user.entity';
 import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { FollowerEntity } from '../user/follower.entity';
-import { NotFoundException, Provider } from '@nestjs/common';
-import { getOneSpy, getRawOneSpy, mockRepositoryFactory } from '../shared';
 
 const getPost = (id: number) => ({ id, title: 'post', text: 'kappa' });
 const getPostVotes = (sum: number) => ({ sum });
