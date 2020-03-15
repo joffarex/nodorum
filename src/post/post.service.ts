@@ -48,8 +48,13 @@ export class PostService {
   async findMany(filter: FilterDto): Promise<PostsBody> {
     const qb = this.postRepository.createQueryBuilder('post').leftJoinAndSelect('post.user', 'user');
 
+    // if there are both username and subnodditId in filter, there is something wrong with front
+    if ('username' in filter && 'subnodditId' in filter) {
+      throw new InternalServerErrorException();
+    }
+
     // if username is specified, get user's posts
-    if ('username' in filter) {
+    if ('username' in filter && 'subnodditId' in filter === false) {
       const user = await this.userRepository.findOne({ username: filter.username });
 
       if (!user) {
@@ -59,18 +64,14 @@ export class PostService {
       qb.where('"post"."userId" = :userId', { userId: user.id });
     }
 
-    if ('subnodditId' in filter) {
+    if ('subnodditId' in filter && 'username' in filter === false) {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
 
       if (!subnoddit) {
         throw new NotFoundException('Subnoddit not found');
       }
 
-      if ('username' in filter) {
-        qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
-      } else {
-        qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
-      }
+      qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
     }
 
     const postsCount = await qb.getCount();
