@@ -115,6 +115,13 @@ export class PostService {
   async create(userId: number, createPostDto: CreatePostDto): Promise<PostBody> {
     const { title, text, attachment, subnodditId } = createPostDto;
 
+    const user = await this.userRepository.findOne(userId);
+
+    if (!user) {
+      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
+      throw new NotFoundException('User not found');
+    }
+
     const subnoddit = await this.subnodditRepository.findOne(subnodditId);
 
     if (!subnoddit) {
@@ -125,20 +132,10 @@ export class PostService {
     post.title = title;
     if (text) post.text = text;
     post.subnoddit = subnoddit;
+    post.user = user;
     if (attachment) post.attachment = attachment;
 
     const newPost = await this.postRepository.save(post);
-
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['posts'] });
-
-    if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
-      throw new NotFoundException('User not found');
-    }
-
-    user.posts.push(post);
-
-    await this.userRepository.save(user);
 
     return { post: newPost };
   }
