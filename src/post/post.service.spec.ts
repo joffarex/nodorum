@@ -6,12 +6,10 @@ import {
   getRawOneSpy,
   mockRepositoryFactory,
   getCountSpy,
-  orderBySpy,
-  limitSpy,
-  offsetSpy,
   getManySpy,
   findOneSpy,
   saveSpy,
+  findSpy,
 } from '../shared/mocks';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
@@ -72,6 +70,8 @@ const mockPosts: MockPost[] = [
   { ...getPost(4, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
   { ...getPost(5, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
   { ...getPost(6, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
+  { ...getPost(7, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
+  { ...getPost(8, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
 ];
 const mockPostsCount = mockPosts.length;
 
@@ -202,9 +202,124 @@ describe('PostService', () => {
     expect(posts[posts.length - 1].votes).toBe(0);
   });
 
-  // -----
-  // newsfeed
-  // -----
+  it('should return least voted post on top', async () => {
+    const unorderedPosts = [];
+    let voteSpy = getRawOneSpy;
+    for (const post of mockPosts) {
+      if (post.id % 2 === 0) {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 0 });
+      } else {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 1 });
+      }
+    }
+
+    const filter: { byVotes: 'DESC' | 'ASC' } = { byVotes: 'ASC' };
+
+    getCountSpy.mockReturnValueOnce(mockPostsCount);
+    getManySpy.mockReturnValueOnce(unorderedPosts);
+    findOneSpy.mockReturnValueOnce(mockSubnodditOne);
+
+    const { posts } = await postService.findMany(filter);
+
+    expect(posts[0].votes).toBe(0);
+    expect(posts[posts.length - 1].votes).toBe(1);
+  });
+
+  it('should get news feed without any filter', async () => {
+    const posts = mockPosts.filter(post => post.user.id === mockUserTwo.id);
+    // user one follows user two
+    findSpy.mockReturnValue([mockUserTwo]);
+    getCountSpy.mockReturnValue(posts.length);
+    getManySpy.mockReturnValue(posts);
+    getRawOneSpy.mockReturnValue(mockPostVotes);
+    expect(await postService.newsFeed(mockUserOne.id, {})).toStrictEqual({ posts, postsCount: posts.length });
+  });
+
+  it('should get news feed with subnodditId, limit and offset', async () => {
+    const filter = { subnodditId: 1, limit: 2, offset: 0 };
+
+    const subnodditFilteredPosts = mockPosts.filter(
+      post => post.user.id === mockUserTwo.id && post.subnoddit.id === mockSubnodditOne.id,
+    );
+    const limitAndOffsetFilteredPosts = subnodditFilteredPosts.slice(filter.offset, filter.offset + filter.limit);
+
+    // user one follows user two
+    findSpy.mockReturnValue([mockUserTwo]);
+    findOneSpy.mockReturnValueOnce(mockSubnodditOne);
+    getCountSpy.mockReturnValue(subnodditFilteredPosts.length);
+    getManySpy.mockReturnValue(limitAndOffsetFilteredPosts);
+    getRawOneSpy.mockReturnValue(mockPostVotes);
+    expect(await postService.newsFeed(mockUserOne.id, filter)).toStrictEqual({
+      posts: limitAndOffsetFilteredPosts,
+      postsCount: subnodditFilteredPosts.length,
+    });
+  });
+
+  it('should throw subnoddit not found in newsfeed', async () => {
+    findOneSpy.mockReset();
+    findSpy.mockReturnValue([mockUserTwo]);
+    findOneSpy.mockReturnValue(undefined);
+    await expect(postService.newsFeed(mockUserOne.id, { subnodditId: 9999 })).rejects.toBeInstanceOf(NotFoundException);
+    await expect(postService.newsFeed(mockUserOne.id, { subnodditId: 9999 })).rejects.toThrowError(
+      'Subnoddit not found',
+    );
+  });
+
+  it('should return most voted post on top in newsfeed', async () => {
+    const filteredPosts = mockPosts.filter(post => post.user.id === mockUserTwo.id);
+    const unorderedPosts = [];
+    let voteSpy = getRawOneSpy;
+    for (const post of filteredPosts) {
+      if (post.id % 2 === 0) {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 0 });
+      } else {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 1 });
+      }
+    }
+
+    const filter: { byVotes: 'DESC' | 'ASC' } = { byVotes: 'DESC' };
+
+    findSpy.mockReturnValue([mockUserTwo]);
+    getCountSpy.mockReturnValueOnce(filteredPosts.length);
+    getManySpy.mockReturnValueOnce(unorderedPosts);
+    findOneSpy.mockReturnValueOnce(mockSubnodditOne);
+
+    const { posts } = await postService.newsFeed(mockUserOne.id, filter);
+
+    expect(posts[0].votes).toBe(1);
+    expect(posts[posts.length - 1].votes).toBe(0);
+  });
+
+  it('should return least voted post on top in newsfeed', async () => {
+    const filteredPosts = mockPosts.filter(post => post.user.id === mockUserTwo.id);
+    const unorderedPosts = [];
+    let voteSpy = getRawOneSpy;
+    for (const post of filteredPosts) {
+      if (post.id % 2 === 0) {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 0 });
+      } else {
+        unorderedPosts.push(post);
+        voteSpy = voteSpy.mockReturnValueOnce({ sum: 1 });
+      }
+    }
+
+    const filter: { byVotes: 'DESC' | 'ASC' } = { byVotes: 'ASC' };
+
+    findSpy.mockReturnValue([mockUserTwo]);
+    getCountSpy.mockReturnValueOnce(filteredPosts.length);
+    getManySpy.mockReturnValueOnce(unorderedPosts);
+    findOneSpy.mockReturnValueOnce(mockSubnodditOne);
+
+    const { posts } = await postService.newsFeed(mockUserOne.id, filter);
+
+    expect(posts[0].votes).toBe(0);
+    expect(posts[posts.length - 1].votes).toBe(1);
+  });
 
   it('should create new post without optional fields', async () => {
     const mockPost = {
