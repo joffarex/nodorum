@@ -25,9 +25,9 @@ export class PostService {
 
   async findOne(id: number): Promise<PostBody> {
     const post = await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where('post.id = :id', { id })
+      .createQueryBuilder('posts')
+      .leftJoinAndSelect('posts.user', 'user')
+      .where('posts.id = :id', { id })
       .getOne();
 
     if (!post) {
@@ -46,7 +46,7 @@ export class PostService {
   }
 
   async findMany(filter: FilterDto): Promise<PostsBody> {
-    const qb = this.postRepository.createQueryBuilder('post').leftJoinAndSelect('post.user', 'user');
+    const qb = this.postRepository.createQueryBuilder('posts').leftJoinAndSelect('posts.user', 'user');
 
     // if there are both username and subnodditId in filter, there is something wrong with front
     if ('username' in filter && 'subnodditId' in filter) {
@@ -61,7 +61,7 @@ export class PostService {
         throw new NotFoundException('User not found');
       }
 
-      qb.where('"post"."userId" = :userId', { userId: user.id });
+      qb.where('"posts"."userId" = :userId', { userId: user.id });
     }
 
     if ('subnodditId' in filter && 'username' in filter === false) {
@@ -71,7 +71,7 @@ export class PostService {
         throw new NotFoundException('Subnoddit not found');
       }
 
-      qb.where('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+      qb.where('"posts"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
     }
 
     const postsCount = await qb.getCount();
@@ -88,9 +88,9 @@ export class PostService {
     const followingUsers = await this.followerRepository.find({ followerId: userId });
 
     const qb = this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where('post.userId IN (:id)', { id: followingUsers.map(fu => fu.userId) });
+      .createQueryBuilder('posts')
+      .leftJoinAndSelect('posts.user', 'user')
+      .where('posts.userId IN (:id)', { id: followingUsers.map(fu => fu.userId) });
 
     if ('subnodditId' in filter) {
       const subnoddit = await this.subnodditRepository.findOne(filter.subnodditId);
@@ -99,7 +99,7 @@ export class PostService {
         throw new NotFoundException('Subnoddit not found');
       }
 
-      qb.andWhere('"post"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
+      qb.andWhere('"posts"."subnodditId" = :subnodditId', { subnodditId: subnoddit.id });
     }
 
     const postsCount = await qb.getCount();
@@ -222,9 +222,9 @@ export class PostService {
   // checks if post exists and if user is authorized to do actions on it
   private async isPostValid(userId: number, postId: number): Promise<PostEntity> {
     const post = await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where('post.id = :id', { id: postId })
+      .createQueryBuilder('posts')
+      .leftJoinAndSelect('posts.user', 'user')
+      .where('posts.id = :id', { id: postId })
       .getOne();
 
     if (!post) {
@@ -239,7 +239,7 @@ export class PostService {
   }
 
   private async sortPosts(qb: SelectQueryBuilder<PostEntity>, filter: FilterDto): Promise<PostEntity[]> {
-    qb.orderBy('post.createdAt', 'DESC');
+    qb.orderBy('posts.createdAt', 'DESC');
 
     // for pagination
     if ('limit' in filter) {
