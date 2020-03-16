@@ -9,6 +9,7 @@ export const orderBySpy = jest.fn().mockReturnThis();
 export const limitSpy = jest.fn().mockReturnThis();
 export const offsetSpy = jest.fn().mockReturnThis();
 export const getManySpy = jest.fn();
+export const saveSpy = jest.fn();
 
 export const mockRepositoryFactory = jest.fn(() => ({
   createQueryBuilder: jest.fn(() => ({
@@ -24,4 +25,5 @@ export const mockRepositoryFactory = jest.fn(() => ({
     offset: offsetSpy,
   })),
   findOne: findOneSpy,
+  save: saveSpy,
 }));
