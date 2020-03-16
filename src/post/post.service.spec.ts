@@ -49,12 +49,12 @@ const mockSubnodditOne = getSubnoddit(1, 'test');
 const mockSubnodditTwo = getSubnoddit(2, 'test2');
 const mockPostVotes = getPostVotes(0);
 const mockPosts = [
-  { ...getPost(1, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }), votes: mockPostVotes.sum },
-  { ...getPost(2, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }), votes: mockPostVotes.sum },
-  { ...getPost(3, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }), votes: mockPostVotes.sum },
-  { ...getPost(4, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }), votes: mockPostVotes.sum },
-  { ...getPost(5, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }), votes: mockPostVotes.sum },
-  { ...getPost(6, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }), votes: mockPostVotes.sum },
+  { ...getPost(1, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
+  { ...getPost(2, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
+  { ...getPost(3, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
+  { ...getPost(4, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
+  { ...getPost(5, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
+  { ...getPost(6, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
 ];
 const mockPostsCount = mockPosts.length;
 
@@ -163,12 +163,12 @@ describe('PostService', () => {
   it('should return most voted post on top', async () => {
     const unorderedPosts = [];
     let voteSpy = getRawOneSpy;
-    for (const p of mockPosts) {
-      if (p.id % 2 === 0) {
-        unorderedPosts.push({ ...p, votes: 0 });
+    for (const post of mockPosts) {
+      if (post.id % 2 === 0) {
+        unorderedPosts.push(post);
         voteSpy = voteSpy.mockReturnValueOnce({ sum: 0 })
       } else {
-        unorderedPosts.push({ ...p, votes: 1 });
+        unorderedPosts.push(post);
         voteSpy = voteSpy.mockReturnValueOnce({ sum: 1 })
       }
     }
