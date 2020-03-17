@@ -1,3 +1,7 @@
+import { randomBytes, createHmac } from 'crypto';
+import { hash } from 'argon2';
+import { DateTime } from 'luxon';
+
 type postOptions = {
   userId?: number;
   subnodditId?: number;
@@ -17,14 +21,19 @@ const getPost = (id: number, { userId, subnodditId }: postOptions): MockPost => 
   id,
   title: 'post',
   text: 'kappa',
-  createdAt: Date.now().toString(),
+  createdAt: DateTime.local().toString(),
   attachment: 'attachment',
   user: { id: userId },
   subnoddit: { id: subnodditId },
 });
 const getPostVotes = (sum: number) => ({ sum });
 
-const getUser = (id: number, username: string) => ({ id, username });
+let password: string;
+(async () => {
+  password = await hash('password');
+})();
+
+const getUser = (id: number, username: string) => ({ id, username, email: 'test@test.com', password });
 
 const getSubnoddit = (id: number, name: string) => ({ id, name });
 
@@ -50,4 +59,40 @@ export const mockUpdatePost = {
   text: 'yay',
   attachment: 'attachment',
   subnodditId: 2,
+};
+
+export const mockToken = randomBytes(32).toString('hex');
+
+export const mockPasswordResetOne = {
+  id: 1,
+  user: mockUserOne,
+  token: createHmac('sha256', 'secret')
+    .update(mockToken)
+    .digest('hex'),
+  createdAt: DateTime.local().toString(),
+  expiredAt: DateTime.local()
+    .plus({ minutes: 15 })
+    .toString(),
+};
+
+export const mockPasswordResetTwo = {
+  id: 1,
+  user: mockUserOne,
+  token: createHmac('sha256', 'secret')
+    .update(mockToken)
+    .digest('hex'),
+  createdAt: DateTime.local().toString(),
+  expiredAt: DateTime.local()
+    .minus({ minutes: 15 })
+    .toString(),
+};
+
+export const mockQueryOne = {
+  id: mockPasswordResetOne.id,
+  token: mockToken,
+};
+
+export const mockQueryTwo = {
+  id: mockPasswordResetOne.id,
+  token: 'wrongtoken',
 };

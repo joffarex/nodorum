@@ -1,4 +1,5 @@
 export const selectSpy = jest.fn().mockReturnThis();
+export const addSelectSpy = jest.fn().mockReturnThis();
 export const leftJoinAndSelectSpy = jest.fn().mockReturnThis();
 export const whereSpy = jest.fn().mockReturnThis();
 export const andWhereSpy = jest.fn().mockReturnThis();
@@ -18,6 +19,7 @@ export const mockRepositoryFactory = jest.fn(() => ({
   createQueryBuilder: jest.fn(() => ({
     leftJoinAndSelect: leftJoinAndSelectSpy,
     select: selectSpy,
+    addSelect: addSelectSpy,
     where: whereSpy,
     andWhere: andWhereSpy,
     getOne: getOneSpy,
@@ -27,6 +29,7 @@ export const mockRepositoryFactory = jest.fn(() => ({
     orderBy: orderBySpy,
     limit: limitSpy,
     offset: offsetSpy,
+    delete: deleteSpy,
   })),
   findOne: findOneSpy,
   save: saveSpy,
