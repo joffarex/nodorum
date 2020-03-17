@@ -1,4 +1,4 @@
-import { NotFoundException, Provider, InternalServerErrorException } from '@nestjs/common';
+import { NotFoundException, Provider, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
@@ -10,6 +10,7 @@ import {
   findOneSpy,
   saveSpy,
   findSpy,
+  deleteSpy,
 } from '../shared/mocks';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
@@ -74,6 +75,13 @@ const mockPosts: MockPost[] = [
   { ...getPost(8, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
 ];
 const mockPostsCount = mockPosts.length;
+
+const mockUpdatePost = {
+  title: 'update',
+  text: 'yay',
+  attachment: 'attachment',
+  subnodditId: 2,
+};
 
 describe('PostService', () => {
   let postService: PostService;
@@ -175,6 +183,28 @@ describe('PostService', () => {
 
     await expect(postService.findMany(filter)).rejects.toBeInstanceOf(InternalServerErrorException);
     await expect(postService.findMany(filter)).rejects.toThrowError('Wrong filters');
+  });
+
+  it('should throw user not found exception in many posts', async () => {
+    const filter = {
+      username: 'test',
+    };
+
+    findOneSpy.mockReturnValueOnce(undefined);
+
+    await expect(postService.findMany(filter)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(postService.findMany(filter)).rejects.toThrowError('User not found');
+  });
+
+  it('should throw subnoddit not found exception in many posts', async () => {
+    const filter = {
+      subnodditId: 1,
+    };
+
+    findOneSpy.mockReturnValueOnce(undefined);
+
+    await expect(postService.findMany(filter)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(postService.findMany(filter)).rejects.toThrowError('Subnoddit not found');
   });
 
   it('should return most voted post on top', async () => {
@@ -385,7 +415,209 @@ describe('PostService', () => {
 
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(undefined);
     await expect(postService.create(mockUserOne.id, mockPost)).rejects.toBeInstanceOf(NotFoundException);
+
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(undefined);
     await expect(postService.create(mockUserOne.id, mockPost)).rejects.toThrowError('Subnoddit not found');
+  });
+
+  it('should update post', async () => {
+    const mockPost = mockPosts[0];
+    const updatedMockPost = { ...mockPost, ...mockUpdatePost };
+
+    getOneSpy.mockReturnValueOnce(mockPost);
+    findOneSpy.mockReturnValueOnce(mockSubnodditTwo);
+    saveSpy.mockReturnValueOnce(updatedMockPost);
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    const { post } = await postService.update(mockPost.user.id!, mockPost.id, mockUpdatePost);
+
+    expect(post).toStrictEqual(updatedMockPost);
+  });
+
+  it('should throw post not found exception while updating', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValue(undefined);
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.update(mockPost.user.id!, mockPost.id, mockUpdatePost)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.update(mockPost.user.id!, mockPost.id, mockUpdatePost)).rejects.toThrowError(
+      'Post not found',
+    );
+  });
+
+  it('should throw unauthorized exception if user is not post author while updating', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValueOnce(mockPost);
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.update(mockUserTwo.id, mockPost.id, mockUpdatePost)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it('should throw subnoddit not found error while updating', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValue(mockPost);
+    findOneSpy.mockReturnValue(undefined);
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.update(mockPost.user.id!, mockPost.id, mockUpdatePost)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.update(mockPost.user.id!, mockPost.id, mockUpdatePost)).rejects.toThrowError(
+      'Subnoddit not found',
+    );
+  });
+
+  //
+  it('should delete post', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValueOnce(mockPost);
+    deleteSpy.mockReturnValueOnce({ affected: 1 });
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    const res = await postService.delete(mockPost.user.id!, mockPost.id);
+
+    expect(res).toStrictEqual({ message: 'Post successfully removed.' });
+  });
+
+  it('should throw post not found exception while deleting', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValue(undefined);
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.delete(mockPost.user.id!, mockPost.id)).rejects.toBeInstanceOf(NotFoundException);
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.delete(mockPost.user.id!, mockPost.id)).rejects.toThrowError('Post not found');
+  });
+
+  it('should throw unauthorized exception if user is not post author while deleting', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValueOnce(mockPost);
+
+    await expect(postService.delete(mockUserTwo.id, mockPost.id)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('should throw internal server error exception if more than one post got affected while deleting', async () => {
+    const mockPost = mockPosts[0];
+
+    getOneSpy.mockReturnValueOnce(mockPost);
+    deleteSpy.mockReturnValueOnce({ affected: 2 });
+
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    await expect(postService.delete(mockPost.user.id!, mockPost.id)).rejects.toBeInstanceOf(
+      InternalServerErrorException,
+    );
+  });
+
+  it('should upvote post', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce(undefined);
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, { direction: 1 })).toStrictEqual({
+      message: 'Post upvoted successfully',
+    });
+  });
+
+  it('should downvote post', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce(undefined);
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, { direction: -1 })).toStrictEqual({
+      message: 'Post downvoted successfully',
+    });
+  });
+
+  it('should reset post votes to 0 if direction(1) is the same', async () => {
+    const mockPost = mockPosts[0];
+    const mockPostVoteOne = { direction: 1 };
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce(mockPostVoteOne);
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, mockPostVoteOne)).toStrictEqual({
+      message: 'Post vote reset',
+    });
+  });
+
+  it('should reset post votes to 0 if direction(-1) is the same', async () => {
+    const mockPost = mockPosts[0];
+    const mockPostVoteNegOne = { direction: -1 };
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce(mockPostVoteNegOne);
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, mockPostVoteNegOne)).toStrictEqual({
+      message: 'Post vote reset',
+    });
+  });
+
+  it('should upvote post where post vote already exists and is 0', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce({ direction: 0 });
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, { direction: 1 })).toStrictEqual({
+      message: 'Post upvoted',
+    });
+  });
+
+  it('should downvote post where post vote already exists and is 0', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockPost);
+
+    getOneSpy.mockReturnValueOnce({ direction: 0 });
+
+    expect(await postService.vote(mockUserOne.id, mockPost.id, { direction: -1 })).toStrictEqual({
+      message: 'Post downvoted',
+    });
+  });
+
+  it('should downvote post where post vote already exists and is 0', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(undefined);
+
+    await expect(postService.vote(mockUserOne.id, mockPost.id, { direction: 999 })).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    await expect(postService.vote(mockUserOne.id, mockPost.id, { direction: 999 })).rejects.toThrowError(
+      'User not found',
+    );
+  });
+
+  it('should downvote post where post vote already exists and is 0', async () => {
+    const mockPost = mockPosts[0];
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(undefined);
+    await expect(postService.vote(mockUserOne.id, mockPost.id, { direction: 999 })).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(undefined);
+    await expect(postService.vote(mockUserOne.id, mockPost.id, { direction: 999 })).rejects.toThrowError(
+      'Post not found',
+    );
   });
 });
