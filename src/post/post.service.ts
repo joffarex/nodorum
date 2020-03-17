@@ -195,14 +195,20 @@ export class PostService {
       .andWhere('"postvotes"."userId" = :userId', { userId: user.id })
       .getOne();
 
+    let responseMessage: string;
+    const type = direction === 1 ? 'up' : direction === -1 ? 'down' : '';
+
     if (postVote && postVote.direction === direction) {
       // if vote is the same, set direction to 0
       postVote.direction = 0;
       await this.postVoteRepository.save(postVote);
+      responseMessage = 'Post vote reset';
     } else if ((postVote && postVote.direction) || (postVote && postVote.direction === 0)) {
       // If vote exists or is 0, set direction to whatever input is
       postVote.direction = direction;
       await this.postVoteRepository.save(postVote);
+
+      responseMessage = `Post ${type}voted`;
     } else {
       // If vote does not exist, create it
       const newPostVote = new PostVoteEntity();
@@ -210,9 +216,11 @@ export class PostService {
       newPostVote.user = user;
       newPostVote.post = post;
       await this.postVoteRepository.save(newPostVote);
+
+      responseMessage = `Post ${type}voted successfully`;
     }
 
-    return { message: 'Post voted successfully.' };
+    return { message: responseMessage };
   }
 
   // helper function
@@ -225,7 +233,7 @@ export class PostService {
       .getOne();
 
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post not found');
     }
 
     if (post.user.id !== userId) {
