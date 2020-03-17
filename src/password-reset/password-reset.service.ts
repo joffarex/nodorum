@@ -53,12 +53,21 @@ export class PasswordResetService {
     const reset = await this.passwordResetRepository.findOne(id);
     let user: UserEntity | undefined;
 
-    if (!reset || !this.isResetValid(token, reset) || !(user = await this.userRepository.findOne(reset.user.id))) {
+    if (
+      !reset ||
+      !this.isResetValid(token, reset) ||
+      !(user = await this.userRepository
+        .createQueryBuilder('users')
+        .where('users.id = :userId', { userId: reset.user.id })
+        .andWhere('users.deletedAt IS NULL')
+        .addSelect('users.password')
+        .getOne())
+    ) {
       throw new BadRequestException('Invalid password reset token');
     }
 
     const [res] = await Promise.all([
-      this.resetUserPassword(user.id, password),
+      this.resetUserPassword(user, password),
       this.passwordResetRepository
         .createQueryBuilder('passwordreset')
         .where('"passwordreset"."userId" = :userId', { userId: reset.user.id })
@@ -74,18 +83,7 @@ export class PasswordResetService {
     return { message: res.message };
   }
 
-  async resetUserPassword(userId: number, password: string): Promise<MessageResponse> {
-    const user = await this.userRepository
-      .createQueryBuilder('users')
-      .where('users.id = :userId', { userId })
-      .andWhere('users.deletedAt IS NULL')
-      .addSelect('users.password')
-      .getOne();
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+  async resetUserPassword(user: UserEntity, password: string): Promise<MessageResponse> {
     user.password = await hash(password);
 
     await this.userRepository.save(user);
