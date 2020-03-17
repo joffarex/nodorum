@@ -11,77 +11,23 @@ import {
   saveSpy,
   findSpy,
   deleteSpy,
-} from '../shared/mocks';
+} from '../shared/mocks/spies.mock';
+import {
+  mockUserOne,
+  mockUserTwo,
+  mockSubnodditOne,
+  mockSubnodditTwo,
+  mockPostVotes,
+  mockPosts,
+  mockPostsCount,
+  mockUpdatePost,
+} from '../shared/mocks/data.mock';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
 import { PostVoteEntity } from './post-vote.entity';
 import { UserEntity } from '../user/user.entity';
 import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { FollowerEntity } from '../user/follower.entity';
-
-type postOptions = {
-  userId?: number;
-  subnodditId?: number;
-};
-
-type MockPost = {
-  id: number;
-  title: string;
-  text: string;
-  createdAt: string;
-  attachment?: string;
-  user: { id?: number };
-  subnoddit: { id?: number };
-};
-
-const getPost = (id: number, { userId, subnodditId }: postOptions): MockPost => ({
-  id,
-  title: 'post',
-  text: 'kappa',
-  createdAt: Date.now().toString(),
-  attachment: 'attachment',
-  user: {
-    id: userId,
-  },
-  subnoddit: {
-    id: subnodditId,
-  },
-});
-const getPostVotes = (sum: number) => ({ sum });
-
-const getUser = (id: number, username: string) => ({
-  id,
-  username,
-});
-
-const getSubnoddit = (id: number, name: string) => ({
-  id,
-  name,
-});
-
-const mockUserOne = getUser(1, 'test');
-const mockUserTwo = getUser(2, 'test2');
-const mockSubnodditOne = getSubnoddit(1, 'test');
-const mockSubnodditTwo = getSubnoddit(2, 'test2');
-const mockPostVotes = getPostVotes(0);
-const mockPosts: MockPost[] = [
-  { ...getPost(1, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
-  { ...getPost(2, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
-  { ...getPost(3, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
-  { ...getPost(4, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
-  { ...getPost(5, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
-  { ...getPost(6, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
-  { ...getPost(7, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
-  { ...getPost(8, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
-];
-const mockPostsCount = mockPosts.length;
-
-const mockUpdatePost = {
-  title: 'update',
-  text: 'yay',
-  attachment: 'attachment',
-  subnodditId: 2,
-};
 
 describe('PostService', () => {
   let postService: PostService;
