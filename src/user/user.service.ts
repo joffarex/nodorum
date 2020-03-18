@@ -11,6 +11,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   Inject,
+  ConflictException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,16 +34,6 @@ export class UserService {
 
   async register(registerUserDto: RegisterUserDto): Promise<UserBody> {
     const { username, email, password, displayName, profileImage, bio } = registerUserDto;
-    // check if username and email are unique
-    const user = await this.userRepository
-      .createQueryBuilder('users')
-      .where('users.username = :username', { username })
-      .orWhere('users.email = :email', { email })
-      .getOne();
-
-    if (user) {
-      throw new BadRequestException('Email or Username is already taken', 'Validation failed');
-    }
 
     // create new user
     const newUser = new UserEntity();
@@ -55,9 +46,17 @@ export class UserService {
     if (profileImage) newUser.profileImage = await this.uploadProfileImage(profileImage, username);
     if (bio) newUser.bio = bio;
 
-    // return saved user
-    const savedUser = await this.userRepository.save(newUser);
-    return { user: savedUser };
+    try {
+      const savedUser = await this.userRepository.save(newUser);
+
+      return { user: savedUser };
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Username or email has already been registered.');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async login(loginUserDto: LoginUserDto): Promise<UserBody> {
@@ -89,27 +88,15 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ id, deletedAt: IsNull() });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return { user };
+    return this.getUserByField({ id });
   }
 
   async findOneByEmail(email: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ email, deletedAt: IsNull() });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return { user };
+    return this.getUserByField({ email });
   }
 
   async findOneByUsername(username: string): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ username, deletedAt: IsNull() });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return { user };
+    return this.getUserByField({ username });
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<UserBody> {
@@ -124,8 +111,17 @@ export class UserService {
     if (profileImage) user.profileImage = profileImage;
     if (bio) user.bio = bio;
 
-    const updatedUser = await this.userRepository.save(user);
-    return { user: updatedUser };
+    try {
+      const updatedUser = await this.userRepository.save(user);
+
+      return { user: updatedUser };
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Username or email has already been registered.');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async delete(id: number): Promise<MessageResponse> {
@@ -136,10 +132,6 @@ export class UserService {
     }
 
     user.deletedAt = DateTime.local();
-    user.displayName = '[DELETED]';
-    user.username = '[DELETED]';
-    user.email = '[DELETED]';
-    user.displayName = 'pictures/blank-profile-picture-S4P3RS3CR3T';
 
     await this.userRepository.save(user);
 
@@ -211,7 +203,7 @@ export class UserService {
       throw new BadRequestException('Invalid activation link');
     }
 
-    if (user.verifiedAt && user.status === 'VERIFIED') {
+    if (user.verifiedAt) {
       throw new BadRequestException('Email already verified');
     }
 
@@ -229,7 +221,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.verifiedAt && user.status === 'VERIFIED') {
+    if (user.verifiedAt) {
       throw new BadRequestException('Email already verified');
     }
 
@@ -244,6 +236,14 @@ export class UserService {
     return { message: `Email sent to ${user.email}` };
   }
 
+  private async getUserByField(conditions: { [key: string]: string | number }): Promise<UserBody> {
+    const user = await this.userRepository.findOne({ ...conditions, deletedAt: IsNull() });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return { user };
+  }
+
   private async markAsVerified(userId: number): Promise<UserBody> {
     const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
 
@@ -251,7 +251,6 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    user.status = 'VERIFIED';
     user.verifiedAt = DateTime.local();
 
     const verifiedUser = await this.userRepository.save(user);
@@ -283,7 +282,8 @@ export class UserService {
   }
 
   private signVerificationUrl(url: string): string {
-    return createHmac('sha256', 'secret')
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    return createHmac('sha256', this.configService.get<string>('hmacSecret')!)
       .update(url)
       .digest('hex');
   }

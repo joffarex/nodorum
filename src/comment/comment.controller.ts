@@ -28,7 +28,19 @@ export class CommentController {
     return commentsBody;
   }
 
-  @Post(':postId/create')
+  @Post('/user/:userId')
+  async getUserComments(
+    @Param('userId') userId: number,
+    @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
+    @Rcid() rcid: string,
+  ): Promise<CommentsBody> {
+    const commentsBody = await this.commentService.getUserComments(userId, filter);
+    this.logger.debug(logFormat(rcid, 'getUserComments', 'found all comments', filter, null));
+
+    return commentsBody;
+  }
+
+  @Post('/:postId/create')
   @UseGuards(AuthGuard)
   async create(
     @Param('postId') postId: number,

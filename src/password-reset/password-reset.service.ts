@@ -2,7 +2,13 @@ import { hash } from 'argon2';
 import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 import { Repository } from 'typeorm';
 import { DateTime } from 'luxon';
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nest-modules/mailer';
@@ -35,7 +41,17 @@ export class PasswordResetService {
     reset.user = user;
     reset.token = this.hashedToken(token);
 
-    const savedReset = await this.passwordResetRepository.save(reset);
+    let savedReset: PasswordResetEntity;
+
+    try {
+      savedReset = await this.passwordResetRepository.save(reset);
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Password reset email has already been sent');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
 
     await this.mailerService.sendMail({
       to: email,
@@ -83,7 +99,7 @@ export class PasswordResetService {
     return { message: res.message };
   }
 
-  async resetUserPassword(user: UserEntity, password: string): Promise<MessageResponse> {
+  private async resetUserPassword(user: UserEntity, password: string): Promise<MessageResponse> {
     user.password = await hash(password);
 
     await this.userRepository.save(user);
@@ -101,7 +117,8 @@ export class PasswordResetService {
   }
 
   private hashedToken(plaintextToken: string): string {
-    return createHmac('sha256', 'secret')
+    /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+    return createHmac('sha256', this.configService.get<string>('hmacSecret')!)
       .update(plaintextToken)
       .digest('hex');
   }

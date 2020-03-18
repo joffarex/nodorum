@@ -2,7 +2,6 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Injectable, NotFoundException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageResponse } from '../shared';
-import { AppLogger } from '../app.logger';
 import { FilterDto, CreatePostDto, UpdatePostDto, VotePostDto } from './dto';
 import { PostBody, PostsBody } from './interfaces/post.interface';
 import { PostEntity } from './post.entity';
@@ -13,8 +12,6 @@ import { FollowerEntity } from '../user/follower.entity';
 
 @Injectable()
 export class PostService {
-  private logger = new AppLogger('PostService');
-
   constructor(
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
@@ -118,7 +115,6 @@ export class PostService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
@@ -179,7 +175,6 @@ export class PostService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      this.logger.error(`[vote] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 

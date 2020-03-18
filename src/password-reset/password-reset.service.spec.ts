@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Provider, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Provider,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nest-modules/mailer';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -14,8 +20,10 @@ import {
   mockQueryOne,
   mockQueryTwo,
   mockPasswordResetTwo,
+  DatabaseDuplicateError,
 } from '../shared/mocks/data.mock';
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 describe('PasswordResetService', () => {
   let passwordResetService: PasswordResetService;
 
@@ -29,6 +37,28 @@ describe('PasswordResetService', () => {
     });
   }
 
+  class MockConfigService extends ConfigService {
+    constructor() {
+      super();
+    }
+
+    get(name: string): string {
+      switch (name) {
+        case 'hmacSecret':
+          return '53CR3T';
+        case 'host':
+          return 'localhost';
+        default:
+          return '';
+      }
+    }
+  }
+
+  const mockConfig: Provider = {
+    provide: ConfigService,
+    useClass: MockConfigService,
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -41,7 +71,7 @@ describe('PasswordResetService', () => {
           }),
         }),
       ],
-      providers: [PasswordResetService, ConfigService, ...mockRepositories],
+      providers: [PasswordResetService, mockConfig, ...mockRepositories],
     }).compile();
 
     passwordResetService = module.get<PasswordResetService>(PasswordResetService);
@@ -68,6 +98,35 @@ describe('PasswordResetService', () => {
     );
     await expect(passwordResetService.forgotPassword({ email: 'test@test.com' })).rejects.toThrowError(
       'User not found',
+    );
+  });
+
+  it('should throw conflict exception if reset for user already exists', async () => {
+    findOneSpy.mockReturnValueOnce(mockUserOne);
+    saveSpy.mockImplementationOnce(() => {
+      throw new DatabaseDuplicateError('23505');
+    });
+    await expect(passwordResetService.forgotPassword({ email: mockUserOne.email })).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+
+    findOneSpy.mockReturnValueOnce(mockUserOne);
+    saveSpy.mockImplementationOnce(() => {
+      throw new DatabaseDuplicateError('23505');
+    });
+    await expect(passwordResetService.forgotPassword({ email: mockUserOne.email })).rejects.toThrowError(
+      'Password reset email has already been sent',
+    );
+  });
+
+  it('should throw internal server exception if there is a database error other than duplicate entry', async () => {
+    findOneSpy.mockReturnValueOnce(mockUserOne);
+    saveSpy.mockImplementationOnce(() => {
+      throw new DatabaseDuplicateError('23506');
+    });
+
+    await expect(passwordResetService.forgotPassword({ email: mockUserOne.email })).rejects.toThrow(
+      InternalServerErrorException,
     );
   });
 

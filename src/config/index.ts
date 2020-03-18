@@ -14,6 +14,7 @@ export default () => ({
   jwtSecret: process.env.JWT_SECRET || 'R4ND0M',
   isProduction: process.env.NODE_ENV === 'production',
   salt: process.env.SALT || '53CR3T',
+  hmacSecret: process.env.HMAC_SECRET || '53CR3T',
   passwordMinLength: 8,
   mail: {
     from: process.env.MAIL_FROM || 'dev@noddit.com',

@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index, Unique } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from '../user/user.entity';
 import { PostEntity } from '../post/post.entity';
@@ -8,6 +8,7 @@ export type SubnodditStatus = 'ACTIVE' | 'NOT_ACTIVE';
 @Entity({ name: 'subnoddits' })
 @Index(['status', 'user'])
 @Index(['status', 'user', 'name'])
+@Unique(['name'])
 export class SubnodditEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',

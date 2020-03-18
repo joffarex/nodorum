@@ -1,14 +1,13 @@
 import { DateTime } from 'luxon';
-import { Entity, Column, OneToMany, Index } from 'typeorm';
+import { Entity, Column, OneToMany, Index, Unique } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { PostEntity } from '../post/post.entity';
 import { CommentEntity } from '../comment/comment.entity';
 
-export type UserStatus = 'VERIFIED' | 'NOT_VERIFIED';
-
 @Entity({ name: 'users' })
 @Index(['id', 'deletedAt'])
+@Unique(['username', 'email'])
 export class UserEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',
@@ -52,14 +51,6 @@ export class UserEntity extends ExtendedEntity {
     nullable: true,
   })
   bio!: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['VERIFIED', 'NOT_VERIFIED'],
-    default: 'NOT_VERIFIED',
-    select: false,
-  })
-  status!: UserStatus;
 
   @Column({ type: 'timestamp', nullable: true, select: false })
   verifiedAt!: DateTime;

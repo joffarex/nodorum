@@ -1,8 +1,7 @@
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Injectable, NotFoundException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageResponse } from '../shared';
-import { AppLogger } from '../app.logger';
 import { CreateCommentDto, UpdateCommentDto, VoteCommentDto, FilterDto } from './dto';
 import { CommentBody, CommentsBody } from './interfaces/comment.interface';
 import { CommentEntity } from './comment.entity';
@@ -12,8 +11,6 @@ import { CommentVoteEntity } from './comment-vote.entity';
 
 @Injectable()
 export class CommentService {
-  private logger = new AppLogger('CommentService');
-
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
     @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
@@ -53,31 +50,11 @@ export class CommentService {
       qb.andWhere('"comment"."parentId" = :parentId', { parentId });
     }
 
-    // if username is specified, get user's comments
-    if ('username' in filter) {
-      const user = await this.userRepository.findOne({ username: filter.username });
-
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      qb.andWhere('"comment"."userId" = :userId', { userId: user.id });
-    }
-
     qb.orderBy('comment.createdAt', 'DESC');
 
     const commentsCount = await qb.getCount();
 
-    // for pagination
-    if ('limit' in filter) {
-      qb.limit(filter.limit);
-    }
-
-    if ('offset' in filter) {
-      qb.offset(filter.offset);
-    }
-
-    const comments = await qb.getMany();
+    const comments = await this.sortComments(qb, filter);
 
     // If comments exist, then check if it's replies exist as well
     if (commentsCount > 0) {
@@ -97,49 +74,40 @@ export class CommentService {
       }
     }
 
-    if ('byVotes' in filter) {
-      if (filter.byVotes === 'DESC') {
-        comments.sort((a: CommentEntity, b: CommentEntity) => b.votes - a.votes);
-      }
+    return { comments, commentsCount };
+  }
 
-      if (filter.byVotes === 'ASC') {
-        comments.sort((a: CommentEntity, b: CommentEntity) => a.votes - b.votes);
-      }
+  async getUserComments(userId: number, filter: FilterDto): Promise<CommentsBody> {
+    const user = await this.userRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
-    return {
-      comments,
-      commentsCount,
-    };
+    const qb = this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .where('"comment"."userId" = :userId', { userId: user.id });
+
+    const commentsCount = await qb.getCount();
+
+    const comments = await this.sortComments(qb, filter);
+
+    return { comments, commentsCount };
   }
 
   async create(userId: number, postId: number, createCommentDto: CreateCommentDto): Promise<CommentBody> {
     const { text, parentId } = createCommentDto;
 
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['comments'] });
-
-    if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
-      throw new NotFoundException('User not found');
-    }
-
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
-
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
+    const { user, post } = await this.areUserAndPostValid(userId, postId);
 
     const comment = new CommentEntity();
     comment.text = text;
     comment.parentId = parentId;
+    comment.post = post;
+    comment.user = user;
 
     const newComment = await this.commentRepository.save(comment);
-
-    user.comments.push(comment);
-    post.comments.push(comment);
-
-    await this.userRepository.save(user);
-    await this.postRepository.save(post);
 
     return { comment: newComment };
   }
@@ -152,13 +120,9 @@ export class CommentService {
   ): Promise<CommentBody> {
     const { text } = updateCommentDto;
 
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
+    const { user } = await this.areUserAndPostValid(userId, postId);
 
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-
-    const comment = await this.isCommentValid(userId, commentId);
+    const comment = await this.isCommentValid(user.id, commentId);
 
     if (text) comment.text = text;
 
@@ -168,13 +132,9 @@ export class CommentService {
   }
 
   async delete(userId: number, postId: number, commentId: number): Promise<MessageResponse> {
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['comments'] });
+    const { user } = await this.areUserAndPostValid(userId, postId);
 
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-
-    const comment = await this.isCommentValid(userId, commentId);
+    const comment = await this.isCommentValid(user.id, commentId);
 
     const { affected } = await this.commentRepository.delete(comment.id);
 
@@ -194,7 +154,6 @@ export class CommentService {
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
@@ -230,6 +189,33 @@ export class CommentService {
     return { message: 'Comment voted successfully.' };
   }
 
+  private async sortComments(qb: SelectQueryBuilder<CommentEntity>, filter: FilterDto): Promise<CommentEntity[]> {
+    qb.orderBy('comments.createdAt', 'DESC');
+
+    // for pagination
+    if ('limit' in filter) {
+      qb.limit(filter.limit);
+    }
+
+    if ('offset' in filter) {
+      qb.offset(filter.offset);
+    }
+
+    const comments = await qb.getMany();
+
+    if ('byVotes' in filter) {
+      if (filter.byVotes === 'DESC') {
+        comments.sort((a: CommentEntity, b: CommentEntity) => b.votes - a.votes);
+      }
+
+      if (filter.byVotes === 'ASC') {
+        comments.sort((a: CommentEntity, b: CommentEntity) => a.votes - b.votes);
+      }
+    }
+
+    return comments;
+  }
+
   private async isCommentValid(userId: number, commentId: number): Promise<CommentEntity> {
     const comment = await this.commentRepository
       .createQueryBuilder('comment')
@@ -246,6 +232,22 @@ export class CommentService {
     }
 
     return comment;
+  }
+
+  private async areUserAndPostValid(userId: number, postId: number): Promise<{ user: UserEntity; post: PostEntity }> {
+    const user = await this.userRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const post = await this.postRepository.findOne(postId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return { user, post };
   }
 
   private async removeReplies(id: number): Promise<void> {

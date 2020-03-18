@@ -6,11 +6,11 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   Inject,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { MessageResponse } from '../shared';
-import { AppLogger } from '../app.logger';
 import { SubnodditEntity } from './subnoddit.entity';
 import { CreateSubnodditDto, UpdateSubnodditDto, FilterDto } from './dto';
 import { SubnodditBody, SubnodditsBody } from './interfaces/subnoddit.interface';
@@ -21,8 +21,6 @@ import S3 from 'aws-sdk/clients/s3';
 
 @Injectable()
 export class SubnodditService {
-  private logger = new AppLogger('SubnodditService');
-
   constructor(
     @InjectRepository(SubnodditEntity) private readonly subnodditRepository: Repository<SubnodditEntity>,
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
@@ -34,18 +32,8 @@ export class SubnodditService {
   async create(userId: number, createSubnodditDto: CreateSubnodditDto): Promise<SubnodditBody> {
     const { name, image, about } = createSubnodditDto;
 
-    const subnoddit = await this.subnodditRepository
-      .createQueryBuilder('subnoddits')
-      .where('subnoddits.name = :name', { name })
-      .getOne();
-
-    if (subnoddit) {
-      throw new BadRequestException(`Subnoddit with the name '${name}' already exists`);
-    }
-
     const user = await this.userRepository.findOne(userId);
     if (!user) {
-      this.logger.error(`[create] user with id: ${userId} not found. There might be a problem in a Jwt invalidation`);
       throw new NotFoundException('User not found');
     }
 
@@ -55,8 +43,16 @@ export class SubnodditService {
     newSubnoddit.about = about;
     newSubnoddit.user = user;
 
-    const savedSubnoddit = await this.subnodditRepository.save(newSubnoddit);
-    return { subnoddit: savedSubnoddit };
+    try {
+      const savedSubnoddit = await this.subnodditRepository.save(newSubnoddit);
+      return { subnoddit: savedSubnoddit };
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Password reset email has already been sent');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async findOne(subnodditId: number): Promise<SubnodditBody & { subnodditPostsCount: number }> {
@@ -127,8 +123,16 @@ export class SubnodditService {
     if (about) subnoddit.about = about;
     if (status) subnoddit.status = status;
 
-    const updatedSubnoddit = await this.subnodditRepository.save(subnoddit);
-    return { subnoddit: updatedSubnoddit };
+    try {
+      const updatedSubnoddit = await this.subnodditRepository.save(subnoddit);
+      return { subnoddit: updatedSubnoddit };
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Password reset email has already been sent');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async delete(userId: number, subnodditId: number): Promise<MessageResponse> {

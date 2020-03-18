@@ -1,8 +1,9 @@
-import { Entity, Column, ManyToOne, Index } from 'typeorm';
+import { Entity, Column, ManyToOne, Index, Unique } from 'typeorm';
 import { ExtendedEntity } from '../shared';
 import { UserEntity } from '../user/user.entity';
 
 @Entity({ name: 'passwordreset' })
+@Unique(['user'])
 export class PasswordResetEntity extends ExtendedEntity {
   @Column({
     type: 'varchar',

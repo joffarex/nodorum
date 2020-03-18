@@ -66,7 +66,7 @@ export const mockToken = randomBytes(32).toString('hex');
 export const mockPasswordResetOne = {
   id: 1,
   user: mockUserOne,
-  token: createHmac('sha256', 'secret')
+  token: createHmac('sha256', '53CR3T')
     .update(mockToken)
     .digest('hex'),
   createdAt: DateTime.local().toString(),
@@ -78,7 +78,7 @@ export const mockPasswordResetOne = {
 export const mockPasswordResetTwo = {
   id: 1,
   user: mockUserOne,
-  token: createHmac('sha256', 'secret')
+  token: createHmac('sha256', '53CR3T')
     .update(mockToken)
     .digest('hex'),
   createdAt: DateTime.local().toString(),
@@ -96,3 +96,13 @@ export const mockQueryTwo = {
   id: mockPasswordResetOne.id,
   token: 'wrongtoken',
 };
+
+export class DatabaseDuplicateError extends Error {
+  code: string;
+
+  constructor(code: string, ...params: any[]) {
+    super(...params);
+
+    this.code = code;
+  }
+}
