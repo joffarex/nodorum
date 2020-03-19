@@ -21,6 +21,7 @@ import {
   mockQueryTwo,
   mockPasswordResetTwo,
   DatabaseDuplicateError,
+  MockConfigService,
 } from '../shared/mocks/data.mock';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -37,27 +38,12 @@ describe('PasswordResetService', () => {
     });
   }
 
-  class MockConfigService extends ConfigService {
-    constructor() {
-      super();
-    }
-
-    get(name: string): string {
-      switch (name) {
-        case 'hmacSecret':
-          return '53CR3T';
-        case 'host':
-          return 'localhost';
-        default:
-          return '';
-      }
-    }
-  }
-
-  const mockConfig: Provider = {
-    provide: ConfigService,
-    useClass: MockConfigService,
-  };
+  const mockProviders: Provider[] = [
+    {
+      provide: ConfigService,
+      useClass: MockConfigService,
+    },
+  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -71,7 +57,7 @@ describe('PasswordResetService', () => {
           }),
         }),
       ],
-      providers: [PasswordResetService, mockConfig, ...mockRepositories],
+      providers: [PasswordResetService, ...mockProviders, ...mockRepositories],
     }).compile();
 
     passwordResetService = module.get<PasswordResetService>(PasswordResetService);

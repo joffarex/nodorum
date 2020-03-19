@@ -14,6 +14,7 @@ export const getCountSpy = jest.fn();
 export const getManySpy = jest.fn();
 export const saveSpy = jest.fn();
 export const deleteSpy = jest.fn();
+export const promiseSpy = jest.fn();
 
 export const mockRepositoryFactory = jest.fn(() => ({
   createQueryBuilder: jest.fn(() => ({
@@ -35,4 +36,10 @@ export const mockRepositoryFactory = jest.fn(() => ({
   save: saveSpy,
   find: findSpy,
   delete: deleteSpy,
+}));
+
+export const mockS3ClientFactory = jest.fn(() => ({
+  upload: jest.fn(() => ({
+    promise: promiseSpy,
+  })),
 }));

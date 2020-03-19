@@ -10,25 +10,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
   getOneSpy,
-  getRawOneSpy,
   mockRepositoryFactory,
   getCountSpy,
   getManySpy,
   findOneSpy,
   saveSpy,
-  findSpy,
   deleteSpy,
+  mockS3ClientFactory,
+  promiseSpy,
 } from '../shared/mocks/spies.mock';
 import {
   mockUserOne,
   mockUserTwo,
   mockSubnodditOne,
   mockSubnodditTwo,
-  mockPostVotes,
-  mockPosts,
-  mockPostsCount,
-  mockUpdatePost,
   DatabaseDuplicateError,
+  MockConfigService,
 } from '../shared/mocks/data.mock';
 import { SubnodditService } from './subnoddit.service';
 import { PostEntity } from '../post/post.entity';
@@ -44,37 +41,6 @@ describe('SubnodditService', () => {
   const mockRepositories: Provider[] = [];
   const repositoryTokenEntities = [PostEntity, UserEntity, SubnodditEntity];
 
-  class MockConfigService extends ConfigService {
-    constructor() {
-      super();
-    }
-
-    get(name: string): string {
-      switch (name) {
-        case 'aws.s3BucketName':
-          return 'test';
-        default:
-          return '';
-      }
-    }
-  }
-
-  const mockConfig: Provider = {
-    provide: ConfigService,
-    useClass: MockConfigService,
-  };
-
-  const promiseSpy = jest.fn();
-
-  const mockS3Client = {
-    provide: S3_TOKEN,
-    useFactory: jest.fn(() => ({
-      upload: jest.fn(() => ({
-        promise: promiseSpy,
-      })),
-    })),
-  };
-
   for (const entity of repositoryTokenEntities) {
     mockRepositories.push({
       provide: getRepositoryToken(entity),
@@ -82,9 +48,20 @@ describe('SubnodditService', () => {
     });
   }
 
+  const mockProviders: Provider[] = [
+    {
+      provide: ConfigService,
+      useClass: MockConfigService,
+    },
+    {
+      provide: S3_TOKEN,
+      useFactory: mockS3ClientFactory,
+    },
+  ];
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SubnodditService, mockConfig, mockS3Client, ...mockRepositories],
+      providers: [SubnodditService, ...mockProviders, ...mockRepositories],
     }).compile();
 
     subnodditService = module.get<SubnodditService>(SubnodditService);

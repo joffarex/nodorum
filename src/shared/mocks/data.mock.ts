@@ -1,6 +1,8 @@
 import { randomBytes, createHmac } from 'crypto';
 import { hash } from 'argon2';
 import { DateTime } from 'luxon';
+import { ConfigService } from '@nestjs/config';
+import { S3_TOKEN } from 'src/aws/s3';
 
 type postOptions = {
   userId?: number;
@@ -110,5 +112,24 @@ export class DatabaseDuplicateError extends Error {
     super(...params);
 
     this.code = code;
+  }
+}
+
+export class MockConfigService extends ConfigService {
+  constructor() {
+    super();
+  }
+
+  get(name: string): string {
+    switch (name) {
+      case 'hmacSecret':
+        return '53CR3T';
+      case 'host':
+        return 'localhost';
+      case 'aws.s3BucketName':
+        return 'test';
+      default:
+        return '';
+    }
   }
 }
