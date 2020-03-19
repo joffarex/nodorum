@@ -1,5 +1,5 @@
 export class CreateSubnodditDto {
   name!: string;
-  image!: string;
+  image?: string;
   about!: string;
 }

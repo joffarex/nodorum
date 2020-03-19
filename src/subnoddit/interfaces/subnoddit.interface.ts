@@ -1,3 +1,5 @@
+import { UserEntity } from 'src/user/user.entity';
+
 export interface SubnodditData {
   id: number;
   name: string;
@@ -6,6 +8,7 @@ export interface SubnodditData {
   about: string;
   createdAt?: string;
   updatedAt?: string;
+  user: UserEntity;
 }
 
 export interface SubnodditBody {

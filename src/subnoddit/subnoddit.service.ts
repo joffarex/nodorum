@@ -48,7 +48,7 @@ export class SubnodditService {
       return { subnoddit: savedSubnoddit };
     } catch (err) {
       if (err.code === '23505') {
-        throw new ConflictException('Password reset email has already been sent');
+        throw new ConflictException('Subnoddit with provided name already exists');
       } else {
         throw new InternalServerErrorException();
       }
@@ -92,6 +92,10 @@ export class SubnodditService {
 
     const subnodditsCount = await qb.getCount();
 
+    if ('name' in filter) {
+      qb.andWhere('subnoddits.name LIKE :name', { name: `%${filter.name}%` });
+    }
+
     // for pagination
     if ('limit' in filter) {
       qb.limit(filter.limit);
@@ -99,10 +103,6 @@ export class SubnodditService {
 
     if ('offset' in filter) {
       qb.offset(filter.offset);
-    }
-
-    if ('name' in filter) {
-      qb.andWhere('subnoddits.name LIKE :name', { name: `%${filter.name}%` });
     }
 
     const subnoddits = await qb.getMany();
@@ -119,7 +119,7 @@ export class SubnodditService {
     const subnoddit = await this.isSubnodditValid(userId, subnodditId);
 
     if (name) subnoddit.name = name;
-    if (image) subnoddit.image = image;
+    if (image) subnoddit.image = await this.uploadImage(image, subnoddit.name);
     if (about) subnoddit.about = about;
     if (status) subnoddit.status = status;
 
@@ -128,7 +128,7 @@ export class SubnodditService {
       return { subnoddit: updatedSubnoddit };
     } catch (err) {
       if (err.code === '23505') {
-        throw new ConflictException('Password reset email has already been sent');
+        throw new ConflictException('Subnoddit with provided name already exists');
       } else {
         throw new InternalServerErrorException();
       }
