@@ -35,12 +35,18 @@ let password: string;
 
 const getUser = (id: number, username: string) => ({ id, username, email: 'test@test.com', password });
 
-const getSubnoddit = (id: number, name: string) => ({ id, name });
+const getSubnoddit = (id: number, name: string, userId: number) => ({
+  id,
+  image: 'test',
+  about: 'test',
+  name,
+  user: { id: userId },
+});
 
 export const mockUserOne = getUser(1, 'test');
 export const mockUserTwo = getUser(2, 'test2');
-export const mockSubnodditOne = getSubnoddit(1, 'test');
-export const mockSubnodditTwo = getSubnoddit(2, 'test2');
+export const mockSubnodditOne = getSubnoddit(1, 'test', mockUserOne.id);
+export const mockSubnodditTwo = getSubnoddit(2, 'test2', mockUserTwo.id);
 export const mockPostVotes = getPostVotes(0);
 export const mockPosts: MockPost[] = [
   { ...getPost(1, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
