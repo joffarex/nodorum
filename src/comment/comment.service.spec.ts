@@ -17,7 +17,6 @@ import {
   mockComments,
   mockCommentsCount,
   mockCommentVotes,
-  mockPostsCount,
 } from '../shared/mocks/data.mock';
 import { CommentService } from './comment.service';
 import { UserEntity } from '../user/user.entity';
@@ -60,7 +59,7 @@ describe('CommentService', () => {
   it('should throw not found exception', async () => {
     const commentId = 9999;
 
-    getOneSpy.mockReturnValueOnce(undefined);
+    getOneSpy.mockReturnValue(undefined);
     await expect(commentService.findOne(commentId)).rejects.toBeInstanceOf(NotFoundException);
     await expect(commentService.findOne(commentId)).rejects.toThrowError('Comment not found');
   });
@@ -187,7 +186,7 @@ describe('CommentService', () => {
   });
 
   it('should throw user not fount exception in user comments list', async () => {
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(commentService.getUserComments(999, {})).rejects.toBeInstanceOf(NotFoundException);
     await expect(commentService.getUserComments(999, {})).rejects.toThrowError('User not found');
@@ -261,7 +260,7 @@ describe('CommentService', () => {
       parentId: null,
     };
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(commentService.create(mockUserOne.id, mockPosts[0].id, mockComment)).rejects.toBeInstanceOf(
       NotFoundException,
@@ -307,7 +306,7 @@ describe('CommentService', () => {
       text: mockComments[0].text,
     };
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(
       commentService.update(mockUserOne.id, mockPosts[0].id, mockComments[0].id, mockComment),
@@ -374,7 +373,7 @@ describe('CommentService', () => {
   });
 
   it('should throw use not found exception in delete', async () => {
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(commentService.delete(mockUserOne.id, mockPosts[0].id, mockComments[0].id)).rejects.toBeInstanceOf(
       NotFoundException,
@@ -420,7 +419,6 @@ describe('CommentService', () => {
 
   it('should upvote comment', async () => {
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce(undefined);
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, { direction: 1 })).toStrictEqual({
@@ -430,7 +428,6 @@ describe('CommentService', () => {
 
   it('should downvote comment', async () => {
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce(undefined);
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, { direction: -1 })).toStrictEqual({
@@ -442,7 +439,6 @@ describe('CommentService', () => {
     const mockCommentVoteOne = { direction: 1 };
 
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce(mockCommentVoteOne);
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, mockCommentVoteOne)).toStrictEqual({
@@ -454,7 +450,6 @@ describe('CommentService', () => {
     const mockCommentVoteNegOne = { direction: -1 };
 
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce(mockCommentVoteNegOne);
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, mockCommentVoteNegOne)).toStrictEqual({
@@ -464,7 +459,6 @@ describe('CommentService', () => {
 
   it('should upvote comment where comment vote already exists and is 0', async () => {
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce({ direction: 0 });
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, { direction: 1 })).toStrictEqual({
@@ -474,7 +468,6 @@ describe('CommentService', () => {
 
   it('should downvote comment where comment vote already exists and is 0', async () => {
     findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockComments[0]);
-
     getOneSpy.mockReturnValueOnce({ direction: 0 });
 
     expect(await commentService.vote(mockUserOne.id, mockComments[0].id, { direction: -1 })).toStrictEqual({
@@ -483,7 +476,7 @@ describe('CommentService', () => {
   });
 
   it('should downvote comment where comment vote already exists and is 0', async () => {
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(commentService.vote(mockUserOne.id, mockComments[0].id, { direction: 999 })).rejects.toBeInstanceOf(
       NotFoundException,

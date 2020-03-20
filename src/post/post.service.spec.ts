@@ -65,7 +65,7 @@ describe('PostService', () => {
   it('should throw not found exception', async () => {
     const postId = 9999;
 
-    getOneSpy.mockReturnValueOnce(undefined);
+    getOneSpy.mockReturnValue(undefined);
     await expect(postService.findOne(postId)).rejects.toBeInstanceOf(NotFoundException);
     await expect(postService.findOne(postId)).rejects.toThrowError('Post not found');
   });
@@ -136,7 +136,7 @@ describe('PostService', () => {
       username: 'test',
     };
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(postService.findMany(filter)).rejects.toBeInstanceOf(NotFoundException);
     await expect(postService.findMany(filter)).rejects.toThrowError('User not found');
@@ -147,7 +147,7 @@ describe('PostService', () => {
       subnodditId: 1,
     };
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(postService.findMany(filter)).rejects.toBeInstanceOf(NotFoundException);
     await expect(postService.findMany(filter)).rejects.toThrowError('Subnoddit not found');
@@ -206,9 +206,9 @@ describe('PostService', () => {
   it('should get news feed without any filter', async () => {
     const posts = mockPosts.filter(post => post.user.id === mockUserTwo.id);
     // user one follows user two
-    findSpy.mockReturnValue([mockUserTwo]);
-    getCountSpy.mockReturnValue(posts.length);
-    getManySpy.mockReturnValue(posts);
+    findSpy.mockReturnValueOnce([mockUserTwo]);
+    getCountSpy.mockReturnValueOnce(posts.length);
+    getManySpy.mockReturnValueOnce(posts);
     getRawOneSpy.mockReturnValue(mockPostVotes);
     expect(await postService.newsFeed(mockUserOne.id, {})).toStrictEqual({ posts, postsCount: posts.length });
   });
@@ -221,11 +221,10 @@ describe('PostService', () => {
     );
     const limitAndOffsetFilteredPosts = subnodditFilteredPosts.slice(filter.offset, filter.offset + filter.limit);
 
-    // user one follows user two
-    findSpy.mockReturnValue([mockUserTwo]);
+    findSpy.mockReturnValueOnce([mockUserTwo]);
     findOneSpy.mockReturnValueOnce(mockSubnodditOne);
-    getCountSpy.mockReturnValue(subnodditFilteredPosts.length);
-    getManySpy.mockReturnValue(limitAndOffsetFilteredPosts);
+    getCountSpy.mockReturnValueOnce(subnodditFilteredPosts.length);
+    getManySpy.mockReturnValueOnce(limitAndOffsetFilteredPosts);
     getRawOneSpy.mockReturnValue(mockPostVotes);
     expect(await postService.newsFeed(mockUserOne.id, filter)).toStrictEqual({
       posts: limitAndOffsetFilteredPosts,
@@ -259,7 +258,7 @@ describe('PostService', () => {
 
     const filter: { byVotes: 'DESC' | 'ASC' } = { byVotes: 'DESC' };
 
-    findSpy.mockReturnValue([mockUserTwo]);
+    findSpy.mockReturnValueOnce([mockUserTwo]);
     getCountSpy.mockReturnValueOnce(filteredPosts.length);
     getManySpy.mockReturnValueOnce(unorderedPosts);
     findOneSpy.mockReturnValueOnce(mockSubnodditOne);
@@ -286,7 +285,7 @@ describe('PostService', () => {
 
     const filter: { byVotes: 'DESC' | 'ASC' } = { byVotes: 'ASC' };
 
-    findSpy.mockReturnValue([mockUserTwo]);
+    findSpy.mockReturnValueOnce([mockUserTwo]);
     getCountSpy.mockReturnValueOnce(filteredPosts.length);
     getManySpy.mockReturnValueOnce(unorderedPosts);
     findOneSpy.mockReturnValueOnce(mockSubnodditOne);
@@ -304,8 +303,7 @@ describe('PostService', () => {
       subnodditId: mockPosts[0].subnoddit.id!,
     };
 
-    findOneSpy.mockReturnValue(mockUserOne);
-    findOneSpy.mockReturnValue(mockSubnodditOne);
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockSubnodditOne);
     saveSpy.mockReturnValueOnce(mockPosts[0]);
 
     const { post } = await postService.create(mockUserOne.id, mockPost);
@@ -325,8 +323,7 @@ describe('PostService', () => {
       attachment: mockPosts[0].attachment,
     };
 
-    findOneSpy.mockReturnValueOnce(mockUserOne);
-    findOneSpy.mockReturnValueOnce(mockSubnodditOne);
+    findOneSpy.mockReturnValueOnce(mockUserOne).mockReturnValueOnce(mockSubnodditOne);
     saveSpy.mockReturnValueOnce(mockPosts[0]);
 
     const { post } = await postService.create(mockUserOne.id, mockPost);
@@ -345,6 +342,7 @@ describe('PostService', () => {
       text: mockPosts[0].text,
     };
 
+    findOneSpy.mockReset();
     findOneSpy.mockReturnValue(undefined);
 
     await expect(postService.create(mockUserOne.id, mockPost)).rejects.toBeInstanceOf(NotFoundException);
@@ -543,7 +541,7 @@ describe('PostService', () => {
   it('should downvote post where post vote already exists and is 0', async () => {
     const mockPost = mockPosts[0];
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(postService.vote(mockUserOne.id, mockPost.id, { direction: 999 })).rejects.toBeInstanceOf(
       NotFoundException,

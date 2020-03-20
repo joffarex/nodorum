@@ -115,7 +115,7 @@ describe('SubnodditService', () => {
       image: mockSubnodditOne.image,
     };
 
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(subnodditService.create(999, mockSubnoddit)).rejects.toBeInstanceOf(NotFoundException);
     await expect(subnodditService.create(999, mockSubnoddit)).rejects.toThrowError('User not found');
@@ -127,16 +127,12 @@ describe('SubnodditService', () => {
       about: mockSubnodditOne.about,
     };
 
-    findOneSpy.mockReturnValueOnce(mockUserOne);
-    saveSpy.mockImplementationOnce(() => {
+    findOneSpy.mockReturnValue(mockUserOne);
+    saveSpy.mockImplementation(() => {
       throw new DatabaseDuplicateError('23505');
     });
-    await expect(subnodditService.create(999, mockSubnoddit)).rejects.toBeInstanceOf(ConflictException);
 
-    findOneSpy.mockReturnValueOnce(mockUserOne);
-    saveSpy.mockImplementationOnce(() => {
-      throw new DatabaseDuplicateError('23505');
-    });
+    await expect(subnodditService.create(999, mockSubnoddit)).rejects.toBeInstanceOf(ConflictException);
     await expect(subnodditService.create(999, mockSubnoddit)).rejects.toThrowError(
       'Subnoddit with provided name already exists',
     );
@@ -169,7 +165,7 @@ describe('SubnodditService', () => {
   });
 
   it('should throw subnoddit not found exception', async () => {
-    getOneSpy.mockReturnValueOnce(undefined);
+    getOneSpy.mockReturnValue(undefined);
 
     await expect(subnodditService.findOne(mockSubnodditOne.id)).rejects.toBeInstanceOf(NotFoundException);
     await expect(subnodditService.findOne(mockSubnodditOne.id)).rejects.toThrowError('Subnoddit not found');
@@ -204,7 +200,7 @@ describe('SubnodditService', () => {
   });
 
   it('should throw user not found exception if specified username does not belong to any user', async () => {
-    findOneSpy.mockReturnValueOnce(undefined);
+    findOneSpy.mockReturnValue(undefined);
 
     await expect(subnodditService.findMany({ username: 'any' })).rejects.toBeInstanceOf(NotFoundException);
     await expect(subnodditService.findMany({ username: 'any' })).rejects.toThrowError('User not found');
@@ -252,7 +248,7 @@ describe('SubnodditService', () => {
   });
 
   it('should throw subnoddit not found exceition in update', async () => {
-    getOneSpy.mockReturnValueOnce(undefined);
+    getOneSpy.mockReturnValue(undefined);
 
     await expect(subnodditService.update(mockUserOne.id, mockSubnodditOne.id, {})).rejects.toBeInstanceOf(
       NotFoundException,
@@ -271,18 +267,14 @@ describe('SubnodditService', () => {
   });
 
   it('should throw conflict exception if subnoddit with provided name already exists in update', async () => {
-    getOneSpy.mockReturnValueOnce(mockSubnodditOne);
-    saveSpy.mockImplementationOnce(() => {
+    getOneSpy.mockReturnValue(mockSubnodditOne);
+
+    saveSpy.mockImplementation(() => {
       throw new DatabaseDuplicateError('23505');
     });
     await expect(subnodditService.update(mockUserOne.id, mockSubnodditOne.id, {})).rejects.toBeInstanceOf(
       ConflictException,
     );
-
-    getOneSpy.mockReturnValueOnce(mockSubnodditOne);
-    saveSpy.mockImplementationOnce(() => {
-      throw new DatabaseDuplicateError('23505');
-    });
     await expect(subnodditService.update(mockUserOne.id, mockSubnodditOne.id, {})).rejects.toThrowError(
       'Subnoddit with provided name already exists',
     );
@@ -311,21 +303,19 @@ describe('SubnodditService', () => {
   it('should throw bad request exception if there are posts in subnoddit while deleting', async () => {
     const mockSubnodditPostsCount = 1;
 
-    getOneSpy.mockReturnValueOnce(mockSubnodditOne);
-    getCountSpy.mockReturnValueOnce(mockSubnodditPostsCount);
+    getOneSpy.mockReturnValue(mockSubnodditOne);
+    getCountSpy.mockReturnValue(mockSubnodditPostsCount);
+
     await expect(subnodditService.delete(mockUserOne.id, mockSubnodditOne.id)).rejects.toBeInstanceOf(
       BadRequestException,
     );
-
-    getOneSpy.mockReturnValueOnce(mockSubnodditOne);
-    getCountSpy.mockReturnValueOnce(mockSubnodditPostsCount);
     await expect(subnodditService.delete(mockUserOne.id, mockSubnodditOne.id)).rejects.toThrowError(
       `There are ${mockSubnodditPostsCount} posts in this subnoddit and it can not be removed`,
     );
   });
 
   it('should throw subnoddit not found error in delete', async () => {
-    getOneSpy.mockReturnValueOnce(undefined);
+    getOneSpy.mockReturnValue(undefined);
 
     await expect(subnodditService.delete(mockUserOne.id, mockSubnodditOne.id)).rejects.toBeInstanceOf(
       NotFoundException,
