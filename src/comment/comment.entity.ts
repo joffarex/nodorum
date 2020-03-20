@@ -3,6 +3,7 @@ import { ExtendedEntity } from '../shared';
 import { UserEntity } from '../user/user.entity';
 import { PostEntity } from '../post/post.entity';
 import { PostVoteEntity } from '../post/post-vote.entity';
+import { DateTime } from 'luxon';
 
 @Entity({ name: 'comments' })
 @Index(['post', 'parentId'])
@@ -31,4 +32,7 @@ export class CommentEntity extends ExtendedEntity {
     postVote => postVote.post,
   )
   votes!: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deletedAt!: DateTime;
 }
