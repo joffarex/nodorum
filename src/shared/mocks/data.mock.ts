@@ -9,6 +9,11 @@ type postOptions = {
   subnodditId?: number;
 };
 
+type commentOptions = {
+  userId?: number;
+  postId?: number;
+};
+
 type MockPost = {
   id: number;
   title: string;
@@ -17,6 +22,16 @@ type MockPost = {
   attachment?: string;
   user: { id?: number };
   subnoddit: { id?: number };
+};
+
+type MockComment = {
+  id: number;
+  text: string;
+  createdAt: string;
+  deletedAt: string | null;
+  parentId: string | null;
+  user: { id?: number };
+  post: { id?: number };
 };
 
 const getPost = (id: number, { userId, subnodditId }: postOptions): MockPost => ({
@@ -29,6 +44,17 @@ const getPost = (id: number, { userId, subnodditId }: postOptions): MockPost => 
   subnoddit: { id: subnodditId },
 });
 const getPostVotes = (sum: number) => ({ sum });
+
+const getComment = (id: number, { userId, postId }: commentOptions): MockComment => ({
+  id,
+  text: 'kappa',
+  createdAt: DateTime.local().toString(),
+  deletedAt: null,
+  parentId: null,
+  user: { id: userId },
+  post: { id: postId },
+});
+const getCommentVotes = (sum: number) => ({ sum });
 
 let password: string;
 (async () => {
@@ -47,8 +73,10 @@ const getSubnoddit = (id: number, name: string, userId: number) => ({
 
 export const mockUserOne = getUser(1, 'test');
 export const mockUserTwo = getUser(2, 'test2');
+
 export const mockSubnodditOne = getSubnoddit(1, 'test', mockUserOne.id);
 export const mockSubnodditTwo = getSubnoddit(2, 'test2', mockUserTwo.id);
+
 export const mockPostVotes = getPostVotes(0);
 export const mockPosts: MockPost[] = [
   { ...getPost(1, { userId: mockUserOne.id, subnodditId: mockSubnodditOne.id }) },
@@ -61,6 +89,20 @@ export const mockPosts: MockPost[] = [
   { ...getPost(8, { userId: mockUserTwo.id, subnodditId: mockSubnodditTwo.id }) },
 ];
 export const mockPostsCount = mockPosts.length;
+
+export const mockCommentVotes = getCommentVotes(0);
+export const mockComments: MockComment[] = [
+  { ...getComment(1, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(2, { userId: mockUserTwo.id, postId: mockPosts[1].id }) },
+  { ...getComment(3, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(4, { userId: mockUserTwo.id, postId: mockPosts[1].id }) },
+  { ...getComment(5, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(6, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(7, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(8, { userId: mockUserOne.id, postId: mockPosts[0].id }) },
+  { ...getComment(9, { userId: mockUserTwo.id, postId: mockPosts[1].id }) },
+];
+export const mockCommentsCount = mockComments.length;
 
 export const mockUpdatePost = {
   title: 'update',
