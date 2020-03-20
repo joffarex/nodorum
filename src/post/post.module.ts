@@ -7,13 +7,11 @@ import { UserEntity } from '../user/user.entity';
 import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { PostVoteEntity } from './post-vote.entity';
 import { FollowerEntity } from '../user/follower.entity';
-import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     AuthModule,
-    UserModule,
     TypeOrmModule.forFeature([PostEntity, UserEntity, SubnodditEntity, PostVoteEntity, FollowerEntity]),
   ],
   controllers: [PostController],

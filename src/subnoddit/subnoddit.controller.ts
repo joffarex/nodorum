@@ -30,7 +30,6 @@ export class SubnodditController {
   @Get(':subnodditId')
   async findOne(@Param('subnodditId') subnodditId: number, @Rcid() rcid: string): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.findOne(subnodditId);
-    this.logger.debug(`[findOne] subnoddit with id: ${subnodditBody.subnoddit.id} found`);
     this.logger.debug(logFormat(rcid, 'findOne', `subnoddit with id: ${subnodditBody.subnoddit.id} found`, {}, null));
 
     return subnodditBody;
@@ -44,7 +43,6 @@ export class SubnodditController {
     @Rcid() rcid: string,
   ): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.create(user.id, createSubnodditDto);
-    this.logger.debug(`[create] subnoddit ${subnodditBody.subnoddit.name}(${subnodditBody.subnoddit.id})  created`);
     this.logger.debug(
       logFormat(
         rcid,
