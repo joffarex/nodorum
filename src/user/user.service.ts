@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nest-modules/mailer';
 import { MessageResponse } from '../shared';
-import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto, QueryDto } from './dto';
+import { RegisterUserDto, UpdateUserDto, LoginUserDto, SendEmailDto } from './dto';
 import { UserBody, FollowersBody } from './interfaces/user.interface';
 import { UserEntity } from './user.entity';
 import { FollowerEntity } from './follower.entity';
@@ -52,7 +52,7 @@ export class UserService {
       return { user: savedUser };
     } catch (err) {
       if (err.code === '23505') {
-        throw new ConflictException('Username or email has already been registered.');
+        throw new ConflictException('Username or email has already been registered');
       } else {
         throw new InternalServerErrorException();
       }
@@ -108,7 +108,7 @@ export class UserService {
     }
 
     if (displayName) user.displayName = displayName;
-    if (profileImage) user.profileImage = profileImage;
+    if (profileImage) user.profileImage = await this.uploadProfileImage(profileImage, user.username);
     if (bio) user.bio = bio;
 
     try {
@@ -157,7 +157,7 @@ export class UserService {
       const { affected } = await this.followerRepository.delete(isFollowing.id);
 
       if (affected !== 1) {
-        throw new InternalServerErrorException('Database error');
+        throw new InternalServerErrorException();
       }
 
       return { message: 'User unfollowed' };
@@ -190,28 +190,6 @@ export class UserService {
     };
   }
 
-  async verifyEmail(query: QueryDto, url: string): Promise<MessageResponse> {
-    const { id } = query;
-
-    const user = await this.userRepository
-      .createQueryBuilder('users')
-      .addSelect('verifiedAt')
-      .where('users.id = :id', { id })
-      .getOne();
-
-    if (!user || !this.hasValidVerificationUrl(url, query)) {
-      throw new BadRequestException('Invalid activation link');
-    }
-
-    if (user.verifiedAt) {
-      throw new BadRequestException('Email already verified');
-    }
-
-    await this.markAsVerified(user.id);
-
-    return { message: 'Email verified successfully' };
-  }
-
   async sendEmail(sendEmailDto: SendEmailDto) {
     const { email } = sendEmailDto;
 
@@ -236,26 +214,37 @@ export class UserService {
     return { message: `Email sent to ${user.email}` };
   }
 
+  async verifyEmail(query: any, url: string): Promise<MessageResponse> {
+    const { id } = query;
+
+    const user = await this.userRepository
+      .createQueryBuilder('users')
+      .addSelect('verifiedAt')
+      .where('users.id = :id', { id })
+      .andWhere('"users"."deletedAt" = NULL')
+      .getOne();
+
+    if (!user || !this.hasValidVerificationUrl(url, query)) {
+      throw new BadRequestException('Invalid activation link');
+    }
+
+    if (user.verifiedAt) {
+      throw new BadRequestException('Email already verified');
+    }
+
+    user.verifiedAt = DateTime.local();
+
+    await this.userRepository.save(user);
+
+    return { message: 'Email verified successfully' };
+  }
+
   private async getUserByField(conditions: { [key: string]: string | number }): Promise<UserBody> {
     const user = await this.userRepository.findOne({ ...conditions, deletedAt: IsNull() });
     if (!user) {
       throw new NotFoundException('User not found');
     }
     return { user };
-  }
-
-  private async markAsVerified(userId: number): Promise<UserBody> {
-    const user = await this.userRepository.findOne({ id: userId, deletedAt: IsNull() });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    user.verifiedAt = DateTime.local();
-
-    const verifiedUser = await this.userRepository.save(user);
-
-    return { user: verifiedUser };
   }
 
   private async uploadProfileImage(profileImage: string, username: string): Promise<string> {
@@ -296,7 +285,7 @@ export class UserService {
     const expires = DateTime.local().plus({ minutes: 15 });
 
     const host = this.configService.get<string>('host');
-    const url = `${host}//email/verify?id=${id}&token=${token}&expires=${expires}`;
+    const url = `${host}/user/email/verify?id=${id}&token=${token}&expires=${expires}`;
     const signature = this.signVerificationUrl(url);
 
     return `${url}&signature=${signature}`;
