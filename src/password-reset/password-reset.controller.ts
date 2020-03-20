@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query } from '@nestjs/common';
+import { Controller, Post, Body, Query, HttpCode } from '@nestjs/common';
 import { JoiValidationPipe } from '../shared/pipes';
 import { Rcid } from '../shared/decorators';
 import { logFormat, MessageResponse } from '../shared';
@@ -13,7 +13,7 @@ export class PasswordResetController {
 
   constructor(private readonly passwordResetService: PasswordResetService) {}
 
-  @Post('/email')
+  @Post('email')
   async forgotPassword(
     @Body(new JoiValidationPipe(forgotPasswordSchema)) forgotPasswordDto: ForgotPasswordDto,
     @Rcid() rcid: string,
@@ -24,7 +24,8 @@ export class PasswordResetController {
     return res;
   }
 
-  @Post('/reset')
+  @Post('reset')
+  @HttpCode(200)
   async resetPassword(
     @Query() query: QueryDto,
     @Body(new JoiValidationPipe(resetPasswordSchema)) resetPasswordDto: ResetPasswordDto,

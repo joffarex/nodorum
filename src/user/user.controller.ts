@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Body, Put, Delete, UseGuards, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Body, Put, Delete, UseGuards, Post, Query, HttpCode } from '@nestjs/common';
 import { AuthGuard } from '../shared/guards';
 import { JoiValidationPipe } from '../shared/pipes';
 import { User, ReqUrl, Rcid } from '../shared/decorators';
@@ -16,7 +16,7 @@ export class UserController {
 
   constructor(private readonly userService: UserService) {}
 
-  @Get('/me')
+  @Get('me')
   @UseGuards(AuthGuard)
   async me(@User() user: JwtPayload, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOne(user.id);
@@ -25,7 +25,7 @@ export class UserController {
     return userBody;
   }
 
-  @Get('/:userId')
+  @Get(':userId')
   async findOne(@Param('userId') userId: number, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOne(userId);
     this.logger.debug(logFormat(rcid, 'findOne', `user with id: ${userBody.user.id} found`, {}, null));
@@ -33,7 +33,7 @@ export class UserController {
     return userBody;
   }
 
-  @Post('/email/verify')
+  @Post('email/verify')
   async verifyEmail(@Query() query: QueryDto, @ReqUrl() url: string, @Rcid() rcid: string): Promise<MessageResponse> {
     const res = await this.userService.verifyEmail(query, url);
     this.logger.debug(logFormat(rcid, 'verify', res.message, {}, null));
@@ -41,7 +41,8 @@ export class UserController {
     return res;
   }
 
-  @Post('/email/send')
+  @Post('email/send')
+  @HttpCode(200)
   async sendEmail(@Body(new JoiValidationPipe(sendEmailSchema)) sendEmailDto: SendEmailDto, @Rcid() rcid: string) {
     const res = await this.userService.sendEmail(sendEmailDto);
     this.logger.debug(logFormat(rcid, 'verify', res.message, sendEmailDto, null));
@@ -49,7 +50,7 @@ export class UserController {
     return res;
   }
 
-  @Put('/update')
+  @Put('update')
   @UseGuards(AuthGuard)
   async update(
     @Body(new JoiValidationPipe(updateSchema)) updateUserDto: UpdateUserDto,
@@ -62,7 +63,7 @@ export class UserController {
     return userBody;
   }
 
-  @Delete('/delete')
+  @Delete('delete')
   @UseGuards(AuthGuard)
   async delete(@User() user: JwtPayload, @Rcid() rcid: string): Promise<MessageResponse> {
     const res = await this.userService.delete(user.id);
@@ -71,7 +72,7 @@ export class UserController {
     return res;
   }
 
-  @Get('/email/:email')
+  @Get('email/:email')
   async findOneByEmail(@Param('email') email: string, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOneByEmail(email);
     this.logger.debug(logFormat(rcid, 'findOneByEmail', `user with email: ${userBody.user.email} found`, {}, null));
@@ -79,7 +80,7 @@ export class UserController {
     return userBody;
   }
 
-  @Get('/username/:username')
+  @Get('username/:username')
   async findOneByUsername(@Param('username') username: string, @Rcid() rcid: string): Promise<UserBody> {
     const userBody = await this.userService.findOneByUsername(username);
     this.logger.debug(
@@ -89,7 +90,7 @@ export class UserController {
     return userBody;
   }
 
-  @Post('/follow/:userToFollowId')
+  @Post('follow/:userToFollowId')
   async followAction(
     @Param('userToFollowId') userToFollowId: number,
     @User() user: JwtPayload,
@@ -103,7 +104,7 @@ export class UserController {
     return res;
   }
 
-  @Get('/followers/:userId')
+  @Get('followers/:userId')
   async getFollowers(@Param(':userId') userId: number, @Rcid() rcid: string): Promise<FollowersBody> {
     const followersBody = await this.userService.getFollowers(userId);
     this.logger.debug(logFormat(rcid, 'getFollowers', `get followers for user id: ${userId}`, {}, null));

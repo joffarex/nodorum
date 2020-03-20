@@ -16,7 +16,7 @@ export class SubnodditController {
 
   constructor(private readonly subnodditService: SubnodditService) {}
 
-  @Post('/')
+  @Post()
   async findMany(
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
     @Rcid() rcid: string,
@@ -27,7 +27,7 @@ export class SubnodditController {
     return subnodditsBody;
   }
 
-  @Get('/:subnodditId')
+  @Get(':subnodditId')
   async findOne(@Param('subnodditId') subnodditId: number, @Rcid() rcid: string): Promise<SubnodditBody> {
     const subnodditBody = await this.subnodditService.findOne(subnodditId);
     this.logger.debug(`[findOne] subnoddit with id: ${subnodditBody.subnoddit.id} found`);
@@ -36,7 +36,7 @@ export class SubnodditController {
     return subnodditBody;
   }
 
-  @Post('/create')
+  @Post('create')
   @UseGuards(AuthGuard)
   async create(
     @Body(new JoiValidationPipe(createSchema)) createSubnodditDto: CreateSubnodditDto,
@@ -58,7 +58,7 @@ export class SubnodditController {
     return subnodditBody;
   }
 
-  @Put('/:subnodditId/update')
+  @Put(':subnodditId/update')
   @UseGuards(AuthGuard)
   async update(
     @Param('subnodditId') subnodditId: number,
@@ -80,7 +80,7 @@ export class SubnodditController {
     return subnodditBody;
   }
 
-  @Delete('/:subnodditId/delete')
+  @Delete(':subnodditId/delete')
   @UseGuards(AuthGuard)
   async delete(
     @Param('subnodditId') subnodditId: number,

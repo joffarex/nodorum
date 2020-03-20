@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Body, Post, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Body, Post, Put, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { User, Rcid } from '../shared/decorators';
 import { JoiValidationPipe } from '../shared/pipes';
 import { AuthGuard } from '../shared/guards';
@@ -16,7 +16,8 @@ export class PostController {
 
   constructor(private readonly postService: PostService) {}
 
-  @Post('/all')
+  @Post('all')
+  @HttpCode(200)
   async findMany(
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
     @Rcid() rcid: string,
@@ -27,7 +28,8 @@ export class PostController {
     return postsBody;
   }
 
-  @Post('/news-feed')
+  @Post('news-feed')
+  @HttpCode(200)
   @UseGuards(AuthGuard)
   async newsFeed(
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
@@ -40,7 +42,7 @@ export class PostController {
     return postsBody;
   }
 
-  @Post('/create')
+  @Post('create')
   @UseGuards(AuthGuard)
   async create(
     @Body(new JoiValidationPipe(createSchema)) createPostDto: CreatePostDto,
@@ -53,7 +55,7 @@ export class PostController {
     return postBody;
   }
 
-  @Get('/:postId')
+  @Get(':postId')
   async findOne(@Param('postId') postId: number, @Rcid() rcid: string): Promise<PostBody> {
     const postBody = await this.postService.findOne(postId);
     this.logger.debug(logFormat(rcid, 'findOne', `post with id: ${postBody.post.id} found`, {}, null));
@@ -61,7 +63,7 @@ export class PostController {
     return postBody;
   }
 
-  @Put('/:postId/update')
+  @Put(':postId/update')
   async update(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(updateSchema)) updatePostDto: UpdatePostDto,
@@ -74,7 +76,7 @@ export class PostController {
     return postBody;
   }
 
-  @Delete('/:postId/delete')
+  @Delete(':postId/delete')
   async delete(
     @Param('postId') postId: number,
     @User() user: JwtPayload,
@@ -86,7 +88,7 @@ export class PostController {
     return res;
   }
 
-  @Post('/:postId/vote')
+  @Post(':postId/vote')
   async vote(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(voteSchema)) votePostDto: VotePostDto,

@@ -1,4 +1,4 @@
-import { Controller, Param, Body, Post, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Param, Body, Post, Put, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { User, Rcid } from '../shared/decorators';
 import { JoiValidationPipe } from '../shared/pipes';
 import { AuthGuard } from '../shared/guards';
@@ -16,7 +16,8 @@ export class CommentController {
 
   constructor(private readonly commentService: CommentService) {}
 
-  @Post('/:postId')
+  @Post(':postId')
+  @HttpCode(200)
   async getCommentTree(
     @Param('postId') postId: number,
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
@@ -28,7 +29,8 @@ export class CommentController {
     return commentsBody;
   }
 
-  @Post('/user/:userId')
+  @Post('user/:userId')
+  @HttpCode(200)
   async getUserComments(
     @Param('userId') userId: number,
     @Body(new JoiValidationPipe(filterSchema)) filter: FilterDto,
@@ -40,7 +42,7 @@ export class CommentController {
     return commentsBody;
   }
 
-  @Post('/:postId/create')
+  @Post(':postId/create')
   @UseGuards(AuthGuard)
   async create(
     @Param('postId') postId: number,
@@ -56,7 +58,7 @@ export class CommentController {
     return commentBody;
   }
 
-  @Post('/:commentId/vote')
+  @Post(':commentId/vote')
   @UseGuards(AuthGuard)
   async vote(
     @Param('commentId') commentId: number,
@@ -70,7 +72,7 @@ export class CommentController {
     return res;
   }
 
-  @Put('/:postId/:commentId/update')
+  @Put(':postId/:commentId/update')
   @UseGuards(AuthGuard)
   async update(
     @Param('postId') postId: number,
@@ -87,7 +89,7 @@ export class CommentController {
     return commentBody;
   }
 
-  @Delete('/:postId/:commentId/delete')
+  @Delete(':postId/:commentId/delete')
   @UseGuards(AuthGuard)
   async delete(
     @Param('postId') postId: number,
