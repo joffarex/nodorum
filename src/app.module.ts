@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MailerModule, PugAdapter } from '@nest-modules/mailer';
+import { MailerModule } from '@nest-modules/mailer';
 import { AppLogger } from './app.logger';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -35,13 +35,6 @@ import config from './config';
         transport: configService.get<string>('smtpTransport'),
         defaults: {
           from: '"noddit" <no-reply@noddit.app>',
-        },
-        template: {
-          dir: `${__dirname}/../templates`,
-          adapter: new PugAdapter(),
-          options: {
-            strict: true,
-          },
         },
       }),
       inject: [ConfigService],
