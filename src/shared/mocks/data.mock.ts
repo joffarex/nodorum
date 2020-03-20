@@ -2,7 +2,6 @@ import { randomBytes, createHmac } from 'crypto';
 import { hash } from 'argon2';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
-import { S3_TOKEN } from 'src/aws/s3';
 
 type postOptions = {
   userId?: number;
@@ -61,7 +60,15 @@ let password: string;
   password = await hash('password');
 })();
 
-const getUser = (id: number, username: string) => ({ id, username, email: 'test@test.com', password });
+const getUser = (id: number, username: string) => ({
+  id,
+  username,
+  email: 'test@test.com',
+  password,
+  displayName: 'test',
+  profileImage: 'kappa',
+  bio: 'testbio',
+});
 
 const getSubnoddit = (id: number, name: string, userId: number) => ({
   id,
