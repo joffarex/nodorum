@@ -15,9 +15,15 @@ jobs:
       - uses: borales/actions-yarn@v2.0.0
         with:
           cmd: install --frozen-lockfile
+          
       - uses: borales/actions-yarn@v2.0.0
         with:
           cmd: test
+      
+      - uses: borales/actions-yarn@v2.0.0
+        with:
+          cmd: test:e2e
+        
       - uses: borales/actions-yarn@v2.0.0
         with:
           cmd: build
