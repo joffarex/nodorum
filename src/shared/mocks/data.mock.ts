@@ -2,6 +2,10 @@ import { randomBytes, createHmac } from 'crypto';
 import { hash } from 'argon2';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { InternalServerErrorException } from '@nestjs/common';
+import jwt from 'jsonwebtoken';
+import { v1 as uuidv1 } from 'uuid';
 
 type postOptions = {
   userId?: number;
@@ -169,7 +173,7 @@ export class MockConfigService extends ConfigService {
     super();
   }
 
-  get(name: string): string {
+  get(name: string): string | number {
     switch (name) {
       case 'hmacSecret':
         return '53CR3T';
@@ -177,8 +181,54 @@ export class MockConfigService extends ConfigService {
         return 'localhost';
       case 'aws.s3BucketName':
         return 'test';
+      case 'jwtSecret':
+        return 'R4ND0M';
+      case 'uuid':
+        return 'R4ND0M';
+      case 'session.timeout':
+        return 360000;
       default:
         return '';
     }
+  }
+}
+
+export const mockPayload = (user: any): JwtPayload => ({
+  tokenId: uuidv1(),
+  id: user.id,
+  email: user.email,
+  username: user.username,
+});
+
+export class MockAuthService {
+  private jwtSecret = 'R4ND0M';
+  private uuid = 'R4ND0M';
+  private timeout = 360000;
+
+  public getAccessToken(payload: JwtPayload): string {
+    if (!this.jwtSecret || !this.timeout || !this.uuid) {
+      throw new InternalServerErrorException();
+    }
+    return jwt.sign(payload, this.jwtSecret, { expiresIn: this.timeout, issuer: this.uuid });
+  }
+
+  public verifyJwtToken(token: string): Promise<JwtPayload> {
+    return new Promise((resolve, reject) => {
+      if (!this.jwtSecret) {
+        throw new InternalServerErrorException();
+      }
+
+      jwt.verify(token, this.jwtSecret, (err, decoded) => {
+        if (err) {
+          return reject(err.message);
+        }
+
+        if (!decoded) {
+          return reject('Token is invalid');
+        }
+
+        resolve(decoded as JwtPayload);
+      });
+    });
   }
 }
