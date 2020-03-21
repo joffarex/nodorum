@@ -33,7 +33,6 @@ import { UserEntity } from '../user/user.entity';
 import { SubnodditEntity } from '../subnoddit/subnoddit.entity';
 import { ConfigService } from '@nestjs/config';
 import { S3_TOKEN } from '../aws/s3';
-import { UpdateSubnodditDto } from './dto';
 
 describe('SubnodditService', () => {
   let subnodditService: SubnodditService;
@@ -227,11 +226,10 @@ describe('SubnodditService', () => {
   });
 
   it('should update subnoddit', async () => {
-    const body: UpdateSubnodditDto = {
+    const body = {
       name: 'update',
       about: 'update',
       image: 'updated',
-      status: 'ACTIVE',
     };
 
     const mockUpdateSubnoddit = { ...mockSubnodditOne, ...body };
@@ -243,6 +241,7 @@ describe('SubnodditService', () => {
     expect(
       await subnodditService.update(mockUserOne.id, mockSubnodditOne.id, {
         ...body,
+        status: 'ACTIVE',
       }),
     ).toStrictEqual({ subnoddit: mockUpdateSubnoddit });
   });
