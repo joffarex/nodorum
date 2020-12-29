@@ -1,3 +1,3 @@
-## NODDIT SERVER
+## Nodorum
 
-Server for a reddit-like forum build with NestJS
+Fully featured, reddit-like forum API, with advanced RBAC system, built with NestJS
