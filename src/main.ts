@@ -1,30 +1,18 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import helmet from 'fastify-helmet';
+import { AppMain } from './app.main';
+import { AppLogger } from './shared/core';
 
-(async function () {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({ logger: true }),
-  );
+const logger = new AppLogger('Bootstrap');
 
-  app.enableCors();
-  await app.register(helmet, {
-    contentSecurityPolicy: false,
+logger.log(`Start`);
+
+const app = new AppMain();
+
+app
+  .bootstrap()
+  .then(() => {
+    logger.log('Server started');
+  })
+  .catch((err) => {
+    logger.error(err.message);
+    process.exit(1);
   });
-
-  const options = new DocumentBuilder()
-    .setTitle('Nodorum')
-    .setDescription('The Nodorum API')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
-
-  await app.listen(3000, '0.0.0.0');
-})();
