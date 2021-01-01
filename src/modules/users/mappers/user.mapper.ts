@@ -14,7 +14,7 @@ export class UserMapper implements IMapper<UserEntity, User> {
   }
 
   entityToDomain(entity: UserEntity): User {
-    const user = new User(entity.id, entity.username, entity.email, entity.password);
+    const user = User.createWithId(entity.id, entity.username, entity.email, entity.password);
     user.isEmailVerified = !!entity.verifiedAt;
     user.isDeleted = !!entity.deletedAt;
 

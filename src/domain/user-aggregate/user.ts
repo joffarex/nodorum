@@ -1,6 +1,7 @@
 import { AggregateRoot } from '../seed-work';
 import { IsEmail, IsNotEmpty, IsUUID, MinLength } from 'class-validator';
 import { UserCreatedEvent, UserDeletedEvent, UserEmailVerifiedEvent } from './events';
+import { v4 as uuid } from 'uuid';
 
 export class User extends AggregateRoot {
   @IsUUID(4)
@@ -25,7 +26,7 @@ export class User extends AggregateRoot {
   @MinLength(8)
   private readonly _password: string;
 
-  public constructor(id: string, username: string, email: string, password: string) {
+  private constructor(id: string, username: string, email: string, password: string) {
     super();
 
     this._userId = id;
@@ -40,6 +41,14 @@ export class User extends AggregateRoot {
 
   public aggregateId(): string {
     return this._userId;
+  }
+
+  public static create(username: string, email: string, password: string): User {
+    return new User(uuid(), username, email, password);
+  }
+
+  public static createWithId(id: string, username: string, email: string, password: string): User {
+    return new User(id, username, email, password);
   }
 
   public isLoggedIn(): boolean {
