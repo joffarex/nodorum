@@ -23,7 +23,7 @@ export class Result<T> {
     Object.freeze(this);
   }
 
-  public getValue(): T {
+  public get value(): T {
     if (!this.isSuccess || !this._value) {
       if (this.error) this.logger.log(String(this.error));
       throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");

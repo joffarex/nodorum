@@ -1,8 +1,8 @@
 import { ConflictException, InternalServerErrorException } from '@nestjs/common';
 
 export class Guard {
-  public static isNullOrUndefined(value?: string): boolean {
-    return value === undefined || value === null || value.length === 0;
+  public static isNullOrUndefined<T>(value?: T): boolean {
+    return value === undefined || value === null;
   }
 
   public static isDatabaseDuplicate(err: any, fields: string[]): void {

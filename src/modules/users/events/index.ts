@@ -1,1 +1,3 @@
-export * from './user-created-event.handler';
+import { UserCreatedEventHandler } from './user-created-event.handler';
+
+export const EventHandlers = [UserCreatedEventHandler];
