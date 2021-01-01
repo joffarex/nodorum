@@ -1,9 +1,9 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Res } from '@nestjs/common';
 import { AppLogger, Result } from '../../shared/core';
 import { IUserService, USER_SERVICE } from './services';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserDto } from './dtos';
-import { CreateUserCommand } from './commands';
+import { CreateUserCommand, DeleteUserCommand } from './commands';
 import { GetUserByUsernameQuery } from './queries';
 import { User } from '../../domain/user-aggregate';
 import { FastifyReply } from 'fastify';
@@ -26,9 +26,18 @@ export class UserController {
     );
   }
 
+  @Delete()
+  @HttpCode(204)
+  async deleteUser(): Promise<void> {
+    // TODO: inject authenticated user ID in command
+    await this._commandBus.execute(new DeleteUserCommand('TODO'));
+  }
+
   @Get(':username')
   async findOneByUsername(@Param('username') username: string, @Res() res: FastifyReply) {
-    const result = (await this._queryBus.execute(new GetUserByUsernameQuery(username))) as Result<User> | Result<string>;
+    const result = (await this._queryBus.execute(new GetUserByUsernameQuery(username))) as
+      | Result<User>
+      | Result<string>;
 
     if (result.isFailure) {
       const error = result.value;
