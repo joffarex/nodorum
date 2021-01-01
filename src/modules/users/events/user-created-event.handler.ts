@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { UserCreatedEvent } from '../../../domain/user-aggregate/events';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../../../infrastructure/entities';
+import { UserEntity } from '../../../shared/infrastructure/entities';
 import { Repository } from 'typeorm';
-import { UserMapper } from '../mappers/user.mapper';
+import { UserMapper } from '../mappers';
 import { Guard } from '../../../shared/core';
 
 @EventsHandler(UserCreatedEvent)

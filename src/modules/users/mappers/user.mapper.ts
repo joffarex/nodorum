@@ -1,5 +1,5 @@
 import { IMapper } from '../../../shared/core';
-import { UserEntity } from '../../../infrastructure/entities';
+import { UserEntity } from '../../../shared/infrastructure/entities';
 import { User } from '../../../domain/user-aggregate';
 
 export class UserMapper implements IMapper<UserEntity, User> {
