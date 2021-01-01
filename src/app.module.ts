@@ -3,6 +3,7 @@ import { AppLogger } from './shared/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './modules/users/user.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    UserModule,
   ],
 })
 export class AppModule {
