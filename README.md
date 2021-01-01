@@ -1,3 +1,3 @@
 ## Nodorum
 
-Fully featured, reddit-like forum API, with advanced RBAC system, built with NestJS
+Fully featured, reddit-like forum API, with advanced RBAC system, built with NestJS, DDD, CQRS and much more...
