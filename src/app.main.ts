@@ -10,7 +10,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 export class AppMain {
   private _app!: NestFastifyApplication;
-  private _logger = new AppLogger('Server');
+  private readonly _logger = new AppLogger('Server');
 
   async bootstrap(): Promise<void> {
     this._app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({ logger: true }));

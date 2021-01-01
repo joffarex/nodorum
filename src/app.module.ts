@@ -26,7 +26,7 @@ import { UserModule } from './modules/users/user.module';
   ],
 })
 export class AppModule {
-  private _logger = new AppLogger(AppModule.name);
+  private readonly _logger = new AppLogger(AppModule.name);
 
   constructor() {
     this._logger.log('Initialize constructor');

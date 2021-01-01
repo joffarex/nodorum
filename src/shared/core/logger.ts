@@ -12,10 +12,10 @@ const customFormat = format.printf(({ level, message, label, timestamp }) => {
 });
 
 export class AppLogger implements LoggerService {
-  private logger: Logger;
+  private _logger: Logger;
 
   constructor(label: string) {
-    this.logger = createLogger({
+    this._logger = createLogger({
       level: 'info',
       format: format.combine(format.label({ label }), format.timestamp(), customFormat),
       transports: [
@@ -27,22 +27,22 @@ export class AppLogger implements LoggerService {
   }
 
   error(message: string) {
-    this.logger.error(message);
+    this._logger.error(message);
   }
 
   warn(message: string) {
-    this.logger.warn(message);
+    this._logger.warn(message);
   }
 
   log(message: string) {
-    this.logger.info(message);
+    this._logger.info(message);
   }
 
   verbose(message: string) {
-    this.logger.verbose(message);
+    this._logger.verbose(message);
   }
 
   debug(message: string) {
-    this.logger.debug(message);
+    this._logger.debug(message);
   }
 }
