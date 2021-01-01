@@ -1,13 +1,25 @@
 import { Module } from '@nestjs/common';
 import { AppLogger } from './shared/core';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('database.url'),
+        synchronize: configService.get<boolean>('database.synchronize'),
+        logging: configService.get<boolean>('isProduction') ? false : 'all',
+        entities: configService.get<Array<string>>('database.entities'),
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
