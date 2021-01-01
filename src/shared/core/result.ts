@@ -36,7 +36,7 @@ export class Result<T> {
     return this.error as T;
   }
 
-  public static ok<U>(value: U): Result<U> {
+  public static ok<U>(value?: U): Result<U> {
     return new Result<U>(true, null, value);
   }
 

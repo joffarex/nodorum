@@ -35,8 +35,6 @@ export class User extends AggregateRoot {
     this._password = password;
     this._isEmailVerified = false;
     this._isDeleted = false;
-
-    this.apply(new UserCreatedEvent(this));
   }
 
   public aggregateId(): string {
@@ -44,11 +42,13 @@ export class User extends AggregateRoot {
   }
 
   public static create(username: string, email: string, password: string): User {
-    return new User(uuid(), username, email, password);
+    return User.createWithId(uuid(), username, email, password);
   }
 
   public static createWithId(id: string, username: string, email: string, password: string): User {
-    return new User(id, username, email, password);
+    const user = new User(id, username, email, password);
+    user.apply(new UserCreatedEvent(user));
+    return user;
   }
 
   public isLoggedIn(): boolean {
