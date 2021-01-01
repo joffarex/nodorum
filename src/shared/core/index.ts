@@ -3,3 +3,4 @@ export * from './guard';
 export * from './domain-error';
 export * from './app-error';
 export * from './result';
+export * from './mapper.interface';
