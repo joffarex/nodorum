@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { AppLogger } from '../../shared/core';
-import { IUserService, USER_SERVICE } from './services/user-service.interface';
+import { IUserService, USER_SERVICE } from './services';
 
 @Controller('user')
 export class UserController {
