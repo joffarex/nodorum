@@ -2,6 +2,7 @@ import { AggregateRoot } from '../seed-work';
 import { IsEmail, IsNotEmpty, IsUUID, MinLength } from 'class-validator';
 import { UserCreatedEvent, UserDeletedEvent, UserEmailVerifiedEvent } from './events';
 import { v4 as uuid } from 'uuid';
+import { UserPassword } from './user-password';
 
 export class User extends AggregateRoot {
   @IsUUID(4)
@@ -22,11 +23,9 @@ export class User extends AggregateRoot {
   private _isDeleted: boolean;
   private _lastLogin?: Date;
 
-  @IsNotEmpty()
-  @MinLength(8)
-  private readonly _password: string;
+  private readonly _password: UserPassword;
 
-  private constructor(id: string, username: string, email: string, password: string) {
+  private constructor(id: string, username: string, email: string, password: UserPassword) {
     super();
 
     this._userId = id;
@@ -41,11 +40,11 @@ export class User extends AggregateRoot {
     return this._userId;
   }
 
-  public static create(username: string, email: string, password: string): User {
+  public static create(username: string, email: string, password: UserPassword): User {
     return User.createWithId(uuid(), username, email, password);
   }
 
-  public static createWithId(id: string, username: string, email: string, password: string): User {
+  public static createWithId(id: string, username: string, email: string, password: UserPassword): User {
     const user = new User(id, username, email, password);
     user.apply(new UserCreatedEvent(user));
     return user;
@@ -87,7 +86,7 @@ export class User extends AggregateRoot {
     this._accessToken = value;
   }
 
-  public get password(): string {
+  public get password(): UserPassword {
     return this._password;
   }
 

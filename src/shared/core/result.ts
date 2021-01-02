@@ -40,7 +40,7 @@ export class Result<T> {
     return new Result<U>(true, null, value);
   }
 
-  public static fail<U>(error: U): Result<U> {
+  public static fail<U>(error: string): Result<U> {
     return new Result<U>(false, error, null);
   }
 }
