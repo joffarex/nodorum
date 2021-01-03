@@ -20,12 +20,16 @@ export class UserPassword extends ValueObject<IProps> {
     return this.props.value;
   }
 
+  public static isValid(password: string): boolean {
+    return password.length < UserPassword.minLength;
+  }
+
   public static async create(password: string, hashed = false): Promise<Result<UserPassword>> {
     if (Guard.isNullOrUndefined(password)) {
       return Result.fail('Password can not be empty');
     }
 
-    if (password.length < this.minLength) {
+    if (this.isValid(password)) {
       return Result.fail('Password must be at least 8 characters long');
     }
 

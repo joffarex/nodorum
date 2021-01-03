@@ -3,6 +3,7 @@ import { IsEmail, IsNotEmpty, IsUUID, MinLength } from 'class-validator';
 import { UserCreatedEvent, UserDeletedEvent, UserEmailVerifiedEvent } from './events';
 import { v4 as uuid } from 'uuid';
 import { UserPassword } from './user-password';
+import { JWTToken, RefreshToken } from './jwt';
 
 export class User extends AggregateRoot {
   @IsUUID(4)
@@ -108,6 +109,12 @@ export class User extends AggregateRoot {
 
   public get userId(): string {
     return this._userId;
+  }
+
+  public setAccessToken(accessToken: JWTToken, refreshToken: RefreshToken): void {
+    this._accessToken = accessToken;
+    this._refreshToken = refreshToken;
+    this._lastLogin = new Date();
   }
 
   public verifyEmail(): void {
