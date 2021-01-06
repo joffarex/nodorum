@@ -30,7 +30,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
     const user = this._publisher.mergeObjectContext(User.create(command.username, command.email, userPassword.value));
 
-    const userEntity = this._userMapper.domainToEntity(user);
+    const userEntity = await this._userMapper.domainToEntity(user);
 
     try {
       await this._userRepository.save(userEntity);

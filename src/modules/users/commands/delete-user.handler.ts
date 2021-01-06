@@ -28,7 +28,7 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
     );
     user.delete();
 
-    const userEntity = this._userMapper.domainToEntity(user);
+    const userEntity = await this._userMapper.domainToEntity(user);
 
     try {
       await this._userRepository.save(userEntity);

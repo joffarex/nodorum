@@ -3,7 +3,7 @@ import { UserEntity } from '../../../shared/infrastructure/entities';
 import { User, UserPassword } from '../../../domain/user-aggregate';
 
 export class UserMapper implements IMapper<UserEntity, User> {
-  domainToEntity(domain: User): UserEntity {
+  async domainToEntity(domain: User): Promise<UserEntity> {
     const userEntity = new UserEntity();
     userEntity.id = domain.userId;
     userEntity.username = domain.username;

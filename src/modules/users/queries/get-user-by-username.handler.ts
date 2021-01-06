@@ -17,10 +17,10 @@ export class GetUserByUsernameHandler implements IQueryHandler<GetUserByUsername
   async execute(query: GetUserByUsernameQuery): Promise<Result<User> | Result<string>> {
     const userEntity = await this._userRepository.findOne({ username: query.username });
     if (!userEntity) {
-      return Result.fail(`User with username: ${query.username} does not exist`);
+      return Result.fail<string>(`User with username: ${query.username} does not exist`);
     }
 
-    const user = this._userMapper.entityToDomain(userEntity);
+    const user = await this._userMapper.entityToDomain(userEntity);
 
     return Result.ok(user);
   }
