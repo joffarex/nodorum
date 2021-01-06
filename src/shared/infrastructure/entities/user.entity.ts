@@ -4,16 +4,19 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
+import { PostEntity } from './post.entity';
+import { CommentEntity } from './comment.entity';
+import { CommentVoteEntity } from './comment-vote.entity';
+import { PostVoteEntity } from './post-vote.entity';
 
 @Entity({ name: 'users' })
 @Unique(['username', 'email'])
 export class UserEntity extends BaseEntity {
-  // @PrimaryGeneratedColumn('uuid')
   @PrimaryColumn()
   id!: string;
 
@@ -32,11 +35,23 @@ export class UserEntity extends BaseEntity {
   verifiedAt!: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'current_timestamp' })
-  createdAt!: string;
+  createdAt!: Date;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'current_timestamp' })
-  updatedAt!: string;
+  updatedAt!: Date;
 
   @Column({ type: 'timestamp', nullable: true })
-  deletedAt!: string;
+  deletedAt!: Date;
+
+  @OneToMany(() => PostEntity, (post) => post.user)
+  posts!: PostEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments!: CommentEntity[];
+
+  @OneToMany(() => CommentVoteEntity, (postVote) => postVote.user)
+  commentVotes!: CommentVoteEntity[];
+
+  @OneToMany(() => PostVoteEntity, (commentVote) => commentVote.user)
+  postVotes!: PostVoteEntity[];
 }

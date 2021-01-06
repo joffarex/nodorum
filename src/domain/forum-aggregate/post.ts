@@ -38,12 +38,15 @@ export class Post extends AggregateRoot {
   public get postId(): string {
     return this._postId;
   }
+  public get userId(): string {
+    return this._userId;
+  }
 
   public get title(): string {
     return this._title;
   }
 
-  public get type(): string {
+  public get type(): PostType {
     return this._type;
   }
 
@@ -83,6 +86,7 @@ export class Post extends AggregateRoot {
     totalComments: number,
     points: number,
     datePosted: Date,
+    votes: PostVote[],
   ) {
     super();
 
@@ -93,7 +97,7 @@ export class Post extends AggregateRoot {
     this._totalComments = totalComments;
     this._points = points;
     this._datePosted = datePosted;
-    this._votes = [];
+    this._votes = votes;
     this._comments = [];
   }
 
@@ -108,8 +112,9 @@ export class Post extends AggregateRoot {
     totalComments: number,
     points: number,
     datePosted: Date,
+    votes: PostVote[],
   ): Post {
-    return Post.createWithId(uuid(), userId, title, type, totalComments, points, datePosted);
+    return Post.createWithId(uuid(), userId, title, type, totalComments, points, datePosted, votes);
   }
 
   public static createWithId(
@@ -120,8 +125,9 @@ export class Post extends AggregateRoot {
     totalComments: number,
     points: number,
     datePosted: Date,
+    votes: PostVote[],
   ): Post {
-    const post = new Post(id, userId, title, type, totalComments, points, datePosted);
+    const post = new Post(id, userId, title, type, totalComments, points, datePosted, votes);
     // event
     return post;
   }
