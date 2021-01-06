@@ -20,12 +20,18 @@ export class Comment {
   private _votes: CommentVote[];
   private _points: number;
 
-  @IsUUID(4)
   @IsNotEmpty()
-  private readonly _parentCommentId: string;
+  private readonly _text: string;
+
+  @IsUUID(4)
+  private readonly _parentCommentId: string | null;
 
   public get commentId(): string {
     return this._commentId;
+  }
+
+  public get text(): string {
+    return this._text;
   }
 
   public get postId(): string {
@@ -44,7 +50,7 @@ export class Comment {
     return this._points;
   }
 
-  public get_parentCommentId(): string {
+  public get parentCommentId(): string | null {
     return this._parentCommentId;
   }
 
@@ -54,7 +60,8 @@ export class Comment {
     userId: string,
     votes: CommentVote[],
     points: number,
-    parentCommentId: string,
+    parentCommentId: string | null,
+    text: string,
   ) {
     this._commentId = id;
     this._postId = postId;
@@ -62,6 +69,7 @@ export class Comment {
     this._votes = votes;
     this._points = points;
     this._parentCommentId = parentCommentId;
+    this._text = text;
   }
 
   public static create(
@@ -69,9 +77,10 @@ export class Comment {
     userId: string,
     votes: CommentVote[],
     points: number,
-    parentCommentId: string,
+    parentCommentId: string | null,
+    text: string,
   ): Comment {
-    return Comment.createWithId(uuid(), postId, userId, votes, points, parentCommentId);
+    return Comment.createWithId(uuid(), postId, userId, votes, points, parentCommentId, text);
   }
 
   public static createWithId(
@@ -80,9 +89,10 @@ export class Comment {
     userId: string,
     votes: CommentVote[],
     points: number,
-    parentCommentId: string,
+    parentCommentId: string | null,
+    text: string,
   ): Comment {
-    return new Comment(id, postId, userId, votes, points, parentCommentId);
+    return new Comment(id, postId, userId, votes, points, parentCommentId, text);
   }
 
   public addVote(vote: CommentVote): Result<void> {
