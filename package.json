@@ -36,7 +36,7 @@
     "fastify-helmet": "^5.0.3",
     "fastify-swagger": "^3.5.0",
     "ioredis": "^4.19.4",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "pg": "^8.5.1",
     "ramda": "^0.27.1",
     "reflect-metadata": "^0.1.13",
