@@ -31,7 +31,7 @@
     "@nestjs/typeorm": "^7.1.5",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.3.1",
-    "class-validator": "^0.12.2",
+    "class-validator": "^0.14.0",
     "fastify-compress": "^3.4.1",
     "fastify-helmet": "^5.0.3",
     "fastify-swagger": "^3.5.0",
